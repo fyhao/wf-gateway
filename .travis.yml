@@ -1,0 +1,34 @@
+language: node_js
+
+node_js: '6'
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: TEST_APP=wf-control
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: TEST_APP=wf-app
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: TEST_APP=wf-admin
+
+      
+before_install:
+- chmod +x ./scripts/*.sh
+
+install:
+- if [[ $TEST_APP == 'wf-control' ]]; then ./scripts/install-wf-control.sh; fi
+- if [[ $TEST_APP == 'wf-app' ]]; then ./scripts/install-wf-app.sh; fi
+- if [[ $TEST_APP == 'wf-admin' ]]; then ./scripts/install-wf-admin.sh; fi
+
+script:
+- if [[ $TEST_APP == 'wf-control' ]]; then ./scripts/script-wf-control.sh; fi
+- if [[ $TEST_APP == 'wf-app' ]]; then ./scripts/script-wf-app.sh; fi
+- if [[ $TEST_APP == 'wf-admin' ]]; then ./scripts/script-wf-admin.sh; fi
+
+
