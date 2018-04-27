@@ -50,7 +50,7 @@ describe('app module', function () {
   it('create new item, should return status 0', function test() {
     return request(server)
       .post('/app')
-	  .send({name:'test'})
+	  .send({name:'test','description':'This is a test app'})
       .expect(200)
 	  .expect(function(res) {
 		  assert.equal(res.text, JSON.stringify({status:0}));
@@ -61,7 +61,7 @@ describe('app module', function () {
       .get('/app')
       .expect(200)
 	  .expect(function(res) {
-		  assert.equal(res.text, JSON.stringify([{name:'test'}]))
+		  assert.equal(res.text, JSON.stringify([{name:'test','description':'This is a test app'}]))
 	  });
   });
   it('get single item by valid name, should return valid result', function test() {
@@ -69,7 +69,7 @@ describe('app module', function () {
       .get('/app/test')
       .expect(200)
 	  .expect(function(res) {
-		  assert.equal(res.text, JSON.stringify({name:'test'}));
+		  assert.equal(res.text, JSON.stringify({name:'test','description':'This is a test app'}));
 	  });
   });
   it('get single item by invalid name, should return invalid result', function test() {

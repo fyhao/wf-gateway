@@ -8,7 +8,8 @@ var mod = {
 	},
 	create : function(req, res) {
 		var item = {
-			name : req.body.name // req.body.xxx for POST req.query.xxx for GET then URL :xxx for req.params
+			name : req.body.name, // req.body.xxx for POST req.query.xxx for GET then URL :xxx for req.params
+			description : req.body.description
 		};
 		dataStore.createApp(item);
 		res.json({status:0});
