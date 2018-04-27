@@ -21,6 +21,12 @@ var mod = {
 		}, function(err) {
 			res.json(err)
 		});
+	},
+	update : function(req, res) {
+		var name = req.params.name;
+		dataStore.updateApp(name, req.body.fields).then(function(result) {
+			res.json({status:0});
+		});
 	}
 }
 

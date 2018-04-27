@@ -80,4 +80,21 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({status:100}));
 	  });
   });
+  it('update app', function test() {
+    return request(server)
+      .put('/app/test')
+	  .send({'fields': {'description':'Changed desc'}})
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0}));
+	  });
+  });
+  it('get single item by valid name after update', function test() {
+    return request(server)
+      .get('/app/test')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({name:'test','description':'Changed desc'}));
+	  });
+  });
 });
