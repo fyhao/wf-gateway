@@ -97,4 +97,20 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({name:'test','description':'Changed desc'}));
 	  });
   });
+  it('delete app', function test() {
+    return request(server)
+      .delete('/app/test')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0}));
+	  });
+  });
+  it('get list after deleted app', function test() {
+    return request(server)
+      .get('/app')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify([]))
+	  });
+  });
 });

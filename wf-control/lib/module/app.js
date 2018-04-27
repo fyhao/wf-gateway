@@ -27,6 +27,12 @@ var mod = {
 		dataStore.updateApp(name, req.body.fields).then(function(result) {
 			res.json({status:0});
 		});
+	},
+	remove : function(req, res) {
+		var name = req.params.name;
+		dataStore.deleteApp(name).then(function(result) {
+			res.json({status:0});
+		});
 	}
 }
 

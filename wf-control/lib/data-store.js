@@ -40,6 +40,22 @@ var DataStore = function() {
 			}
 		})
 	}
+	this.deleteApp = function(name, fields) {
+		return new Promise(function(resolve, reject) {
+			var found = false;
+			for(var i = 0; i < data.length; i++) {
+				if(data[i].name == name) {
+					data.splice(i,1);
+					resolve();
+					found = true;
+					break;
+				}
+			}
+			if(!found) {
+				reject({status:100})
+			}
+		})
+	}
 }
 var data = [];
 module.exports = DataStore
