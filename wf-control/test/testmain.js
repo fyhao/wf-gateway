@@ -33,26 +33,51 @@ describe('app module', function () {
   });
   it('initial list', function test() {
     return request(server)
-      .get('/app/list')
+      .get('/app')
       .expect(200)
 	  .expect(function(res) {
 		  assert.equal(res.text, JSON.stringify([]))
 	  });
   });
-  it('create new item', function test() {
+  it('get single item by name before create, should return error status', function test() {
     return request(server)
-      .get('/app/create?name=test')
+      .get('/app/test')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:100}));
+	  });
+  });
+  it('create new item, should return status 0', function test() {
+    return request(server)
+      .post('/app')
+	  .send({name:'test'})
       .expect(200)
 	  .expect(function(res) {
 		  assert.equal(res.text, JSON.stringify({status:0}));
 	  });
   });
-  it('get list after create item', function test() {
+  it('get list after create item, should return list of items added', function test() {
     return request(server)
-      .get('/app/list')
+      .get('/app')
       .expect(200)
 	  .expect(function(res) {
 		  assert.equal(res.text, JSON.stringify([{name:'test'}]))
+	  });
+  });
+  it('get single item by valid name, should return valid result', function test() {
+    return request(server)
+      .get('/app/test')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({name:'test'}));
+	  });
+  });
+  it('get single item by invalid name, should return invalid result', function test() {
+    return request(server)
+      .get('/app/test1')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:100}));
 	  });
   });
 });

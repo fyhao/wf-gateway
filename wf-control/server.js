@@ -1,6 +1,10 @@
 function createServer() {
 	const express = require('express')
+	const bodyParser = require('body-parser');
 	const app = express()
+	app.use(bodyParser.urlencoded({ extended: true }))
+	app.use(bodyParser.json())
+
 	var path = require('path');
 	global.ProjRequire = function(module) {
 		return require(path.join(__dirname, '/' + module)); 

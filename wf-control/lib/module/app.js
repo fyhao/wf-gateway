@@ -1,14 +1,26 @@
+var DataStore = ProjRequire('./lib/data-store.js');
+var dataStore = new DataStore();
 var mod = {
 	list : function(req, res) {
-		res.json(data)
+		dataStore.getAppList().then(function(result) {
+			res.json(result);
+		});
 	},
 	create : function(req, res) {
 		var item = {
-			name : req.query.name
+			name : req.body.name // req.body.xxx for POST req.query.xxx for GET then URL :xxx for req.params
 		};
-		data.push(item);
+		dataStore.createApp(item);
 		res.json({status:0});
+	},
+	item : function(req, res) {
+		var name = req.params.name;
+		dataStore.getApp(name).then(function(result) {
+			res.json(result);
+		}, function(err) {
+			res.json(err)
+		});
 	}
 }
-var data = [];
+
 module.exports = mod;
