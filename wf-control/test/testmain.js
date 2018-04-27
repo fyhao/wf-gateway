@@ -20,4 +20,39 @@ describe('loading express', function () {
       .get('/foo/bar')
       .expect(404, done);
   });
+  
+});
+
+describe('app module', function () {
+  var server;
+  before(function () {
+    server = require('../server', { bustCache: true })();
+  });
+  after(function (done) {
+    server.close(done);
+  });
+  it('initial list', function test() {
+    return request(server)
+      .get('/app/list')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify([]))
+	  });
+  });
+  it('create new item', function test() {
+    return request(server)
+      .get('/app/create?name=test')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0}));
+	  });
+  });
+  it('get list after create item', function test() {
+    return request(server)
+      .get('/app/list')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify([{name:'test'}]))
+	  });
+  });
 });
