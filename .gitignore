@@ -1,0 +1,18 @@
+# Dependency directories
+wf-app/node_modules/
+wf-app/npm-debug.log*
+
+wf-app/.nyc_output/
+wf-app/coverage/
+
+wf-control/node_modules/
+wf-control/npm-debug.log*
+
+wf-control/.nyc_output/
+wf-control/coverage/
+
+wf-admin/node_modules/
+wf-admin/npm-debug.log*
+
+wf-admin/.nyc_output/
+wf-admin/coverage/
