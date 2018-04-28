@@ -11,6 +11,7 @@ var router = function(app) {
 	app.get('/app/:name/flow', flowModule.list);
 	app.post('/app/:name/flow', flowModule.create);
 	app.put('/app/:name/flow', flowModule.update);
+	app.get('/app/:name/flow/:flowName', flowModule.getSingle);
 	app.put('/app/:name/flow/:flowName', flowModule.updateSingle);
 }
 module.exports = router;
