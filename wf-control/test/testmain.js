@@ -264,4 +264,22 @@ describe('flow module', function () {
 		  assert.equal(res.text, JSON.stringify(expected));
 	  });
   });
+  it('should return status 0 with delete single flow from app', function test() {
+    return request(server)
+      .delete('/app/test/flow/flow_1')
+      .expect(200)
+	  .expect(function(res) {
+		  var expected = {status:0};
+		  assert.equal(res.text, JSON.stringify(expected));
+	  });
+  });
+  it('should return status 0 with blank flows for app test', function test() {
+    return request(server)
+      .get('/app/test/flow')
+      .expect(200)
+	  .expect(function(res) {
+		  var expected = {status:0, flows:{}};
+		  assert.equal(res.text, JSON.stringify(expected));
+	  });
+  });
 });

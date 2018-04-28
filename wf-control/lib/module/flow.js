@@ -34,6 +34,13 @@ var mod = {
 		dataStore.updateFlow({app:name,flows:flows}).then(function() {
 			res.json({status:0});
 		});
+	},
+	deleteSingle : function(req, res) {
+		var name = req.params.name;
+		var flowName = req.params.flowName;
+		dataStore.deleteFlow({app:name,flowName:flowName}).then(function() {
+			res.json({status:0});
+		})
 	}
 }
 

@@ -85,6 +85,14 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.deleteFlow = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var flowName = opts.flowName;
+			delete flowStore[app][flowName];
+			resolve();
+		});
+	}
 }
 var data = [];
 var flowStore = {};
