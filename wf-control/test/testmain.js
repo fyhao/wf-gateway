@@ -31,7 +31,7 @@ describe('app module', function () {
   after(function (done) {
     server.close(done);
   });
-  it('initial list', function test() {
+  it('should return blank list initially', function test() {
     return request(server)
       .get('/app')
       .expect(200)
@@ -39,7 +39,7 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify([]))
 	  });
   });
-  it('get single item by name before create, should return error status', function test() {
+  it('should return error status when query for app with name test', function test() {
     return request(server)
       .get('/app/test')
       .expect(200)
@@ -47,7 +47,7 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({status:100}));
 	  });
   });
-  it('create new item, should return status 0', function test() {
+  it('should return status 0 after create an app with name test', function test() {
     return request(server)
       .post('/app')
 	  .send({name:'test','description':'This is a test app'})
@@ -56,7 +56,7 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({status:0}));
 	  });
   });
-  it('get list after create item, should return list of items added', function test() {
+  it('should return a list of apps include the app name with test', function test() {
     return request(server)
       .get('/app')
       .expect(200)
@@ -64,7 +64,7 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify([{name:'test','description':'This is a test app'}]))
 	  });
   });
-  it('get single item by valid name, should return valid result', function test() {
+  it('should return valid result when query for app with name test', function test() {
     return request(server)
       .get('/app/test')
       .expect(200)
@@ -72,7 +72,7 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({name:'test','description':'This is a test app'}));
 	  });
   });
-  it('get single item by invalid name, should return invalid result', function test() {
+  it('should return invalid result when query for app with name test1 (not exist)', function test() {
     return request(server)
       .get('/app/test1')
       .expect(200)
@@ -80,7 +80,7 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({status:100}));
 	  });
   });
-  it('update app', function test() {
+  it('should return status 0 after update app detail for test', function test() {
     return request(server)
       .put('/app/test')
 	  .send({'fields': {'description':'Changed desc'}})
@@ -89,7 +89,7 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({status:0}));
 	  });
   });
-  it('get single item by valid name after update', function test() {
+  it('should return updated result when query for app with name test after info updated', function test() {
     return request(server)
       .get('/app/test')
       .expect(200)
@@ -97,7 +97,7 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({name:'test','description':'Changed desc'}));
 	  });
   });
-  it('delete app', function test() {
+  it('should return status 0 after request to delete for app with name test', function test() {
     return request(server)
       .delete('/app/test')
       .expect(200)
@@ -105,7 +105,7 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({status:0}));
 	  });
   });
-  it('get list after deleted app', function test() {
+  it('should return blank list after deleted app', function test() {
     return request(server)
       .get('/app')
       .expect(200)
