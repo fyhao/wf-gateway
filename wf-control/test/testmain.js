@@ -245,4 +245,23 @@ describe('flow module', function () {
 		  assert.equal(json.flows.flow_1.steps.length, 4);
 	  });
   });
+  it('should return status 0 with single flow definition from app', function test() {
+	var flows = {
+		flow_1 : {
+			steps: [
+				{type:'log',log:'Hello world'},
+				{type:'log',log:'updated'},
+				{type:'log',log:'updated2'},
+				{type:'response',body:'This is the response printed from API'}
+			]
+		}
+	};
+    return request(server)
+      .get('/app/test/flow/flow_1')
+      .expect(200)
+	  .expect(function(res) {
+		  var expected = {status:0,flow:flows.flow_1};
+		  assert.equal(res.text, JSON.stringify(expected));
+	  });
+  });
 });

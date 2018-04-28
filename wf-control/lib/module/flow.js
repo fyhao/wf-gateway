@@ -19,6 +19,13 @@ var mod = {
 			res.json({status:0});
 		});
 	},
+	getSingle : function(req, res) {
+		var name = req.params.name;
+		var flowName = req.params.flowName;
+		dataStore.getFlows({app:name}).then(function(result) {
+			res.json({status:0,flow:result[flowName]});
+		});
+	},
 	updateSingle : function(req, res) {
 		var name = req.params.name;
 		var flowName = req.params.flowName;
