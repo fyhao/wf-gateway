@@ -121,4 +121,13 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({status:100}));
 	  });
   });
+  it('should return status 100 after update app detail for test1 (not exist)', function test() {
+    return request(server)
+      .put('/app/test1')
+	  .send({'fields': {'description':'Changed desc'}})
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:100}));
+	  });
+  });
 });
