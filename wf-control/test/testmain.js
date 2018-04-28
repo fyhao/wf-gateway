@@ -113,4 +113,12 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify([]))
 	  });
   });
+  it('should return status 100 after request to delete for app with name test (not exist now)', function test() {
+    return request(server)
+      .delete('/app/test')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:100}));
+	  });
+  });
 });

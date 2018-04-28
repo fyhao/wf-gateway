@@ -32,6 +32,8 @@ var mod = {
 		var name = req.params.name;
 		dataStore.deleteApp(name).then(function(result) {
 			res.json({status:0});
+		}, function(err) {
+			res.json({status:100});
 		});
 	}
 }
