@@ -131,3 +131,59 @@ describe('app module', function () {
 	  });
   });
 });
+
+describe('flow module', function () {
+  var server;
+  before(function () {
+    server = require('../server', { bustCache: true })();
+  });
+  after(function (done) {
+    server.close(done);
+  });
+  it('should return status 0 after create an app with name test', function test() {
+    return request(server)
+      .post('/app')
+	  .send({name:'test','description':'This is a test app'})
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0}));
+	  });
+  });
+  it('should return status 0 with blank flows for app test', function test() {
+    return request(server)
+      .get('/app/test/flow')
+      .expect(200)
+	  .expect(function(res) {
+		  var expected = {status:0, flows:{}};
+		  assert.equal(res.text, JSON.stringify(expected));
+	  });
+  });
+  it('should return status 0 after create flow for app test', function test() {
+	var flows = {
+		flow_1 : {
+			steps: [
+				{type:'log',log:'Hello world'},
+				{type:'response',body:'This is the response printed from API'}
+			]
+		}
+	};
+    return request(server)
+      .post('/app/test/flow')
+	  .send({app:'test',flows:flows})
+      .expect(200)
+	  .expect(function(res) {
+		  var expected = {status:0};
+		  assert.equal(res.text, JSON.stringify(expected));
+	  });
+  });
+  it('should return status 0 with flows for app test', function test() {
+    return request(server)
+      .get('/app/test/flow')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.flows.flow_1.steps.length, 2);
+	  });
+  });
+});

@@ -5,7 +5,8 @@ var DataStore = function() {
 		})
 	}
 	this.createApp = function(item) {
-		data.push(item)
+		data.push(item);
+		flowStore[item.name] = {};
 	}
 	this.getApp = function(name) {
 		return new Promise(function(resolve, reject) {
@@ -46,6 +47,7 @@ var DataStore = function() {
 			for(var i = 0; i < data.length; i++) {
 				if(data[i].name == name) {
 					data.splice(i,1);
+					delete flowStore[name];
 					resolve();
 					found = true;
 					break;
@@ -56,6 +58,24 @@ var DataStore = function() {
 			}
 		})
 	}
+	this.getFlows = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var flows = flowStore[app];
+			resolve(flows);
+		});
+	}
+	this.createFlow = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var flows = flowStore[app];
+			for(var i in opts.flows) {
+				flows[i] = opts.flows[i];
+			}
+			resolve();
+		});
+	}
 }
 var data = [];
+var flowStore = {};
 module.exports = DataStore
