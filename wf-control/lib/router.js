@@ -10,5 +10,7 @@ var router = function(app) {
 	var flowModule = ProjRequire('lib/module/flow');
 	app.get('/app/:name/flow', flowModule.list);
 	app.post('/app/:name/flow', flowModule.create);
+	app.put('/app/:name/flow', flowModule.update);
+	app.put('/app/:name/flow/:flowName', flowModule.updateSingle);
 }
 module.exports = router;

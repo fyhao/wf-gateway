@@ -75,6 +75,16 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.updateFlow = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var flows = flowStore[app];
+			for(var i in opts.flows) {
+				flows[i] = opts.flows[i];
+			}
+			resolve();
+		});
+	}
 }
 var data = [];
 var flowStore = {};

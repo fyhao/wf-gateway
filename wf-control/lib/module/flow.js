@@ -12,6 +12,21 @@ var mod = {
 		dataStore.createFlow({app:name,flows:req.body.flows}).then(function() {
 			res.json({status:0});
 		});
+	},
+	update : function(req, res) {
+		var name = req.params.name;
+		dataStore.updateFlow({app:name,flows:req.body.flows}).then(function() {
+			res.json({status:0});
+		});
+	},
+	updateSingle : function(req, res) {
+		var name = req.params.name;
+		var flowName = req.params.flowName;
+		var flows = {};
+		flows[flowName] = req.body.flow;
+		dataStore.updateFlow({app:name,flows:flows}).then(function() {
+			res.json({status:0});
+		});
 	}
 }
 

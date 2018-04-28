@@ -186,4 +186,63 @@ describe('flow module', function () {
 		  assert.equal(json.flows.flow_1.steps.length, 2);
 	  });
   });
+  it('should return status 0 after update entire flow definition for app test', function test() {
+	var flows = {
+		flow_1 : {
+			steps: [
+				{type:'log',log:'Hello world'},
+				{type:'log',log:'updated'},
+				{type:'response',body:'This is the response printed from API'}
+			]
+		}
+	};
+    return request(server)
+      .put('/app/test/flow')
+	  .send({app:'test',flows:flows})
+      .expect(200)
+	  .expect(function(res) {
+		  var expected = {status:0};
+		  assert.equal(res.text, JSON.stringify(expected));
+	  });
+  });
+  it('should return status 0 with updated flows for app test', function test() {
+    return request(server)
+      .get('/app/test/flow')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.flows.flow_1.steps.length, 3);
+	  });
+  });
+  it('should return status 0 after update single flow definition for app test', function test() {
+	var flows = {
+		flow_1 : {
+			steps: [
+				{type:'log',log:'Hello world'},
+				{type:'log',log:'updated'},
+				{type:'log',log:'updated2'},
+				{type:'response',body:'This is the response printed from API'}
+			]
+		}
+	};
+    return request(server)
+      .put('/app/test/flow/flow_1')
+	  .send({app:'test',flow:flows.flow_1})
+      .expect(200)
+	  .expect(function(res) {
+		  var expected = {status:0};
+		  assert.equal(res.text, JSON.stringify(expected));
+	  });
+  });
+  it('should return status 0 with updated flows for app test', function test() {
+    return request(server)
+      .get('/app/test/flow')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.flows.flow_1.steps.length, 4);
+	  });
+  });
 });
