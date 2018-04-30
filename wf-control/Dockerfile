@@ -6,7 +6,7 @@ MAINTAINER  Adam Alexander <adamalex@gmail.com>
 ENV         DEBIAN_FRONTEND noninteractive
 RUN         apt-get update; apt-get install -y software-properties-common g++ make
 RUN         add-apt-repository -y ppa:chris-lea/node.js
-RUN         apt-get update; apt-get install -y nodejs=0.10.37-1chl1~trusty1
+RUN         apt-get update; apt-get install -y nodejs
 
 # COMMIT PROJECT FILES
 ADD         package.json /root/
