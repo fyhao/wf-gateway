@@ -1,25 +1,19 @@
-FROM        ubuntu:14.04
+FROM node:carbon
 
-MAINTAINER  Adam Alexander <adamalex@gmail.com>
+# Create app directory
+WORKDIR /usr/src/app
 
-# INSTALL OS DEPENDENCIES AND NODE.JS
-ENV         DEBIAN_FRONTEND noninteractive
-RUN         apt-get update; apt-get install -y software-properties-common g++ make
-RUN         add-apt-repository -y ppa:chris-lea/node.js
-RUN         apt-get update; apt-get install -y nodejs=0.10.29-1chl1~trusty1
+# Install app dependencies
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# where available (npm@5+)
+COPY package*.json ./
 
-# COMMIT PROJECT FILES
-ADD         package.json /root/
-ADD         app.js /root/
+RUN npm install
+# If you are building your code for production
+# RUN npm install --only=production
 
-# INSTALL PROJECT DEPENDENCIES
-RUN         cd /root; npm install
+# Bundle app source
+COPY . .
 
-# TEST THE PROJECT -- FAILURE WILL HALT IMAGE CREATION
-RUN         cd /root; npm test
-
-# TESTS PASSED -- CONFIGURE IMAGE
-WORKDIR     /root
-ENTRYPOINT  ["/usr/bin/npm"]
-CMD         ["start"]
-EXPOSE      8080
+EXPOSE 8080
+CMD [ "npm", "start" ]
