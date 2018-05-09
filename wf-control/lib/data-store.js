@@ -102,6 +102,13 @@ var DataStore = function() {
 			resolve(listeners);
 		});
 	}
+	this.createListener = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			listenersStore[app].push(opts.listener);
+			resolve();
+		});
+	}
 }
 var data = [];
 var flowStore = {};

@@ -301,4 +301,31 @@ describe('listeners module', function () {
 		  assert.equal(res.text, JSON.stringify({status:0,listeners:[]}));
 	  });
   });
+  it('should return status 0 after create new listener for app test', function test() {
+	var listener =  {
+		type : 'endpoint',
+		url : 'abc',
+		flow : 'flow_1'
+	};
+    return request(server)
+      .post('/app/test/listener')
+	  .send({app:'test',listener:listener})
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0}));
+	  });
+  });
+  it('should return status 0 with one listener for app test', function test() {
+	var listener =  {
+		type : 'endpoint',
+		url : 'abc',
+		flow : 'flow_1'
+	};
+    return request(server)
+      .get('/app/test/listener')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0,listeners:[listener]}));
+	  });
+  });
 }); 
