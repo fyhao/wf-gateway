@@ -315,6 +315,7 @@ describe('listeners module', function () {
 		  assert.equal(res.text, JSON.stringify({status:0}));
 	  });
   });
+  var listener_id = 0;
   it('should return status 0 with one listener for app test', function test() {
 	var listener =  {
 		type : 'endpoint',
@@ -325,7 +326,14 @@ describe('listeners module', function () {
       .get('/app/test/listener')
       .expect(200)
 	  .expect(function(res) {
-		  assert.equal(res.text, JSON.stringify({status:0,listeners:[listener]}));
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.listeners.length, 1);
+		  assert.equal(json.listeners[0].type, 'endpoint');
+		  assert.equal(json.listeners[0].url, 'abc');
+		  assert.equal(json.listeners[0].flow, 'flow_1');
+		  listener_id = json.listeners[0].id;
+		  console.log('Temp check listener id: ' + listener_id);
 	  });
   });
 }); 

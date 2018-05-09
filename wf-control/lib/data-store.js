@@ -105,7 +105,9 @@ var DataStore = function() {
 	this.createListener = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var app = opts.app;
-			listenersStore[app].push(opts.listener);
+			var listener = opts.listener;
+			listener.id = Math.random();
+			listenersStore[app].push(listener);
 			resolve();
 		});
 	}
