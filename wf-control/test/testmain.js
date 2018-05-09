@@ -283,3 +283,22 @@ describe('flow module', function () {
 	  });
   });
 });
+
+
+describe('listeners module', function () {
+  var server;
+  before(function () {
+    server = require('../server', { bustCache: true })();
+  });
+  after(function (done) {
+    server.close(done);
+  });
+  it('should return status 0 with blank listeners for app test', function test() {
+    return request(server)
+      .get('/app/test/listeners')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0,listeners:[]}));
+	  });
+  });
+}); 

@@ -7,6 +7,7 @@ var DataStore = function() {
 	this.createApp = function(item) {
 		data.push(item);
 		flowStore[item.name] = {};
+		listenersStore[item.name] = [];
 	}
 	this.getApp = function(name) {
 		return new Promise(function(resolve, reject) {
@@ -48,6 +49,7 @@ var DataStore = function() {
 				if(data[i].name == name) {
 					data.splice(i,1);
 					delete flowStore[name];
+					delete listenersStore[name];
 					resolve();
 					found = true;
 					break;
@@ -93,7 +95,15 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.getListeners = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var listeners = listenersStore[app];
+			resolve(listeners);
+		});
+	}
 }
 var data = [];
 var flowStore = {};
+var listenersStore = {};
 module.exports = DataStore
