@@ -295,7 +295,7 @@ describe('listeners module', function () {
   });
   it('should return status 0 with blank listeners for app test', function test() {
     return request(server)
-      .get('/app/test/listeners')
+      .get('/app/test/listener')
       .expect(200)
 	  .expect(function(res) {
 		  assert.equal(res.text, JSON.stringify({status:0,listeners:[]}));
