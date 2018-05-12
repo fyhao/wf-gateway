@@ -106,7 +106,7 @@ var DataStore = function() {
 		return new Promise(function(resolve,reject) {
 			var app = opts.app;
 			var listener = opts.listener;
-			listener.id = Math.random();
+			listener.id = ++global_id;
 			listenersStore[app].push(listener);
 			resolve();
 		});
@@ -115,4 +115,5 @@ var DataStore = function() {
 var data = [];
 var flowStore = {};
 var listenersStore = {};
+var global_id = 0;
 module.exports = DataStore
