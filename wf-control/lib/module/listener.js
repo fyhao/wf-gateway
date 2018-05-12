@@ -22,6 +22,13 @@ var mod = {
 			res.json({status:0});
 		});
 	},
+	remove : function(req, res) {
+		var app = req.params.name;
+		var id = req.params.id;
+		dataStore.deleteListener({app:app,id:id}).then(function() {
+			res.json({status:0});
+		});
+	},
 }
 
 module.exports = mod;

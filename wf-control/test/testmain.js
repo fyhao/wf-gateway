@@ -359,4 +359,20 @@ describe('listeners module', function () {
 		  listener_id = json.listeners[0].id;
 	  });
   });
+  it('should return status 0 after delete new listener for app test', function test() {
+    return request(server)
+      .delete('/app/test/listener/' + listener_id)
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0}));
+	  });
+  });
+  it('should return status 0 with blank listeners for app test after deleted', function test() {
+    return request(server)
+      .get('/app/test/listener')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0,listeners:[]}));
+	  });
+  });
 }); 

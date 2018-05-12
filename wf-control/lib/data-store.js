@@ -126,6 +126,20 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.deleteListener = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var listener = opts.listener;
+			var id = opts.id;
+			for(var i = 0; i < listenersStore[app].length; i++) {
+				if(listenersStore[app][i].id == id) {
+					listenersStore[app].splice(i,1);
+					break;
+				}
+			}
+			resolve();
+		});
+	}
 }
 var data = [];
 var flowStore = {};
