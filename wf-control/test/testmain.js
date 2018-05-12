@@ -317,11 +317,6 @@ describe('listeners module', function () {
   });
   var listener_id = 0;
   it('should return status 0 with one listener for app test', function test() {
-	var listener =  {
-		type : 'endpoint',
-		url : 'abc',
-		flow : 'flow_1'
-	};
     return request(server)
       .get('/app/test/listener')
       .expect(200)
