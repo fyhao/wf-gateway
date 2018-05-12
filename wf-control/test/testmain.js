@@ -309,7 +309,7 @@ describe('listeners module', function () {
 	};
     return request(server)
       .post('/app/test/listener')
-	  .send({app:'test',listener:listener})
+	  .send({listener:listener})
       .expect(200)
 	  .expect(function(res) {
 		  assert.equal(res.text, JSON.stringify({status:0}));
