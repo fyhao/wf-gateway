@@ -111,6 +111,21 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.updateListener = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var listener = opts.listener;
+			var id = opts.id;
+			for(var i = 0; i < listenersStore[app].length; i++) {
+				if(listenersStore[app][i].id == id) {
+					for(var j in listener) {
+						listenersStore[app][i][j] = listener[j];
+					}
+				}
+			}
+			resolve();
+		});
+	}
 }
 var data = [];
 var flowStore = {};

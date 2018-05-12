@@ -14,6 +14,14 @@ var mod = {
 			res.json({status:0});
 		});
 	},
+	update : function(req, res) {
+		var app = req.params.name;
+		var id = req.params.id;
+		var listener = req.body.listener;
+		dataStore.updateListener({app:app,id:id,listener:listener}).then(function() {
+			res.json({status:0});
+		});
+	},
 }
 
 module.exports = mod;
