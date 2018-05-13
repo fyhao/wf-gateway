@@ -716,6 +716,129 @@ describe('instance module', function () {
 		  assert.equal(json.instances[0].name, 'Dummy Instance1');
 	  });
   });
+  // app instance mapping start
+  it('should return status 0 with blank instances for app test', function test() {
+    return request(server)
+      .get('/app/test/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 0);
+	  });
+  });
+  it('should return status 0 after assign one instance for app test', function test() {
+    return request(server)
+      .post('/app/test/instance/' + instance_id)
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 101 after assign same instance for app test', function test() {
+    return request(server)
+      .post('/app/test/instance/' + instance_id)
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 101);
+	  });
+  });
+  it('should return status 0 with one instances for app test', function test() {
+    return request(server)
+      .get('/app/test/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 1);
+	  });
+  });
+  it('should return status 0 with list of apps assigned to this instance', function test() {
+    return request(server)
+      .get('/instance/' + instance_id + '/app')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.apps.length, 1);
+		  assert.equal(json.apps[0].app, 'test');
+		  assert.equal(json.apps[0].status, 'disabled');
+	  });
+  });
+  it('should return status 0 after enable app for this instance', function test() {
+    return request(server)
+      .post('/instance/' + instance_id + '/app/test/enable')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 0 with list of apps assigned to this instance with status enabled', function test() {
+    return request(server)
+      .get('/instance/' + instance_id + '/app')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.apps.length, 1);
+		  assert.equal(json.apps[0].app, 'test');
+		  assert.equal(json.apps[0].status, 'enabled');
+	  });
+  });
+  it('should return status 0 after disable app for this instance', function test() {
+    return request(server)
+      .post('/instance/' + instance_id + '/app/test/disable')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 0 with list of apps assigned to this instance with status disabled', function test() {
+    return request(server)
+      .get('/instance/' + instance_id + '/app')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.apps.length, 1);
+		  assert.equal(json.apps[0].app, 'test');
+		  assert.equal(json.apps[0].status, 'disabled');
+	  });
+  });
+  // delete instance for app
+  it('should return status 0 after delete one instance for app test', function test() {
+    return request(server)
+      .delete('/app/test/instance/' + instance_id)
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 102 after delete same instance again for app test', function test() {
+    return request(server)
+      .delete('/app/test/instance/' + instance_id)
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 102);
+	  });
+  });
+  it('should return status 0 with blank instances for app test', function test() {
+    return request(server)
+      .get('/app/test/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 0);
+	  });
+  });
+  // app instance mapping end
   it('should return status 0 after delete instance', function test() {
     return request(server)
       .delete('/instance/' + instance_id)
