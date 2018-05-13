@@ -145,6 +145,14 @@ var DataStore = function() {
 			resolve(instancesStore);
 		});
 	}
+	this.createInstance = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var instance = opts.instance;
+			instance.id = ++global_id;
+			instancesStore.push(instance);
+			resolve(instance);
+		});
+	}
 }
 var data = [];
 var flowStore = {};

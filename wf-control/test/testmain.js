@@ -668,4 +668,18 @@ describe('instance module', function () {
 		  assert.equal(res.text, JSON.stringify({status:0,instances:[]}));
 	  });
   });
+  it('should return status 0 after create an instance', function test() {
+    return request(server)
+      .post('/instance')
+	  .send({name:'Dummy Instance','description':'This instance is created for test',host:'192.168.1.2'})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instance.id > 0, true);
+		  assert.equal(json.instance.name, 'Dummy Instance');
+		  assert.equal(json.instance.description, 'This instance is created for test');
+		  assert.equal(json.instance.host, '192.168.1.2');
+	  });
+  });
 }); 
