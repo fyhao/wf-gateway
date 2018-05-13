@@ -478,4 +478,63 @@ describe('listeners module', function () {
   testHttpEndpoint('ftp://example.com', 'invalid endpoint prefix specified', false);
   testHttpEndpoint('http://example.com', 'valid endpoint specified: http', true);
   testHttpEndpoint('https://example.com', 'valid endpoint specified: https', true);
+  
+  var testHttpRequestParam = function(testDesc, params, expectedStatus, assertParams) {
+	  
+  }
+  testHttpRequestParam(
+    'valid test',
+	{name:'lat',condition:'required',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'required',type:'text'}
+  );
+  testHttpRequestParam(
+	'condition optional',
+	{name:'lat',condition:'optional',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestParam(
+	'invalid condition',
+	{name:'lat',condition:'ddd',type:'text',defaultValue:'1.0',description:'The latitude'},
+	103
+  );
+  testHttpRequestParam(
+	'no condition specified',
+	{name:'lat',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestParam(
+	'type number',
+	{name:'lat',type:'number',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'number'}
+  );
+  testHttpRequestParam(
+	'type decimal',
+	{name:'lat',type:'decimal',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'decimal'}
+  );
+  testHttpRequestParam(
+	'type boolean',
+	{name:'lat',type:'boolean',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'boolean'}
+  );
+  testHttpRequestParam(
+	'type invalid',
+	{name:'lat',type:'invalid',defaultValue:'1.0',description:'The latitude'},
+	104
+  );
+  testHttpRequestParam(
+	'no type specified',
+	{name:'lat',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestParam(
+	'no defaultValue',
+	{name:'lat',description:'The latitude'},
+	0,{condition:'optional',type:'text',description:'The latitude'}
+  );
+  testHttpRequestParam(
+	'no description',
+	{name:'lat'},
+	0,{condition:'optional',type:'text',description:''}
+  );
 }); 
