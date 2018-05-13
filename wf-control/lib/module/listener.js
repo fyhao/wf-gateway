@@ -53,6 +53,7 @@ var checkListenerHttp = function(listener) {
 	if(isInvalidEndpoint(listener.endpoint)) return ERROR.ENDPOINTINVALID;
 	listener.endpoint = listener.endpoint.trim();
 	var errorStatus = checkInvalidRequestParams(listener.requestParams);
+	if(errorStatus == 0) errorStatus = checkInvalidRequestHeaders(listener.requestHeaders);
 	return errorStatus;
 }
 var checkListenerDummy = function(listener) {
@@ -82,11 +83,25 @@ var checkInvalidRequestParams = function(requestParams) {
 	}
 	return 0;
 }
+var checkInvalidRequestHeaders = function(requestHeaders) {
+	if(!requestHeaders) return 0;
+	for(var i = 0; i < requestHeaders.length; i++) {
+		var param = requestHeaders[i];
+		if(typeof param.condition == 'undefined') param.condition = 'optional';
+		if(param.condition != 'required' && param.condition != 'optional') return ERROR.INVALIDREQUESTHEADERCONDITION;
+		if(typeof param.type == 'undefined') param.type = 'text';
+		if(param.type != 'text' && param.type != 'number' && param.type != 'boolean' && param.type != 'decimal')
+			return ERROR.INVALIDREQUESTHEADERTYPE;
+	}
+	return 0;
+}
 
 var ERROR = {
 	NOTALLOWEDMETHOD : 101,
 	ENDPOINTINVALID : 102,
 	INVALIDREQUESTPARAMCONDITION : 103,
-	INVALIDREQUESTPARAMTYPE : 104
+	INVALIDREQUESTPARAMTYPE : 104,
+	INVALIDREQUESTHEADERCONDITION : 105,
+	INVALIDREQUESTHEADERTYPE : 106
 };
 module.exports = mod;

@@ -481,7 +481,7 @@ describe('listeners module', function () {
   
   var testHttpRequestParam = function(testDesc, params, expectedStatus, assertParams) {
 	  var listener_id;
-	  it('should return status ' + expectedStatus + ' after create new HTTP listener with ' + testDesc, function test() {
+	  it('should return status ' + expectedStatus + ' after create new HTTP listener for request params with ' + testDesc, function test() {
 		var listener =  {
 			type : 'http',
 			endpoint : 'http://example.com',
@@ -552,6 +552,84 @@ describe('listeners module', function () {
 	0,{condition:'optional',type:'text',description:'The latitude'}
   );
   testHttpRequestParam(
+	'no description',
+	{name:'lat'},
+	0,{condition:'optional',type:'text',description:''}
+  );
+  
+  var testHttpRequestHeader = function(testDesc, params, expectedStatus, assertParams) {
+	  var listener_id;
+	  it('should return status ' + expectedStatus + ' after create new HTTP listener for request headers with ' + testDesc, function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : 'http://example.com',
+			flow : 'flow_1',
+			requestHeaders : [params]
+		};
+		return request(server)
+		  .post('/app/test/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+				assert.equal(json.status, expectedStatus);
+			    if(expectedStatus == 0) {
+					listener_id = json.listener.id;
+				}
+		  });
+	  });
+  }
+  testHttpRequestHeader(
+    'valid test',
+	{name:'lat',condition:'required',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'required',type:'text'}
+  );
+  testHttpRequestHeader(
+	'condition optional',
+	{name:'lat',condition:'optional',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestHeader(
+	'invalid condition',
+	{name:'lat',condition:'ddd',type:'text',defaultValue:'1.0',description:'The latitude'},
+	105
+  );
+  testHttpRequestHeader(
+	'no condition specified',
+	{name:'lat',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestHeader(
+	'type number',
+	{name:'lat',type:'number',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'number'}
+  );
+  testHttpRequestHeader(
+	'type decimal',
+	{name:'lat',type:'decimal',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'decimal'}
+  );
+  testHttpRequestHeader(
+	'type boolean',
+	{name:'lat',type:'boolean',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'boolean'}
+  );
+  testHttpRequestHeader(
+	'type invalid',
+	{name:'lat',type:'invalid',defaultValue:'1.0',description:'The latitude'},
+	106
+  );
+  testHttpRequestHeader(
+	'no type specified',
+	{name:'lat',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestHeader(
+	'no defaultValue',
+	{name:'lat',description:'The latitude'},
+	0,{condition:'optional',type:'text',description:'The latitude'}
+  );
+  testHttpRequestHeader(
 	'no description',
 	{name:'lat'},
 	0,{condition:'optional',type:'text',description:''}
