@@ -634,4 +634,20 @@ describe('listeners module', function () {
 	{name:'lat'},
 	0,{condition:'optional',type:'text',description:''}
   );
+  
+  it('should return status 107 after create new listener with unsupported type', function test() {
+	var listener =  {
+		type : 'http123',
+		endpoint : 'http://example.com',
+		flow : 'flow_1'
+	};
+    return request(server)
+      .post('/app/test/listener')
+	  .send({listener:listener})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 107);
+	  });
+  });
 }); 

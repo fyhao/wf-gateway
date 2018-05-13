@@ -42,6 +42,7 @@ var validateListener = function(listener) {
 	var status = -1;
 	if(status == -1) status = checkListenerHttp(listener);
 	if(status == -1) status = checkListenerDummy(listener); // any other listeners type extend here like this way
+	if(status == -1) status = ERROR.INVALIDTYPE;
 	return status;
 }
 
@@ -102,6 +103,7 @@ var ERROR = {
 	INVALIDREQUESTPARAMCONDITION : 103,
 	INVALIDREQUESTPARAMTYPE : 104,
 	INVALIDREQUESTHEADERCONDITION : 105,
-	INVALIDREQUESTHEADERTYPE : 106
+	INVALIDREQUESTHEADERTYPE : 106,
+	INVALIDTYPE : 107
 };
 module.exports = mod;
