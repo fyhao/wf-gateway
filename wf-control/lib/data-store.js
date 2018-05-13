@@ -153,6 +153,20 @@ var DataStore = function() {
 			resolve(instance);
 		});
 	}
+	this.updateInstance = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var instance = opts.instance;
+			for(var i = 0; i < instancesStore.length; i++) {
+				if(instancesStore[i].id == opts.id) {
+					for(var j in instance) {
+						instancesStore[i][j] = instance[j];
+					}
+					break;
+				}
+			}
+			resolve();
+		});
+	}
 }
 var data = [];
 var flowStore = {};

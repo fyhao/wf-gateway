@@ -695,4 +695,25 @@ describe('instance module', function () {
 		  instance_id = json.instances[0].id;
 	  });
   });
+  it('should return status 0 after update instance', function test() {
+    return request(server)
+      .put('/instance/' + instance_id)
+	  .send({name:'Dummy Instance1','description':'This instance is created for test2',host:'192.168.1.23'})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 0 with one instance', function test() {
+    return request(server)
+      .get('/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 1);
+		  assert.equal(json.instances[0].name, 'Dummy Instance1');
+	  });
+  });
 }); 

@@ -15,6 +15,17 @@ var mod = {
 		dataStore.createInstance({instance:instance}).then(function(result) {
 			res.json({status:0, instance:result});
 		});
+	},
+	update : function(req, res) {
+		var instance = {
+			name : req.body.name,
+			description : req.body.description,
+			host : req.body.host
+		};
+		var id = req.params.id;
+		dataStore.updateInstance({instance:instance,id:id}).then(function(result) {
+			res.json({status:0});
+		});
 	}
 }
 

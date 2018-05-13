@@ -24,5 +24,6 @@ var router = function(app) {
 	var instanceModule = ProjRequire('lib/module/instance');
 	app.get('/instance', instanceModule.list);
 	app.post('/instance', instanceModule.create);
+	app.put('/instance/:id', instanceModule.update);
 }
 module.exports = router;
