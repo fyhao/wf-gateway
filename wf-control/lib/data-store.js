@@ -167,6 +167,18 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.deleteInstance = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var id = opts.id;
+			for(var i = 0; i < instancesStore.length; i++) {
+				if(instancesStore[i].id == id) {
+					instancesStore.splice(i,1);
+					break;
+				}
+			}
+			resolve();
+		});
+	}
 }
 var data = [];
 var flowStore = {};

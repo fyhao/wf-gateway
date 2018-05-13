@@ -716,4 +716,23 @@ describe('instance module', function () {
 		  assert.equal(json.instances[0].name, 'Dummy Instance1');
 	  });
   });
+  it('should return status 0 after delete instance', function test() {
+    return request(server)
+      .delete('/instance/' + instance_id)
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 0 with one instance', function test() {
+    return request(server)
+      .get('/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 0);
+	  });
+  });
 }); 

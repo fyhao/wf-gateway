@@ -25,5 +25,6 @@ var router = function(app) {
 	app.get('/instance', instanceModule.list);
 	app.post('/instance', instanceModule.create);
 	app.put('/instance/:id', instanceModule.update);
+	app.delete('/instance/:id', instanceModule.remove);
 }
 module.exports = router;

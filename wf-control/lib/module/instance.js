@@ -26,6 +26,12 @@ var mod = {
 		dataStore.updateInstance({instance:instance,id:id}).then(function(result) {
 			res.json({status:0});
 		});
+	},
+	remove : function(req, res) {
+		var id = req.params.id;
+		dataStore.deleteInstance({id:id}).then(function(result) {
+			res.json({status:0});
+		});
 	}
 }
 
