@@ -20,5 +20,8 @@ var router = function(app) {
 	app.post('/app/:name/listener', listenerModule.create);
 	app.put('/app/:name/listener/:id', listenerModule.update);
 	app.delete('/app/:name/listener/:id', listenerModule.remove);
+	
+	var instanceModule = ProjRequire('lib/module/instance');
+	app.get('/instance', instanceModule.list);
 }
 module.exports = router;

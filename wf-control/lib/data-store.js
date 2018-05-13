@@ -140,9 +140,15 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.getInstances = function(opts) {
+		return new Promise(function(resolve,reject) {
+			resolve(instancesStore);
+		});
+	}
 }
 var data = [];
 var flowStore = {};
 var listenersStore = {};
+var instancesStore = [];
 var global_id = 0;
 module.exports = DataStore

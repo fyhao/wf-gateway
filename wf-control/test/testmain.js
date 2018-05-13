@@ -651,3 +651,21 @@ describe('listeners module', function () {
 	  });
   });
 }); 
+
+describe('instance module', function () {
+  var server;
+  before(function () {
+    server = require('../server', { bustCache: true })();
+  });
+  after(function (done) {
+    server.close(done);
+  });
+  it('should return status 0 with blank instances', function test() {
+    return request(server)
+      .get('/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0,instances:[]}));
+	  });
+  });
+}); 
