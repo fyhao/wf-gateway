@@ -480,7 +480,26 @@ describe('listeners module', function () {
   testHttpEndpoint('https://example.com', 'valid endpoint specified: https', true);
   
   var testHttpRequestParam = function(testDesc, params, expectedStatus, assertParams) {
-	  
+	  var listener_id;
+	  it('should return status ' + expectedStatus + ' after create new HTTP listener with ' + testDesc, function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : 'http://example.com',
+			flow : 'flow_1',
+			requestParams : [params]
+		};
+		return request(server)
+		  .post('/app/test/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+				assert.equal(json.status, expectedStatus);
+			    if(expectedStatus == 0) {
+					listener_id = json.listener.id;
+				}
+		  });
+	  });
   }
   testHttpRequestParam(
     'valid test',

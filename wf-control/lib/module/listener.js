@@ -52,7 +52,8 @@ var checkListenerHttp = function(listener) {
 	if(isNotAllowedMethod(listener.method)) return ERROR.NOTALLOWEDMETHOD;
 	if(isInvalidEndpoint(listener.endpoint)) return ERROR.ENDPOINTINVALID;
 	listener.endpoint = listener.endpoint.trim();
-	return 0;
+	var errorStatus = checkInvalidRequestParams(listener.requestParams);
+	return errorStatus;
 }
 var checkListenerDummy = function(listener) {
 	return -1;
@@ -69,9 +70,23 @@ var isInvalidEndpoint = function(endpoint) {
 	if(endpoint.startsWith('https://')) return false;
 	return true;
 }
+var checkInvalidRequestParams = function(requestParams) {
+	if(!requestParams) return 0;
+	for(var i = 0; i < requestParams.length; i++) {
+		var param = requestParams[i];
+		if(typeof param.condition == 'undefined') param.condition = 'optional';
+		if(param.condition != 'required' && param.condition != 'optional') return ERROR.INVALIDREQUESTPARAMCONDITION;
+		if(typeof param.type == 'undefined') param.type = 'text';
+		if(param.type != 'text' && param.type != 'number' && param.type != 'boolean' && param.type != 'decimal')
+			return ERROR.INVALIDREQUESTPARAMTYPE;
+	}
+	return 0;
+}
 
 var ERROR = {
 	NOTALLOWEDMETHOD : 101,
-	ENDPOINTINVALID : 102
+	ENDPOINTINVALID : 102,
+	INVALIDREQUESTPARAMCONDITION : 103,
+	INVALIDREQUESTPARAMTYPE : 104
 };
 module.exports = mod;
