@@ -12,8 +12,8 @@ var mod = {
 		var listener = req.body.listener;
 		var status = validateListener(listener);
 		if(status == 0) {
-			dataStore.createListener({app:app,listener:listener}).then(function() {
-				res.json({status:0});
+			dataStore.createListener({app:app,listener:listener}).then(function(resultListener) {
+				res.json({status:0,listener:resultListener});
 			});
 		}
 		else {
@@ -50,6 +50,8 @@ var checkListenerHttp = function(listener) {
 	// check http listener type specific
 	if(typeof listener.method == 'undefined') listener.method = 'GET';
 	if(isNotAllowedMethod(listener.method)) return ERROR.NOTALLOWEDMETHOD;
+	if(isInvalidEndpoint(listener.endpoint)) return ERROR.ENDPOINTINVALID;
+	listener.endpoint = listener.endpoint.trim();
 	return 0;
 }
 var checkListenerDummy = function(listener) {
@@ -61,8 +63,15 @@ var isNotAllowedMethod = function(method) {
 	var allowed = ['GET','POST','PUT','DELETE'];
 	return allowed.indexOf(method) == -1;
 }
+var isInvalidEndpoint = function(endpoint) {
+	if(endpoint == null || endpoint.trim() == '') return true;
+	if(endpoint.startsWith('http://')) return false;
+	if(endpoint.startsWith('https://')) return false;
+	return true;
+}
 
 var ERROR = {
-	NOTALLOWEDMETHOD : 101
+	NOTALLOWEDMETHOD : 101,
+	ENDPOINTINVALID : 102
 };
 module.exports = mod;

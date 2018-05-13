@@ -108,7 +108,7 @@ var DataStore = function() {
 			var listener = opts.listener;
 			listener.id = ++global_id;
 			listenersStore[app].push(listener);
-			resolve();
+			resolve(listener);
 		});
 	}
 	this.updateListener = function(opts) {
