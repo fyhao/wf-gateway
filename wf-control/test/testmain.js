@@ -283,3 +283,371 @@ describe('flow module', function () {
 	  });
   });
 });
+
+
+describe('listeners module', function () {
+  var server;
+  before(function () {
+    server = require('../server', { bustCache: true })();
+  });
+  after(function (done) {
+    server.close(done);
+  });
+  it('should return status 0 with blank listeners for app test', function test() {
+    return request(server)
+      .get('/app/test/listener')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0,listeners:[]}));
+	  });
+  });
+  it('should return status 0 after create new listener for app test', function test() {
+	var listener =  {
+		type : 'http',
+		endpoint : 'http://example.com',
+		flow : 'flow_1'
+	};
+    return request(server)
+      .post('/app/test/listener')
+	  .send({listener:listener})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  var listener_id = 0;
+  it('should return status 0 with one listener for app test', function test() {
+    return request(server)
+      .get('/app/test/listener')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.listeners.length, 1);
+		  assert.equal(json.listeners[0].type, 'http');
+		  assert.equal(json.listeners[0].endpoint, 'http://example.com');
+		  assert.equal(json.listeners[0].flow, 'flow_1');
+		  listener_id = json.listeners[0].id;
+		  console.log('Temp check listener id: ' + listener_id);
+	  });
+  });
+  it('should return status 0 after update new listener for app test', function test() {
+	var listener =  {
+		type : 'http',
+		endpoint : 'http://example.com/test',
+		flow : 'flow_1'
+	};
+    return request(server)
+      .put('/app/test/listener/' + listener_id)
+	  .send({listener:listener})
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0}));
+	  });
+  });
+  it('should return status 0 with one listener for app test after update', function test() {
+    return request(server)
+      .get('/app/test/listener')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.listeners.length, 1);
+		  assert.equal(json.listeners[0].type, 'http');
+		  assert.equal(json.listeners[0].endpoint, 'http://example.com/test');
+		  assert.equal(json.listeners[0].flow, 'flow_1');
+		  listener_id = json.listeners[0].id;
+	  });
+  });
+  it('should return status 0 after delete new listener for app test', function test() {
+    return request(server)
+      .delete('/app/test/listener/' + listener_id)
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0}));
+	  });
+  });
+  it('should return status 0 with blank listeners for app test after deleted', function test() {
+    return request(server)
+      .get('/app/test/listener')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0,listeners:[]}));
+	  });
+  });
+  // validation http based endpoint
+  var testHttpMethod = function(method) {
+	  var temp1 = '';
+	  var temp2 = '';
+	  var temp3 = '';
+	  var temp4 = 0;
+	  if(method == '') {
+		  temp1 = 'with no method specified';
+		  temp2 = 'with default method GET';
+		  temp3 = 'GET';
+		  temp4 = 0;
+	  }
+	  else if(method == 'GET' || method == 'POST' || method == 'PUT' || method == 'DELETE') {
+		  temp1 = 'with method ' + method;
+		  temp2 = temp1;
+		  temp3 = method;
+		  temp4 = 0;
+	  }
+	  else {
+		  temp1 = 'with method ' + method;
+		  temp2 = 'with error returned not supported';
+		  temp4 = 101;
+	  }
+	  it('should return status ' + temp4 + ' after create new HTTP listener ' + temp1, function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : 'http://example.com',
+			flow : 'flow_1'
+		};
+		if(method != '') {
+			listener.method = method;
+		}
+		return request(server)
+		  .post('/app/test/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+				assert.equal(json.status, temp4);
+		  });
+	  });
+	  var listener_id = 0;
+	  if(temp4 == 0) {
+		  it('should return status 0 with one HTTP listener ' + temp2, function test() {
+			return request(server)
+			  .get('/app/test/listener')
+			  .expect(200)
+			  .expect(function(res) {
+				  var json = JSON.parse(res.text);
+				  assert.equal(json.status, 0);
+				  assert.equal(json.listeners.length, 1);
+				  assert.equal(json.listeners[0].type, 'http');
+				  assert.equal(json.listeners[0].endpoint, 'http://example.com');
+				  assert.equal(json.listeners[0].flow, 'flow_1');
+				  assert.equal(json.listeners[0].method, temp3);
+				  listener_id = json.listeners[0].id;
+				  console.log('Temp check listener id: ' + listener_id);
+			  });
+		  });
+		  it('should return status 0 after delete new listener for app test', function test() {
+			return request(server)
+			  .delete('/app/test/listener/' + listener_id)
+			  .expect(200)
+			  .expect(function(res) {
+				  assert.equal(res.text, JSON.stringify({status:0}));
+			  });
+		  });
+	  }
+	  
+  }
+  testHttpMethod('');
+  testHttpMethod('GET');
+  testHttpMethod('POST');
+  testHttpMethod('PUT');
+  testHttpMethod('DELETE');
+  testHttpMethod('SOMEOTHER');
+  
+  var testHttpEndpoint = function(endpoint, desc, a) {
+	  var temp1 = 102;
+	  if(a) temp1 = 0;
+	  it('should return status ' + temp1 + ' after create new HTTP listener with ' + desc, function test() {
+		var listener =  {
+			type : 'http',
+			flow : 'flow_1'
+		};
+		if(endpoint != '') {
+			listener.endpoint = endpoint;
+		}
+		return request(server)
+		  .post('/app/test/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+				assert.equal(json.status, temp1);
+		  });
+	  });
+  }
+  testHttpEndpoint('', 'no endpoint specified', false);
+  testHttpEndpoint('ftp://example.com', 'invalid endpoint prefix specified', false);
+  testHttpEndpoint('http://example.com', 'valid endpoint specified: http', true);
+  testHttpEndpoint('https://example.com', 'valid endpoint specified: https', true);
+  
+  var testHttpRequestParam = function(testDesc, params, expectedStatus, assertParams) {
+	  var listener_id;
+	  it('should return status ' + expectedStatus + ' after create new HTTP listener for request params with ' + testDesc, function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : 'http://example.com',
+			flow : 'flow_1',
+			requestParams : [params]
+		};
+		return request(server)
+		  .post('/app/test/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+				assert.equal(json.status, expectedStatus);
+			    if(expectedStatus == 0) {
+					listener_id = json.listener.id;
+				}
+		  });
+	  });
+  }
+  testHttpRequestParam(
+    'valid test',
+	{name:'lat',condition:'required',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'required',type:'text'}
+  );
+  testHttpRequestParam(
+	'condition optional',
+	{name:'lat',condition:'optional',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestParam(
+	'invalid condition',
+	{name:'lat',condition:'ddd',type:'text',defaultValue:'1.0',description:'The latitude'},
+	103
+  );
+  testHttpRequestParam(
+	'no condition specified',
+	{name:'lat',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestParam(
+	'type number',
+	{name:'lat',type:'number',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'number'}
+  );
+  testHttpRequestParam(
+	'type decimal',
+	{name:'lat',type:'decimal',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'decimal'}
+  );
+  testHttpRequestParam(
+	'type boolean',
+	{name:'lat',type:'boolean',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'boolean'}
+  );
+  testHttpRequestParam(
+	'type invalid',
+	{name:'lat',type:'invalid',defaultValue:'1.0',description:'The latitude'},
+	104
+  );
+  testHttpRequestParam(
+	'no type specified',
+	{name:'lat',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestParam(
+	'no defaultValue',
+	{name:'lat',description:'The latitude'},
+	0,{condition:'optional',type:'text',description:'The latitude'}
+  );
+  testHttpRequestParam(
+	'no description',
+	{name:'lat'},
+	0,{condition:'optional',type:'text',description:''}
+  );
+  
+  var testHttpRequestHeader = function(testDesc, params, expectedStatus, assertParams) {
+	  var listener_id;
+	  it('should return status ' + expectedStatus + ' after create new HTTP listener for request headers with ' + testDesc, function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : 'http://example.com',
+			flow : 'flow_1',
+			requestHeaders : [params]
+		};
+		return request(server)
+		  .post('/app/test/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+				assert.equal(json.status, expectedStatus);
+			    if(expectedStatus == 0) {
+					listener_id = json.listener.id;
+				}
+		  });
+	  });
+  }
+  testHttpRequestHeader(
+    'valid test',
+	{name:'lat',condition:'required',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'required',type:'text'}
+  );
+  testHttpRequestHeader(
+	'condition optional',
+	{name:'lat',condition:'optional',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestHeader(
+	'invalid condition',
+	{name:'lat',condition:'ddd',type:'text',defaultValue:'1.0',description:'The latitude'},
+	105
+  );
+  testHttpRequestHeader(
+	'no condition specified',
+	{name:'lat',type:'text',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestHeader(
+	'type number',
+	{name:'lat',type:'number',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'number'}
+  );
+  testHttpRequestHeader(
+	'type decimal',
+	{name:'lat',type:'decimal',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'decimal'}
+  );
+  testHttpRequestHeader(
+	'type boolean',
+	{name:'lat',type:'boolean',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'boolean'}
+  );
+  testHttpRequestHeader(
+	'type invalid',
+	{name:'lat',type:'invalid',defaultValue:'1.0',description:'The latitude'},
+	106
+  );
+  testHttpRequestHeader(
+	'no type specified',
+	{name:'lat',defaultValue:'1.0',description:'The latitude'},
+	0,{condition:'optional',type:'text'}
+  );
+  testHttpRequestHeader(
+	'no defaultValue',
+	{name:'lat',description:'The latitude'},
+	0,{condition:'optional',type:'text',description:'The latitude'}
+  );
+  testHttpRequestHeader(
+	'no description',
+	{name:'lat'},
+	0,{condition:'optional',type:'text',description:''}
+  );
+  
+  it('should return status 107 after create new listener with unsupported type', function test() {
+	var listener =  {
+		type : 'http123',
+		endpoint : 'http://example.com',
+		flow : 'flow_1'
+	};
+    return request(server)
+      .post('/app/test/listener')
+	  .send({listener:listener})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 107);
+	  });
+  });
+}); 

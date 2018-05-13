@@ -7,6 +7,7 @@ var DataStore = function() {
 	this.createApp = function(item) {
 		data.push(item);
 		flowStore[item.name] = {};
+		listenersStore[item.name] = [];
 	}
 	this.getApp = function(name) {
 		return new Promise(function(resolve, reject) {
@@ -48,6 +49,7 @@ var DataStore = function() {
 				if(data[i].name == name) {
 					data.splice(i,1);
 					delete flowStore[name];
+					delete listenersStore[name];
 					resolve();
 					found = true;
 					break;
@@ -93,7 +95,54 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.getListeners = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var listeners = listenersStore[app];
+			resolve(listeners);
+		});
+	}
+	this.createListener = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var listener = opts.listener;
+			listener.id = ++global_id;
+			listenersStore[app].push(listener);
+			resolve(listener);
+		});
+	}
+	this.updateListener = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var listener = opts.listener;
+			var id = opts.id;
+			for(var i = 0; i < listenersStore[app].length; i++) {
+				if(listenersStore[app][i].id == id) {
+					for(var j in listener) {
+						listenersStore[app][i][j] = listener[j];
+					}
+				}
+			}
+			resolve();
+		});
+	}
+	this.deleteListener = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var listener = opts.listener;
+			var id = opts.id;
+			for(var i = 0; i < listenersStore[app].length; i++) {
+				if(listenersStore[app][i].id == id) {
+					listenersStore[app].splice(i,1);
+					break;
+				}
+			}
+			resolve();
+		});
+	}
 }
 var data = [];
 var flowStore = {};
+var listenersStore = {};
+var global_id = 0;
 module.exports = DataStore

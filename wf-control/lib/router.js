@@ -14,5 +14,11 @@ var router = function(app) {
 	app.get('/app/:name/flow/:flowName', flowModule.getSingle);
 	app.put('/app/:name/flow/:flowName', flowModule.updateSingle);
 	app.delete('/app/:name/flow/:flowName', flowModule.deleteSingle);
+	
+	var listenerModule = ProjRequire('lib/module/listener');
+	app.get('/app/:name/listener', listenerModule.list);
+	app.post('/app/:name/listener', listenerModule.create);
+	app.put('/app/:name/listener/:id', listenerModule.update);
+	app.delete('/app/:name/listener/:id', listenerModule.remove);
 }
 module.exports = router;
