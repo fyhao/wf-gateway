@@ -682,4 +682,17 @@ describe('instance module', function () {
 		  assert.equal(json.instance.host, '192.168.1.2');
 	  });
   });
+  var instance_id;
+  it('should return status 0 with one instance', function test() {
+    return request(server)
+      .get('/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 1);
+		  assert.equal(json.instances[0].name, 'Dummy Instance');
+		  instance_id = json.instances[0].id;
+	  });
+  });
 }); 
