@@ -10,9 +10,15 @@ var mod = {
 	create : function(req, res) {
 		var app = req.params.name;
 		var listener = req.body.listener;
-		dataStore.createListener({app:app,listener:listener}).then(function() {
-			res.json({status:0});
-		});
+		var status = validateListener(listener);
+		if(status == 0) {
+			dataStore.createListener({app:app,listener:listener}).then(function() {
+				res.json({status:0});
+			});
+		}
+		else {
+			res.json({status:status});
+		}
 	},
 	update : function(req, res) {
 		var app = req.params.name;
@@ -31,4 +37,32 @@ var mod = {
 	},
 }
 
+// business validation
+var validateListener = function(listener) {
+	var status = -1;
+	if(status == -1) status = checkListenerHttp(listener);
+	if(status == -1) status = checkListenerDummy(listener); // any other listeners type extend here like this way
+	return status;
+}
+
+var checkListenerHttp = function(listener) {
+	if(listener.type != 'http') return -1;
+	// check http listener type specific
+	if(typeof listener.method == 'undefined') listener.method = 'GET';
+	if(isNotAllowedMethod(listener.method)) return ERROR.NOTALLOWEDMETHOD;
+	return 0;
+}
+var checkListenerDummy = function(listener) {
+	return -1;
+}
+
+// utility
+var isNotAllowedMethod = function(method) {
+	var allowed = ['GET','POST','PUT','DELETE'];
+	return allowed.indexOf(method) == -1;
+}
+
+var ERROR = {
+	NOTALLOWEDMETHOD : 101
+};
 module.exports = mod;
