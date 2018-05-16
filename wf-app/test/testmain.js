@@ -1,11 +1,24 @@
 var assert = require('assert');
-//var util = ProjRequire('./lib/util.js');
-describe('main.js', function() {
-  this.timeout(15000);
-  
-  describe('first_test', function() {
-    it('first_test', function() {
-		assert.equal("test","test");
-    });
+
+var request = require('supertest');
+describe('loading express', function () {
+  var server;
+  beforeEach(function () {
+    server = require('../server', { bustCache: true })();
   });
+  afterEach(function (done) {
+    server.close(done);
+  });
+  it('responds to /', function testSlash(done) {
+    request(server)
+      .get('/')
+      .expect(200, done);
+  });
+  it('404 everything else', function testPath(done) {
+    console.log('test 404')
+    request(server)
+      .get('/foo/bar')
+      .expect(404, done);
+  });
+  
 });
