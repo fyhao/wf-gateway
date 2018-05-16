@@ -68,9 +68,7 @@ var isNotAllowedMethod = function(method) {
 }
 var isInvalidEndpoint = function(endpoint) {
 	if(endpoint == null || endpoint.trim() == '') return true;
-	if(endpoint.startsWith('http://')) return false;
-	if(endpoint.startsWith('https://')) return false;
-	return true;
+	return false;
 }
 var checkInvalidRequestParams = function(requestParams) {
 	if(!requestParams) return 0;

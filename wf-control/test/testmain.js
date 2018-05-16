@@ -304,7 +304,7 @@ describe('listeners module', function () {
   it('should return status 0 after create new listener for app test', function test() {
 	var listener =  {
 		type : 'http',
-		endpoint : 'http://example.com',
+		endpoint : '/rest/test',
 		flow : 'flow_1'
 	};
     return request(server)
@@ -326,7 +326,7 @@ describe('listeners module', function () {
 		  assert.equal(json.status, 0);
 		  assert.equal(json.listeners.length, 1);
 		  assert.equal(json.listeners[0].type, 'http');
-		  assert.equal(json.listeners[0].endpoint, 'http://example.com');
+		  assert.equal(json.listeners[0].endpoint, '/rest/test');
 		  assert.equal(json.listeners[0].flow, 'flow_1');
 		  listener_id = json.listeners[0].id;
 		  console.log('Temp check listener id: ' + listener_id);
@@ -335,7 +335,7 @@ describe('listeners module', function () {
   it('should return status 0 after update new listener for app test', function test() {
 	var listener =  {
 		type : 'http',
-		endpoint : 'http://example.com/test',
+		endpoint : '/rest/test',
 		flow : 'flow_1'
 	};
     return request(server)
@@ -355,7 +355,7 @@ describe('listeners module', function () {
 		  assert.equal(json.status, 0);
 		  assert.equal(json.listeners.length, 1);
 		  assert.equal(json.listeners[0].type, 'http');
-		  assert.equal(json.listeners[0].endpoint, 'http://example.com/test');
+		  assert.equal(json.listeners[0].endpoint, '/rest/test');
 		  assert.equal(json.listeners[0].flow, 'flow_1');
 		  listener_id = json.listeners[0].id;
 	  });
@@ -402,7 +402,7 @@ describe('listeners module', function () {
 	  it('should return status ' + temp4 + ' after create new HTTP listener ' + temp1, function test() {
 		var listener =  {
 			type : 'http',
-			endpoint : 'http://example.com',
+			endpoint : '/rest/test',
 			flow : 'flow_1'
 		};
 		if(method != '') {
@@ -428,7 +428,7 @@ describe('listeners module', function () {
 				  assert.equal(json.status, 0);
 				  assert.equal(json.listeners.length, 1);
 				  assert.equal(json.listeners[0].type, 'http');
-				  assert.equal(json.listeners[0].endpoint, 'http://example.com');
+				  assert.equal(json.listeners[0].endpoint, '/rest/test');
 				  assert.equal(json.listeners[0].flow, 'flow_1');
 				  assert.equal(json.listeners[0].method, temp3);
 				  listener_id = json.listeners[0].id;
@@ -475,16 +475,13 @@ describe('listeners module', function () {
 	  });
   }
   testHttpEndpoint('', 'no endpoint specified', false);
-  testHttpEndpoint('ftp://example.com', 'invalid endpoint prefix specified', false);
-  testHttpEndpoint('http://example.com', 'valid endpoint specified: http', true);
-  testHttpEndpoint('https://example.com', 'valid endpoint specified: https', true);
   
   var testHttpRequestParam = function(testDesc, params, expectedStatus, assertParams) {
 	  var listener_id;
 	  it('should return status ' + expectedStatus + ' after create new HTTP listener for request params with ' + testDesc, function test() {
 		var listener =  {
 			type : 'http',
-			endpoint : 'http://example.com',
+			endpoint : '/rest/test',
 			flow : 'flow_1',
 			requestParams : [params]
 		};
@@ -562,7 +559,7 @@ describe('listeners module', function () {
 	  it('should return status ' + expectedStatus + ' after create new HTTP listener for request headers with ' + testDesc, function test() {
 		var listener =  {
 			type : 'http',
-			endpoint : 'http://example.com',
+			endpoint : '/rest/test',
 			flow : 'flow_1',
 			requestHeaders : [params]
 		};
@@ -638,7 +635,7 @@ describe('listeners module', function () {
   it('should return status 107 after create new listener with unsupported type', function test() {
 	var listener =  {
 		type : 'http123',
-		endpoint : 'http://example.com',
+		endpoint : '/rest/test',
 		flow : 'flow_1'
 	};
     return request(server)
