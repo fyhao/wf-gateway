@@ -179,4 +179,20 @@ describe('e2e test - control server push configuration to app server', function 
 		  assert.equal(json.appResponse.action, 'deployAll');
 	  });
   });
+  it('should return status 0 after check deployed status on apps', function test() {
+	var conf = {
+		action : 'check'
+	};
+    return request(app_server)
+      .post('/control/deploy')
+	  .send({conf:conf})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.apps[0].app, 'test')
+		  assert.equal(json.apps[0].flows.flow_1.steps.length > 0, true)
+		  assert.equal(json.apps[0].listeners.length, 1)
+	  });
+  });
 }); 

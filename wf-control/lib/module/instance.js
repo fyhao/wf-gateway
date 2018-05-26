@@ -88,7 +88,7 @@ var checkConf = function(opts) {
 				opts.conf.apps = [];
 				var i = 0;
 				var checkNext = function() {
-					var app = apps[i];
+					var app = apps[i].app;
 					dataStore.getFlows({app:app}).then(function(flows) {
 						dataStore.getListeners({app:app}).then(function(listeners) {
 							opts.conf.apps.push({app:app, flows:flows, listeners:listeners});

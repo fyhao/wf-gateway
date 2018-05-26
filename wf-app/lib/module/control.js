@@ -15,6 +15,11 @@ var mod = {
 				res.json({status:0,action:action});
 			});
 		}
+		else if(action == 'check') {
+			dataStore.getApps().then(function(apps) {
+				res.json({status:0,action:action,apps:apps});
+			});
+		}
 		else {
 			res.json({status:0,action:action});
 		}
