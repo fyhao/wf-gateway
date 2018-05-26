@@ -72,15 +72,21 @@ var mod = {
 		var id = req.params.id;
 		var conf = req.body.conf;
 		dataStore.getInstance({id:id}).then(function(instance) {
-			var deploy_endpoint = instance.host + '/control/deploy';
+			sendConfToInstance(instance, conf).then(function(ret) {
+				res.json(ret);
+			});
+		});
+	}
+}
+var sendConfToInstance  = function(instance, conf) {
+	return new Promise(function(resolve,reject) {
+		var deploy_endpoint = instance.host + '/control/deploy';
 			unirest.post(deploy_endpoint)
 			       .send({conf:JSON.stringify(conf)})
 				   .end(function(appResponse) {
 					   var ret = {status:0,appResponse:appResponse.body};
-					   res.json(ret);
+					   resolve(ret);
 				   })
-		});
-	}
+	})
 }
-
 module.exports = mod;

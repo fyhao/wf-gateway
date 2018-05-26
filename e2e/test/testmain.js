@@ -164,4 +164,19 @@ describe('e2e test - control server push configuration to app server', function 
 		  assert.equal(json.appResponse.action, 'test');
 	  });
   });
+  it('should return status 0 after calling deploy with action deployAll', function test() {
+	var conf = {
+		action : 'deployAll'
+	};
+    return request(control_server)
+      .post('/instance/' + instance_id + '/deploy')
+	  .send({conf:conf})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.appResponse.status, 0);
+		  assert.equal(json.appResponse.action, 'deployAll');
+	  });
+  });
 }); 
