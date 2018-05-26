@@ -83,8 +83,27 @@ var mod = {
 }
 var checkConf = function(opts) {
 	return new Promise(function(resolve,reject) {
-		if(opts.action == 'deployAll') {
-			
+		if(opts.conf.action == 'deployAll') {
+			dataStore.getAppsForInstance({id:opts.instance.id}).then(function(apps) {
+				opts.conf.apps = [];
+				var i = 0;
+				var checkNext = function() {
+					var app = apps[i];
+					dataStore.getFlows({app:app}).then(function(flows) {
+						dataStore.getListeners({app:app}).then(function(listeners) {
+							opts.conf.apps.push({app:app, flows:flows, listeners:listeners});
+							
+							if(++i < apps.length) {
+								checkNext();
+							}
+							else {
+								resolve(opts);
+							}
+						});
+					});
+				}
+				checkNext();
+			});
 		}
 		else {
 			resolve(opts)
