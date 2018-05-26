@@ -149,9 +149,9 @@ describe('e2e test - control server push configuration to app server', function 
   });
   
   // Deployment e2e
-  it('should return status 0 after deploy entire configuration', function test() {
+  it('should return status 0 after calling deploy with action test', function test() {
 	var conf = {
-		action : 'deployAll'
+		action : 'test'
 	};
     return request(control_server)
       .post('/instance/' + instance_id + '/deploy')
@@ -161,7 +161,7 @@ describe('e2e test - control server push configuration to app server', function 
 		  var json = JSON.parse(res.text);
 		  assert.equal(json.status, 0);
 		  assert.equal(json.appResponse.status, 0);
-		  assert.equal(json.appResponse.action, 'deployAll');
+		  assert.equal(json.appResponse.action, 'test');
 	  });
   });
 }); 
