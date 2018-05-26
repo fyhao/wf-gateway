@@ -72,15 +72,55 @@ var mod = {
 		var id = req.params.id;
 		var conf = req.body.conf;
 		dataStore.getInstance({id:id}).then(function(instance) {
-			var deploy_endpoint = instance.host + '/control/deploy';
+			checkConf({instance:instance,conf:conf})
+				.then(sendConfToInstance)
+				.then(function(ret) {
+					res.json(ret)
+				});
+			
+		});
+	}
+}
+var checkConf = function(opts) {
+	return new Promise(function(resolve,reject) {
+		if(opts.conf.action == 'deployAll') {
+			dataStore.getAppsForInstance({id:opts.instance.id}).then(function(apps) {
+				opts.conf.apps = [];
+				var i = 0;
+				var checkNext = function() {
+					var app = apps[i].app;
+					dataStore.getFlows({app:app}).then(function(flows) {
+						dataStore.getListeners({app:app}).then(function(listeners) {
+							opts.conf.apps.push({app:app, flows:flows, listeners:listeners});
+							
+							if(++i < apps.length) {
+								checkNext();
+							}
+							else {
+								resolve(opts);
+							}
+						});
+					});
+				}
+				checkNext();
+			});
+		}
+		else {
+			resolve(opts)
+		}
+	});
+}
+var sendConfToInstance  = function(opts) {
+	var instance = opts.instance;
+	var conf = opts.conf;
+	return new Promise(function(resolve,reject) {
+		var deploy_endpoint = instance.host + '/control/deploy';
 			unirest.post(deploy_endpoint)
 			       .send({conf:JSON.stringify(conf)})
 				   .end(function(appResponse) {
 					   var ret = {status:0,appResponse:appResponse.body};
-					   res.json(ret);
+					   resolve(ret);
 				   })
-		});
-	}
+	})
 }
-
 module.exports = mod;

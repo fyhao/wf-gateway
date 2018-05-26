@@ -149,7 +149,22 @@ describe('e2e test - control server push configuration to app server', function 
   });
   
   // Deployment e2e
-  it('should return status 0 after deploy entire configuration', function test() {
+  it('should return status 0 after calling deploy with action test', function test() {
+	var conf = {
+		action : 'test'
+	};
+    return request(control_server)
+      .post('/instance/' + instance_id + '/deploy')
+	  .send({conf:conf})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.appResponse.status, 0);
+		  assert.equal(json.appResponse.action, 'test');
+	  });
+  });
+  it('should return status 0 after calling deploy with action deployAll', function test() {
 	var conf = {
 		action : 'deployAll'
 	};
@@ -162,6 +177,22 @@ describe('e2e test - control server push configuration to app server', function 
 		  assert.equal(json.status, 0);
 		  assert.equal(json.appResponse.status, 0);
 		  assert.equal(json.appResponse.action, 'deployAll');
+	  });
+  });
+  it('should return status 0 after check deployed status on apps', function test() {
+	var conf = {
+		action : 'check'
+	};
+    return request(app_server)
+      .post('/control/deploy')
+	  .send({conf:conf})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.apps[0].app, 'test')
+		  assert.equal(json.apps[0].flows.flow_1.steps.length > 0, true)
+		  assert.equal(json.apps[0].listeners.length, 1)
 	  });
   });
 }); 
