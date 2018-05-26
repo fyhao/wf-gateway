@@ -16,3 +16,9 @@ wf-admin/npm-debug.log*
 
 wf-admin/.nyc_output/
 wf-admin/coverage/
+
+e2e/node_modules/
+e2e/npm-debug.log*
+
+e2e/.nyc_output/
+e2e/coverage/
