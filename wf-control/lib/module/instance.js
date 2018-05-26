@@ -72,13 +72,28 @@ var mod = {
 		var id = req.params.id;
 		var conf = req.body.conf;
 		dataStore.getInstance({id:id}).then(function(instance) {
-			sendConfToInstance(instance, conf).then(function(ret) {
-				res.json(ret);
-			});
+			checkConf({instance:instance,conf:conf})
+				.then(sendConfToInstance)
+				.then(function(ret) {
+					res.json(ret)
+				});
+			
 		});
 	}
 }
-var sendConfToInstance  = function(instance, conf) {
+var checkConf = function(opts) {
+	return new Promise(function(resolve,reject) {
+		if(opts.action == 'deployAll') {
+			
+		}
+		else {
+			resolve(opts)
+		}
+	});
+}
+var sendConfToInstance  = function(opts) {
+	var instance = opts.instance;
+	var conf = opts.conf;
 	return new Promise(function(resolve,reject) {
 		var deploy_endpoint = instance.host + '/control/deploy';
 			unirest.post(deploy_endpoint)
