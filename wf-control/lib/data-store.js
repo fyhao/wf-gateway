@@ -140,9 +140,131 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.getInstances = function(opts) {
+		return new Promise(function(resolve,reject) {
+			resolve(instancesStore);
+		});
+	}
+	this.createInstance = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var instance = opts.instance;
+			instance.id = ++global_id;
+			instancesStore.push(instance);
+			resolve(instance);
+		});
+	}
+	this.updateInstance = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var instance = opts.instance;
+			for(var i = 0; i < instancesStore.length; i++) {
+				if(instancesStore[i].id == opts.id) {
+					for(var j in instance) {
+						instancesStore[i][j] = instance[j];
+					}
+					break;
+				}
+			}
+			resolve();
+		});
+	}
+	this.deleteInstance = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var id = opts.id;
+			for(var i = 0; i < instancesStore.length; i++) {
+				if(instancesStore[i].id == id) {
+					instancesStore.splice(i,1);
+					break;
+				}
+			}
+			resolve();
+		});
+	}
+	this.getInstance = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var id = opts.id;
+			for(var i = 0; i < instancesStore.length; i++) {
+				if(instancesStore[i].id == id) {
+					resolve(instancesStore[i]);
+					return;
+				}
+			}
+			resolve(null);
+		});
+	}
+	this.getInstancesForApp = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var instance_id = [];
+			for(var i = 0; i < appInstanceMappingStore.length; i++) {
+				var m = appInstanceMappingStore[i];
+				if(m.app == opts.app) {
+					instance_id.push(m.instance_id);
+				}
+			}
+			var instances = [];
+			for(var i = 0; i < instance_id.length; i++) {
+				for(j = 0; j < instancesStore.length; j++) {
+					if(instancesStore[j].id == instance_id[i]) {
+						instances.push(instancesStore[j]);
+					}
+				}
+			}
+			resolve(instances);
+		});
+	}
+	this.createInstanceForApp = function(opts) {
+		return new Promise(function(resolve,reject) {
+			for(var i = 0; i < appInstanceMappingStore.length; i++) {
+				var m = appInstanceMappingStore[i];
+				if(m.app == opts.app && m.instance_id == opts.id) {
+					resolve(101);
+					return;
+				}
+			}
+			appInstanceMappingStore.push({app:opts.app,instance_id:opts.id,status:'disabled'});
+			resolve(0);
+		});
+	}
+	this.deleteInstanceForApp = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var isDeleted = false;
+			for(var i = 0; i < appInstanceMappingStore.length; i++) {
+				var m = appInstanceMappingStore[i];
+				if(m.app == opts.app && m.instance_id == opts.id) {
+					appInstanceMappingStore.splice(i,1);
+					isDeleted = true;
+				}
+			}
+			resolve(isDeleted ? 0 : 102);
+		});
+	}
+	this.getAppsForInstance = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var apps = [];
+			for(var i = 0; i < appInstanceMappingStore.length; i++) {
+				var m = appInstanceMappingStore[i];
+				if(m.instance_id == opts.id) {
+					apps.push({app:m.app,status:m.status});
+				}
+			}
+			resolve(apps);
+		});
+	}
+	this.actionAppForInstance = function(opts) {
+		return new Promise(function(resolve,reject) {
+			for(var i = 0; i < appInstanceMappingStore.length; i++) {
+				var m = appInstanceMappingStore[i];
+				if(m.app == opts.app && m.instance_id == opts.id) {
+					m.status = opts.action == 'enable' ? 'enabled' : 'disabled';
+				}
+			}
+			resolve();
+		});
+	}
 }
 var data = [];
 var flowStore = {};
 var listenersStore = {};
+var instancesStore = [];
+var appInstanceMappingStore = []; // app name and instance id mapping
 var global_id = 0;
 module.exports = DataStore

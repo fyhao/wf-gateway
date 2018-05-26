@@ -20,5 +20,18 @@ var router = function(app) {
 	app.post('/app/:name/listener', listenerModule.create);
 	app.put('/app/:name/listener/:id', listenerModule.update);
 	app.delete('/app/:name/listener/:id', listenerModule.remove);
+	
+	var instanceModule = ProjRequire('lib/module/instance');
+	app.get('/instance', instanceModule.list);
+	app.post('/instance', instanceModule.create);
+	app.put('/instance/:id', instanceModule.update);
+	app.delete('/instance/:id', instanceModule.remove);
+	app.get('/app/:name/instance', instanceModule.listForApp);
+	app.post('/app/:name/instance/:id', instanceModule.createForApp);
+	app.delete('/app/:name/instance/:id', instanceModule.deleteForApp);
+	app.get('/instance/:id/app', instanceModule.listAppForInstance);
+	app.post('/instance/:id/app/:name/:action', instanceModule.actionAppForInstance);
+	
+	app.post('/instance/:id/deploy', instanceModule.deploy);
 }
 module.exports = router;

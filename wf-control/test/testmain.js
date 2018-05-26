@@ -304,7 +304,7 @@ describe('listeners module', function () {
   it('should return status 0 after create new listener for app test', function test() {
 	var listener =  {
 		type : 'http',
-		endpoint : 'http://example.com',
+		endpoint : '/rest/test',
 		flow : 'flow_1'
 	};
     return request(server)
@@ -326,7 +326,7 @@ describe('listeners module', function () {
 		  assert.equal(json.status, 0);
 		  assert.equal(json.listeners.length, 1);
 		  assert.equal(json.listeners[0].type, 'http');
-		  assert.equal(json.listeners[0].endpoint, 'http://example.com');
+		  assert.equal(json.listeners[0].endpoint, '/rest/test');
 		  assert.equal(json.listeners[0].flow, 'flow_1');
 		  listener_id = json.listeners[0].id;
 		  console.log('Temp check listener id: ' + listener_id);
@@ -335,7 +335,7 @@ describe('listeners module', function () {
   it('should return status 0 after update new listener for app test', function test() {
 	var listener =  {
 		type : 'http',
-		endpoint : 'http://example.com/test',
+		endpoint : '/rest/test',
 		flow : 'flow_1'
 	};
     return request(server)
@@ -355,7 +355,7 @@ describe('listeners module', function () {
 		  assert.equal(json.status, 0);
 		  assert.equal(json.listeners.length, 1);
 		  assert.equal(json.listeners[0].type, 'http');
-		  assert.equal(json.listeners[0].endpoint, 'http://example.com/test');
+		  assert.equal(json.listeners[0].endpoint, '/rest/test');
 		  assert.equal(json.listeners[0].flow, 'flow_1');
 		  listener_id = json.listeners[0].id;
 	  });
@@ -402,7 +402,7 @@ describe('listeners module', function () {
 	  it('should return status ' + temp4 + ' after create new HTTP listener ' + temp1, function test() {
 		var listener =  {
 			type : 'http',
-			endpoint : 'http://example.com',
+			endpoint : '/rest/test',
 			flow : 'flow_1'
 		};
 		if(method != '') {
@@ -428,7 +428,7 @@ describe('listeners module', function () {
 				  assert.equal(json.status, 0);
 				  assert.equal(json.listeners.length, 1);
 				  assert.equal(json.listeners[0].type, 'http');
-				  assert.equal(json.listeners[0].endpoint, 'http://example.com');
+				  assert.equal(json.listeners[0].endpoint, '/rest/test');
 				  assert.equal(json.listeners[0].flow, 'flow_1');
 				  assert.equal(json.listeners[0].method, temp3);
 				  listener_id = json.listeners[0].id;
@@ -475,16 +475,13 @@ describe('listeners module', function () {
 	  });
   }
   testHttpEndpoint('', 'no endpoint specified', false);
-  testHttpEndpoint('ftp://example.com', 'invalid endpoint prefix specified', false);
-  testHttpEndpoint('http://example.com', 'valid endpoint specified: http', true);
-  testHttpEndpoint('https://example.com', 'valid endpoint specified: https', true);
   
   var testHttpRequestParam = function(testDesc, params, expectedStatus, assertParams) {
 	  var listener_id;
 	  it('should return status ' + expectedStatus + ' after create new HTTP listener for request params with ' + testDesc, function test() {
 		var listener =  {
 			type : 'http',
-			endpoint : 'http://example.com',
+			endpoint : '/rest/test',
 			flow : 'flow_1',
 			requestParams : [params]
 		};
@@ -562,7 +559,7 @@ describe('listeners module', function () {
 	  it('should return status ' + expectedStatus + ' after create new HTTP listener for request headers with ' + testDesc, function test() {
 		var listener =  {
 			type : 'http',
-			endpoint : 'http://example.com',
+			endpoint : '/rest/test',
 			flow : 'flow_1',
 			requestHeaders : [params]
 		};
@@ -638,7 +635,7 @@ describe('listeners module', function () {
   it('should return status 107 after create new listener with unsupported type', function test() {
 	var listener =  {
 		type : 'http123',
-		endpoint : 'http://example.com',
+		endpoint : '/rest/test',
 		flow : 'flow_1'
 	};
     return request(server)
@@ -648,6 +645,214 @@ describe('listeners module', function () {
 	  .expect(function(res) {
 		  var json = JSON.parse(res.text);
 		  assert.equal(json.status, 107);
+	  });
+  });
+}); 
+
+describe('instance module', function () {
+  var server;
+  before(function () {
+    server = require('../server', { bustCache: true })();
+  });
+  after(function (done) {
+    server.close(done);
+  });
+  it('should return status 0 with blank instances', function test() {
+    return request(server)
+      .get('/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:0,instances:[]}));
+	  });
+  });
+  it('should return status 0 after create an instance', function test() {
+    return request(server)
+      .post('/instance')
+	  .send({name:'Dummy Instance','description':'This instance is created for test',host:'192.168.1.2'})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instance.id > 0, true);
+		  assert.equal(json.instance.name, 'Dummy Instance');
+		  assert.equal(json.instance.description, 'This instance is created for test');
+		  assert.equal(json.instance.host, '192.168.1.2');
+	  });
+  });
+  var instance_id;
+  it('should return status 0 with one instance', function test() {
+    return request(server)
+      .get('/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 1);
+		  assert.equal(json.instances[0].name, 'Dummy Instance');
+		  instance_id = json.instances[0].id;
+	  });
+  });
+  it('should return status 0 after update instance', function test() {
+    return request(server)
+      .put('/instance/' + instance_id)
+	  .send({name:'Dummy Instance1','description':'This instance is created for test2',host:'192.168.1.23'})
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 0 with one instance', function test() {
+    return request(server)
+      .get('/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 1);
+		  assert.equal(json.instances[0].name, 'Dummy Instance1');
+	  });
+  });
+  // app instance mapping start
+  it('should return status 0 with blank instances for app test', function test() {
+    return request(server)
+      .get('/app/test/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 0);
+	  });
+  });
+  it('should return status 0 after assign one instance for app test', function test() {
+    return request(server)
+      .post('/app/test/instance/' + instance_id)
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 101 after assign same instance for app test', function test() {
+    return request(server)
+      .post('/app/test/instance/' + instance_id)
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 101);
+	  });
+  });
+  it('should return status 0 with one instances for app test', function test() {
+    return request(server)
+      .get('/app/test/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 1);
+	  });
+  });
+  it('should return status 0 with list of apps assigned to this instance', function test() {
+    return request(server)
+      .get('/instance/' + instance_id + '/app')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.apps.length, 1);
+		  assert.equal(json.apps[0].app, 'test');
+		  assert.equal(json.apps[0].status, 'disabled');
+	  });
+  });
+  it('should return status 0 after enable app for this instance', function test() {
+    return request(server)
+      .post('/instance/' + instance_id + '/app/test/enable')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 0 with list of apps assigned to this instance with status enabled', function test() {
+    return request(server)
+      .get('/instance/' + instance_id + '/app')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.apps.length, 1);
+		  assert.equal(json.apps[0].app, 'test');
+		  assert.equal(json.apps[0].status, 'enabled');
+	  });
+  });
+  it('should return status 0 after disable app for this instance', function test() {
+    return request(server)
+      .post('/instance/' + instance_id + '/app/test/disable')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 0 with list of apps assigned to this instance with status disabled', function test() {
+    return request(server)
+      .get('/instance/' + instance_id + '/app')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.apps.length, 1);
+		  assert.equal(json.apps[0].app, 'test');
+		  assert.equal(json.apps[0].status, 'disabled');
+	  });
+  });
+  // delete instance for app
+  it('should return status 0 after delete one instance for app test', function test() {
+    return request(server)
+      .delete('/app/test/instance/' + instance_id)
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 102 after delete same instance again for app test', function test() {
+    return request(server)
+      .delete('/app/test/instance/' + instance_id)
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 102);
+	  });
+  });
+  it('should return status 0 with blank instances for app test', function test() {
+    return request(server)
+      .get('/app/test/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 0);
+	  });
+  });
+  // app instance mapping end
+  it('should return status 0 after delete instance', function test() {
+    return request(server)
+      .delete('/instance/' + instance_id)
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+	  });
+  });
+  it('should return status 0 with one instance', function test() {
+    return request(server)
+      .get('/instance')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.instances.length, 0);
 	  });
   });
 }); 
