@@ -1,7 +1,6 @@
 
 var router = function(app) {
-	//var appModule = ProjRequire('lib/module/app');
-	//app.get('/app', appModule.list);
-	
+	var controlModule = ProjRequire('lib/module/control');
+	app.post('/control/deploy', controlModule.deploy);
 }
 module.exports = router;

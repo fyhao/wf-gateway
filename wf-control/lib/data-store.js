@@ -179,6 +179,18 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.getInstance = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var id = opts.id;
+			for(var i = 0; i < instancesStore.length; i++) {
+				if(instancesStore[i].id == id) {
+					resolve(instancesStore[i]);
+					return;
+				}
+			}
+			resolve(null);
+		});
+	}
 	this.getInstancesForApp = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var instance_id = [];

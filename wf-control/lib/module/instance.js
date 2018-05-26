@@ -1,5 +1,6 @@
 var DataStore = ProjRequire('./lib/data-store.js');
 var dataStore = new DataStore();
+var unirest = require('unirest');
 var mod = {
 	list : function(req, res) {
 		dataStore.getInstances().then(function(result) {
@@ -65,6 +66,19 @@ var mod = {
 		var action = req.params.action;
 		dataStore.actionAppForInstance({app:name,id:id,action:action}).then(function(result) {
 			res.json({status:0});
+		});
+	},
+	deploy : function(req, res) {
+		var id = req.params.id;
+		var conf = req.body.conf;
+		dataStore.getInstance({id:id}).then(function(instance) {
+			var deploy_endpoint = instance.host + '/control/deploy';
+			unirest.post(deploy_endpoint)
+			       .send({conf:JSON.stringify(conf)})
+				   .end(function(appResponse) {
+					   var ret = {status:0,appResponse:appResponse.body};
+					   res.json(ret);
+				   })
 		});
 	}
 }
