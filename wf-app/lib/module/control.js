@@ -35,10 +35,9 @@ var mod = {
 				// unregister endpoints first
 				registeredEndpoints.forEach(function(ep) {
 					for(var i = app._router.stack.length - 1; i >= 0; i--) {
-						var p = app._router.stack[i].path;
 						var r = app._router.stack[i].route;
 						if(typeof r != 'undefined' && r.path != 'undefined' && r.path.trim().length > 0 && r.path.indexOf('/control') == -1
-							) {
+							&& r.path == ep.endpoint) {
 							app._router.stack.splice(i,1);
 						}
 					}
