@@ -719,4 +719,70 @@ describe('e2e test - control server push configuration to app server', function 
 		  .expect(404)
 	  });
   });
+  
+  describe('e2e test - updateOnly deployAppStatus', function() {
+	  it('should return status 0 after disable app for this instance', function test() {
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/app/test3/disable')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  
+	  it('should return status 0 after calling deploy with action deployAppStatus', function test() {
+		var conf = {
+			action : 'deployAppStatus',
+			app : 'test3'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAppStatus');
+		  });
+	  });
+	  it('should return HTTP status 404 after request workflow from apps with endpoint /rest/test33 as apps was disabled', function test() {
+		return request(app_server)
+		  .get('/rest/test33')
+		  .expect(404)
+	  });
+	  
+	  it('should return status 0 after enable app for this instance', function test() {
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/app/test3/enable')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  
+	  it('should return status 0 after calling deploy with action deployAppStatus', function test() {
+		var conf = {
+			action : 'deployAppStatus',
+			app : 'test3'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAppStatus');
+		  });
+	  });
+	  it('should return HTTP status 200 after request workflow from apps with endpoint /rest/test33 as apps was disabled', function test() {
+		return request(app_server)
+		  .get('/rest/test33')
+		  .expect(200)
+	  });
+  });
 }); 

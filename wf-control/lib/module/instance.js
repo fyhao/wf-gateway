@@ -106,6 +106,16 @@ var checkConf = function(opts) {
 				checkNext();
 			});
 		}
+		else if(opts.conf.action == 'deployAppStatus') {
+			dataStore.getAppsForInstance({id:opts.instance.id}).then(function(apps) {
+				for(var i = 0; i < apps.length; i++) {
+					if(apps[i].app == opts.conf.app) {
+						opts.conf.status = apps[i].status;
+					}
+				}
+				resolve(opts);
+			});
+		}
 		else {
 			resolve(opts)
 		}
