@@ -828,5 +828,47 @@ describe('e2e test - control server push configuration to app server', function 
 		  });
 	  });
   });
-  
+  describe('e2e test - updateOnly deployAppFlows', function() {
+	  it('should return status 0 after update single flow definition for app test3', function test() {
+		var flows = {
+			flow_3 : {
+				steps: [
+					{type:'response',body:'This is the response printed from API 333'}
+				]
+			}
+		};
+		return request(control_server)
+		  .put('/app/test3/flow/flow_3')
+		  .send({flow:flows.flow_3})
+		  .expect(200)
+		  .expect(function(res) {
+			  var expected = {status:0};
+			  assert.equal(res.text, JSON.stringify(expected));
+		  });
+	  });
+	  it('should return status 0 after calling deploy with action deployAppFlow', function test() {
+		var conf = {
+			action : 'deployAppFlows',
+			app : 'test3'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAppFlows');
+		  });
+	  });
+	  it('should return status 0 after request workflow from apps with endpoint /rest/test33', function test() {
+		return request(app_server)
+		  .get('/rest/test33')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text,"This is the response printed from API 333")
+		  });
+	  });
+  });
 }); 

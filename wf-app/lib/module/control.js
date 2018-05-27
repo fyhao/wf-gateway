@@ -27,6 +27,12 @@ var mod = {
 				res.json({status:0,action:action});
 			});
 		}
+		else if(action == 'deployAppFlows') {
+			dataStore.saveAppFlows(conf.app, conf.flows).then(function(b) {
+				eventMgr.triggerConf('registerRouting', conf);
+				res.json({status:0,action:action});
+			});
+		}
 		else if(action == 'check') {
 			dataStore.getApps().then(function(apps) {
 				res.json({status:0,action:action,apps:apps});
@@ -103,6 +109,15 @@ var mod = {
 					var changed = false;
 					if(appItem.app == conf.app) {
 						appItem.flows[conf.flow] = conf.flowObj;
+						eventMgr.trigger('flowUpdated', {app:conf.app});
+					}
+				});
+			}
+			else if(conf.action == 'deployAppFlows') {
+				registeredApps.forEach(function(appItem) {
+					var changed = false;
+					if(appItem.app == conf.app) {
+						appItem.flows = conf.flows;
 						eventMgr.trigger('flowUpdated', {app:conf.app});
 					}
 				});

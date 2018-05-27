@@ -129,6 +129,18 @@ var checkConf = function(opts) {
 				}
 			});
 		}
+		else if(opts.conf.action == 'deployAppFlows') {
+			dataStore.getAppsForInstance({id:opts.instance.id}).then(function(apps) {
+				for(var i = 0; i < apps.length; i++) {
+					if(apps[i].app == opts.conf.app) {
+						dataStore.getFlows({app:opts.conf.app}).then(function(flows) {
+							opts.conf.flows = flows;
+							resolve(opts);
+						});
+					}
+				}
+			});
+		}
 		else {
 			resolve(opts)
 		}
