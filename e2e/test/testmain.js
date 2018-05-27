@@ -216,7 +216,7 @@ describe('e2e test - control server push configuration to app server', function 
       .get('/rest/test')
       .expect(200)
 	  .expect(function(res) {
-		  assert.equal(res.text,"0")
+		  assert.equal(res.text,"This is the response printed from API")
 	  });
   });
   
@@ -261,7 +261,7 @@ describe('e2e test - control server push configuration to app server', function 
 		  .get('/rest/test1')
 		  .expect(200)
 		  .expect(function(res) {
-			  assert.equal(res.text,"0")
+			  assert.equal(res.text,"This is the response printed from API")
 		  });
 	  });
   });
