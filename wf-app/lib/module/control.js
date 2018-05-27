@@ -30,26 +30,29 @@ var mod = {
 		console.log('register routing for type http')
 		eventMgr.init();
 		eventMgr.addListener(function(conf) {
-			// unregister endpoints first
-			registeredEndpoints.forEach(function(ep) {
-				for(var i = app._router.stack.length - 1; i >= 0; i--) {
-					var p = app._router.stack[i].path;
-					if(typeof p != 'undefined' && p.trim().length > 0 && p.indexOf('/control') == -1) {
-						app._router.stack.splice(i,1);
+			if(conf.action == 'deployAll') { // deployAll then unregister and register all
+				// unregister endpoints first
+				registeredEndpoints.forEach(function(ep) {
+					for(var i = app._router.stack.length - 1; i >= 0; i--) {
+						var p = app._router.stack[i].path;
+						if(typeof p != 'undefined' && p.trim().length > 0 && p.indexOf('/control') == -1
+							&& p.indexOf(ep.endpoint) > -1) {
+							app._router.stack.splice(i,1);
+						}
 					}
-				}
-			})
-			registeredEndpoints = [];
-			// register endpoints
-			conf.apps.forEach(function(appItem) {
-				appItem.listeners.forEach(function(appLi) {
-					if(appLi.type == 'http') {
-						app[appLi.method.toLowerCase()](appLi.endpoint, defaultHandler);
-						console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ')');
-						registeredEndpoints.push(appLi);
-					}
+				})
+				registeredEndpoints = [];
+				// register endpoints
+				conf.apps.forEach(function(appItem) {
+					appItem.listeners.forEach(function(appLi) {
+						if(appLi.type == 'http') {
+							app[appLi.method.toLowerCase()](appLi.endpoint, defaultHandler);
+							console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ')');
+							registeredEndpoints.push(appLi);
+						}
+					});
 				});
-			});
+			}
 		});
 	}
 }
