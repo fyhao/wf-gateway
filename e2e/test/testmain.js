@@ -265,4 +265,231 @@ describe('e2e test - control server push configuration to app server', function 
 		  });
 	  });
   });
+  
+  describe('e2e test - manage routing 2nd apps', function() {
+	  it('should return status 0 after create an app with name test2', function test() {
+		return request(control_server)
+		  .post('/app')
+		  .send({name:'test2','description':'This is a test app'})
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, JSON.stringify({status:0}));
+		  });
+	  });
+	  
+	  it('should return status 0 after create flow for app test', function test() {
+		var flows = {
+			flow_2 : {
+				steps: [
+					{type:'log',log:'Hello world'},
+					{type:'response',body:'This is the response printed from API 2'}
+				]
+			}
+		};
+		return request(control_server)
+		  .post('/app/test2/flow')
+		  .send({app:'test2',flows:flows})
+		  .expect(200)
+		  .expect(function(res) {
+			  var expected = {status:0};
+			  assert.equal(res.text, JSON.stringify(expected));
+		  });
+	  });
+	  
+	  it('should return status 0 after create new listener for app test', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/test2',
+			flow : 'flow_2'
+		};
+		return request(control_server)
+		  .post('/app/test2/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  var listener_id2 = 0;
+	  it('should return status 0 with one listener for app test2', function test() {
+		return request(control_server)
+		  .get('/app/test2/listener')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.listeners.length, 1);
+			  assert.equal(json.listeners[0].type, 'http');
+			  assert.equal(json.listeners[0].endpoint, '/rest/test2');
+			  assert.equal(json.listeners[0].flow, 'flow_2');
+			  listener_id2 = json.listeners[0].id;
+			  console.log('Temp check listener id: ' + listener_id2);
+		  });
+	  });
+	  it('should return status 0 after assign one instance for app test2', function test() {
+		return request(control_server)
+		  .post('/app/test2/instance/' + instance_id)
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after enable app for this instance', function test() {
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/app/test2/enable')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+	  it('should return status 0 after request workflow from apps with endpoint /rest/test1', function test() {
+		return request(app_server)
+		  .get('/rest/test1')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text,"This is the response printed from API")
+		  });
+	  });
+	  it('should return status 0 after request workflow from apps with endpoint /rest/test2', function test() {
+		return request(app_server)
+		  .get('/rest/test2')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text,"This is the response printed from API 2")
+		  });
+	  });
+	  
+  
+  
+	  it('should return status 0 after update new listener endpoint to /rest/test11 for app test', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/test11',
+			flow : 'flow_1'
+		};
+		return request(control_server)
+		  .put('/app/test/listener/' + listener_id)
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, JSON.stringify({status:0}));
+		  });
+	  });
+	  
+	  it('should return status 0 with one listener for app test', function test() {
+		return request(control_server)
+		  .get('/app/test/listener')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.listeners.length, 1);
+			  assert.equal(json.listeners[0].type, 'http');
+			  assert.equal(json.listeners[0].endpoint, '/rest/test11');
+			  assert.equal(json.listeners[0].flow, 'flow_1');
+			  console.log('Temp check listener id sdfsdfsdfsdfsd: ' + json.listeners[0].id);
+		  });
+	  });
+  
+  
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+	  it('should return HTTP status 404 after request workflow from apps with endpoint /rest/test1', function test() {
+		return request(app_server)
+		  .get('/rest/test1')
+		  .expect(404)
+	  });
+	  it('should return HTTP status 200 after request workflow from apps with endpoint /rest/test11', function test() {
+		return request(app_server)
+		  .get('/rest/test11')
+		  .expect(200)
+	  });
+	  
+	  it('should return HTTP status 200 after request workflow from apps with endpoint /rest/test2', function test() {
+		return request(app_server)
+		  .get('/rest/test2')
+		  .expect(200)
+	  });
+	  
+	  it('should return status 0 after update new listener endpoint to /rest/test22 for app test2', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/test22',
+			flow : 'flow_2'
+		};
+		return request(control_server)
+		  .put('/app/test2/listener/' + listener_id2)
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, JSON.stringify({status:0}));
+		  });
+	  });
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+	  it('should return HTTP status 404 after request workflow from apps with endpoint /rest/test1', function test() {
+		return request(app_server)
+		  .get('/rest/test1')
+		  .expect(404)
+	  });
+	  it('should return HTTP status 200 after request workflow from apps with endpoint /rest/test11', function test() {
+		return request(app_server)
+		  .get('/rest/test11')
+		  .expect(200)
+	  });
+	  it('should return HTTP status 404 after request workflow from apps with endpoint /rest/test2', function test() {
+		return request(app_server)
+		  .get('/rest/test2')
+		  .expect(404)
+	  });
+	  it('should return HTTP status 200 after request workflow from apps with endpoint /rest/test22', function test() {
+		return request(app_server)
+		  .get('/rest/test22')
+		  .expect(200)
+	  });
+  });
 }); 

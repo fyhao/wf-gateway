@@ -36,8 +36,9 @@ var mod = {
 				registeredEndpoints.forEach(function(ep) {
 					for(var i = app._router.stack.length - 1; i >= 0; i--) {
 						var p = app._router.stack[i].path;
-						if(typeof p != 'undefined' && p.trim().length > 0 && p.indexOf('/control') == -1
-							&& p.indexOf(ep.endpoint) > -1) {
+						var r = app._router.stack[i].route;
+						if(typeof r != 'undefined' && r.path != 'undefined' && r.path.trim().length > 0 && r.path.indexOf('/control') == -1
+							) {
 							app._router.stack.splice(i,1);
 						}
 					}
@@ -48,7 +49,7 @@ var mod = {
 					appItem.listeners.forEach(function(appLi) {
 						if(appLi.type == 'http') {
 							app[appLi.method.toLowerCase()](appLi.endpoint, createHandler(appItem,appLi));
-							console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ')');
+							console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ') for app:' + appItem.app);
 							registeredEndpoints.push(appLi);
 						}
 					});
