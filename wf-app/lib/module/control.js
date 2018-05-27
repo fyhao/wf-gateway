@@ -1,4 +1,5 @@
 var DataStore = ProjRequire('./lib/data-store.js');
+var modServlet = ProjRequire('./lib/module/engine/modServlet');
 var dataStore = new DataStore();
 var mod = {
 	deploy : function(req, res) {
@@ -46,7 +47,7 @@ var mod = {
 				conf.apps.forEach(function(appItem) {
 					appItem.listeners.forEach(function(appLi) {
 						if(appLi.type == 'http') {
-							app[appLi.method.toLowerCase()](appLi.endpoint, defaultHandler);
+							app[appLi.method.toLowerCase()](appLi.endpoint, createHandler(appItem,appLi));
 							console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ')');
 							registeredEndpoints.push(appLi);
 						}
@@ -56,8 +57,8 @@ var mod = {
 		});
 	}
 }
-var defaultHandler = function(req, res) {
-	res.end('0');
+var createHandler = function(appItem, appLi) {
+	return modServlet.createHandler(appItem, appLi);
 }
 var registeredEndpoints = [];
 var EventManager = function() {
