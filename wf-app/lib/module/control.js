@@ -13,13 +13,19 @@ var mod = {
 		if(action == 'deployAll') {
 			var apps = conf.apps;
 			dataStore.storeApps(apps).then(function(result) {
-				eventMgr.trigger(conf);
+				eventMgr.triggerConf('registerRouting', conf);
 				res.json({status:0,action:action});
 			});
 		}
 		else if(action == 'deployAppStatus') {
-			eventMgr.trigger(conf);
+			eventMgr.triggerConf('registerRouting', conf);
 			res.json({status:0,action:action});
+		}
+		else if(action == 'deployAppFlow') {
+			dataStore.saveAppFlow(conf.app, conf.flow, conf.flowObj).then(function(b) {
+				eventMgr.triggerConf('registerRouting', conf);
+				res.json({status:0,action:action});
+			});
 		}
 		else if(action == 'check') {
 			dataStore.getApps().then(function(apps) {
@@ -34,7 +40,7 @@ var mod = {
 	registerRouting : function(app) {
 		console.log('register routing for type http')
 		eventMgr.init();
-		eventMgr.addListener(function(conf) {
+		eventMgr.registerEventHandler('registerRouting', function(conf) {
 			if(conf.action == 'deployAll') { // deployAll then unregister and register all
 				// unregister endpoints first
 				registeredEndpoints.forEach(function(ep) {
@@ -52,7 +58,7 @@ var mod = {
 					if(appItem.status == 'enabled') {
 						appItem.listeners.forEach(function(appLi) {
 							if(appLi.type == 'http') {
-								app[appLi.method.toLowerCase()](appLi.endpoint, createHandler(appItem,appLi));
+								app[appLi.method.toLowerCase()](appLi.endpoint, createHandler(eventMgr, appItem,appLi));
 								console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ') for app:' + appItem.app);
 								registeredEndpoints.push(appLi);
 							}
@@ -73,7 +79,7 @@ var mod = {
 					if(changed && appItem.status == 'enabled') {
 						appItem.listeners.forEach(function(appLi) {
 							if(appLi.type == 'http') {
-								app[appLi.method.toLowerCase()](appLi.endpoint, createHandler(appItem,appLi));
+								app[appLi.method.toLowerCase()](appLi.endpoint, createHandler(eventMgr, appItem,appLi));
 								console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ') for app:' + appItem.app);
 								registeredEndpoints.push(appLi);
 							}
@@ -92,11 +98,20 @@ var mod = {
 					}
 				});
 			}
+			else if(conf.action == 'deployAppFlow') {
+				registeredApps.forEach(function(appItem) {
+					var changed = false;
+					if(appItem.app == conf.app) {
+						appItem.flows[conf.flow] = conf.flowObj;
+						eventMgr.trigger('flowUpdated', {app:conf.app});
+					}
+				});
+			}
 		});
 	}
 }
-var createHandler = function(appItem, appLi) {
-	return modServlet.createHandler(appItem, appLi);
+var createHandler = function(eventMgr, appItem, appLi) {
+	return modServlet.createHandler(eventMgr, appItem, appLi);
 }
 var registeredEndpoints = [];
 var registerApps = null;
@@ -105,12 +120,21 @@ var EventManager = function() {
 	this.init = function() {
 		listeners = [];
 	}
-	this.addListener = function(fn) {
-		listeners.push(fn);
+	this.registerEventHandler = function(name, fn) {
+		listeners.push({name:name,fn:fn});
 	}
-	this.trigger = function(conf) {
+	this.triggerConf = function(name, conf) {
 		listeners.forEach(function(i) {
-			i(conf);
+			if(i.name == name) {
+				i.fn(conf);
+			}
+		});
+	}
+	this.trigger = function(name, opts) {
+		listeners.forEach(function(i) {
+			if(i.name == name) {
+				i.fn(opts);
+			}
 		});
 	}
 }

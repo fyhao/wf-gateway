@@ -116,6 +116,19 @@ var checkConf = function(opts) {
 				resolve(opts);
 			});
 		}
+		else if(opts.conf.action == 'deployAppFlow') {
+			dataStore.getAppsForInstance({id:opts.instance.id}).then(function(apps) {
+				for(var i = 0; i < apps.length; i++) {
+					if(apps[i].app == opts.conf.app) {
+						dataStore.getFlows({app:opts.conf.app}).then(function(flows) {
+							var flow = flows[opts.conf.flow];
+							opts.conf.flowObj = flow;
+							resolve(opts);
+						});
+					}
+				}
+			});
+		}
 		else {
 			resolve(opts)
 		}

@@ -5,6 +5,18 @@ var DataStore = function() {
 			resolve(true);
 		})
 	}
+	this.saveAppFlow = function(app, flowName, flowObj) {
+		return this.getApps().then(function(apps) {
+			return new Promise(function(resolve,reject) {
+				apps.forEach(function(appItem) {
+					if(appItem.app == app) {
+						appItem.flows[flowName] = flowObj;
+					}
+				});
+				resolve(apps);
+			});
+		}).then(this.storeApps);
+	}
 	this.getApps = function() {
 		return new Promise(function(resolve, reject) {
 			resolve(appsStore);
