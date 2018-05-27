@@ -28,7 +28,7 @@ var mod = {
 	,
 	registerRouting : function(app) {
 		console.log('register routing for type http')
-		
+		eventMgr.init();
 		eventMgr.addListener(function(conf) {
 			// unregister endpoints first
 			registeredEndpoints.forEach(function(ep) {
@@ -59,6 +59,9 @@ var defaultHandler = function(req, res) {
 var registeredEndpoints = [];
 var EventManager = function() {
 	var listeners = [];
+	this.init = function() {
+		listeners = [];
+	}
 	this.addListener = function(fn) {
 		listeners.push(fn);
 	}
