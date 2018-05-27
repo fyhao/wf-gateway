@@ -491,7 +491,7 @@ describe('e2e test - control server push configuration to app server', function 
 		  .expect(200)
 	  });
   });
-  
+  var listener_id3 = 0;
   describe('e2e test - manage routing 3rd apps - enable disable app', function() {
 	  it('should return status 0 after create an app with name test3', function test() {
 		return request(control_server)
@@ -537,7 +537,7 @@ describe('e2e test - control server push configuration to app server', function 
 			  assert.equal(json.status, 0);
 		  });
 	  });
-	  var listener_id3 = 0;
+	  
 	  it('should return status 0 with one listener for app test3', function test() {
 		return request(control_server)
 		  .get('/app/test3/listener')
@@ -846,7 +846,7 @@ describe('e2e test - control server push configuration to app server', function 
 			  assert.equal(res.text, JSON.stringify(expected));
 		  });
 	  });
-	  it('should return status 0 after calling deploy with action deployAppFlow', function test() {
+	  it('should return status 0 after calling deploy with action deployAppFlows', function test() {
 		var conf = {
 			action : 'deployAppFlows',
 			app : 'test3'
@@ -868,6 +868,64 @@ describe('e2e test - control server push configuration to app server', function 
 		  .expect(200)
 		  .expect(function(res) {
 			  assert.equal(res.text,"This is the response printed from API 333")
+		  });
+	  });
+  });
+  
+  describe('e2e test - updateOnly deployApp', function() {
+	  it('should return status 0 after update single flow definition for app test3', function test() {
+		var flows = {
+			flow_3 : {
+				steps: [
+					{type:'response',body:'This is the response printed from API 3333'}
+				]
+			}
+		};
+		return request(control_server)
+		  .put('/app/test3/flow/flow_3')
+		  .send({flow:flows.flow_3})
+		  .expect(200)
+		  .expect(function(res) {
+			  var expected = {status:0};
+			  assert.equal(res.text, JSON.stringify(expected));
+		  });
+	  });
+	  it('should return status 0 after update new listener endpoint to /rest/test334 for app test3', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/test334',
+			flow : 'flow_3'
+		};
+		return request(control_server)
+		  .put('/app/test3/listener/' + listener_id3)
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, JSON.stringify({status:0}));
+		  });
+	  });
+	  it('should return status 0 after calling deploy with action deployApp', function test() {
+		var conf = {
+			action : 'deployApp',
+			app : 'test3'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployApp');
+		  });
+	  });
+	  it('should return status HTTP 200 after request workflow from apps with endpoint /rest/test334', function test() {
+		return request(app_server)
+		  .get('/rest/test334')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text,"This is the response printed from API 3333")
 		  });
 	  });
   });

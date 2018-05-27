@@ -29,6 +29,19 @@ var DataStore = function() {
 			});
 		}).then(this.storeApps);
 	}
+	this.saveApp = function(app, flows, listeners) {
+		return this.getApps().then(function(apps) {
+			return new Promise(function(resolve,reject) {
+				apps.forEach(function(appItem) {
+					if(appItem.app == app) {
+						appItem.flows = flows;
+						appItem.listeners = listeners;
+					}
+				});
+				resolve(apps);
+			});
+		}).then(this.storeApps);
+	}
 	this.getApps = function() {
 		return new Promise(function(resolve, reject) {
 			resolve(appsStore);
