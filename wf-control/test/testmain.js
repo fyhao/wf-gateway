@@ -169,7 +169,7 @@ describe('flow module', function () {
 	};
     return request(server)
       .post('/app/test/flow')
-	  .send({app:'test',flows:flows})
+	  .send({flows:flows})
       .expect(200)
 	  .expect(function(res) {
 		  var expected = {status:0};
@@ -198,7 +198,7 @@ describe('flow module', function () {
 	};
     return request(server)
       .put('/app/test/flow')
-	  .send({app:'test',flows:flows})
+	  .send({flows:flows})
       .expect(200)
 	  .expect(function(res) {
 		  var expected = {status:0};
@@ -228,7 +228,7 @@ describe('flow module', function () {
 	};
     return request(server)
       .put('/app/test/flow/flow_1')
-	  .send({app:'test',flow:flows.flow_1})
+	  .send({flow:flows.flow_1})
       .expect(200)
 	  .expect(function(res) {
 		  var expected = {status:0};

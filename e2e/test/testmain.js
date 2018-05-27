@@ -78,7 +78,7 @@ describe('e2e test - control server push configuration to app server', function 
 	};
     return request(control_server)
       .post('/app/test/flow')
-	  .send({app:'test',flows:flows})
+	  .send({flows:flows})
       .expect(200)
 	  .expect(function(res) {
 		  var expected = {status:0};
@@ -288,7 +288,7 @@ describe('e2e test - control server push configuration to app server', function 
 		};
 		return request(control_server)
 		  .post('/app/test2/flow')
-		  .send({app:'test2',flows:flows})
+		  .send({flows:flows})
 		  .expect(200)
 		  .expect(function(res) {
 			  var expected = {status:0};
