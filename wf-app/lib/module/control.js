@@ -45,13 +45,16 @@ var mod = {
 				registeredEndpoints = [];
 				// register endpoints
 				conf.apps.forEach(function(appItem) {
-					appItem.listeners.forEach(function(appLi) {
-						if(appLi.type == 'http') {
-							app[appLi.method.toLowerCase()](appLi.endpoint, createHandler(appItem,appLi));
-							console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ') for app:' + appItem.app);
-							registeredEndpoints.push(appLi);
-						}
-					});
+					if(appItem.status == 'enabled') {
+						appItem.listeners.forEach(function(appLi) {
+							if(appLi.type == 'http') {
+								app[appLi.method.toLowerCase()](appLi.endpoint, createHandler(appItem,appLi));
+								console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ') for app:' + appItem.app);
+								registeredEndpoints.push(appLi);
+							}
+						});
+					}
+					
 				});
 			}
 		});

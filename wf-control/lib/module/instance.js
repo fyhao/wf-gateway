@@ -89,9 +89,10 @@ var checkConf = function(opts) {
 				var i = 0;
 				var checkNext = function() {
 					var app = apps[i].app;
+					var status = apps[i].status;
 					dataStore.getFlows({app:app}).then(function(flows) {
 						dataStore.getListeners({app:app}).then(function(listeners) {
-							opts.conf.apps.push({app:app, flows:flows, listeners:listeners});
+							opts.conf.apps.push({app:app, status:status, flows:flows, listeners:listeners});
 							
 							if(++i < apps.length) {
 								checkNext();
