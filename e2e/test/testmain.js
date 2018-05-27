@@ -195,4 +195,13 @@ describe('e2e test - control server push configuration to app server', function 
 		  assert.equal(json.apps[0].listeners.length, 1)
 	  });
   });
+  
+  it('should return status 0 after request workflow from apps', function test() {
+    return request(app_server)
+      .get('/rest/test')
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text,"0")
+	  });
+  });
 }); 

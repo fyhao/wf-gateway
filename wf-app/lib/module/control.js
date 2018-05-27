@@ -12,6 +12,7 @@ var mod = {
 		if(action == 'deployAll') {
 			var apps = conf.apps;
 			dataStore.storeApps(apps).then(function(result) {
+				eventMgr.trigger(conf);
 				res.json({status:0,action:action});
 			});
 		}
@@ -24,6 +25,48 @@ var mod = {
 			res.json({status:0,action:action});
 		}
 	}
+	,
+	registerRouting : function(app) {
+		console.log('register routing for type http')
+		
+		eventMgr.addListener(function(conf) {
+			// unregister endpoints first
+			registeredEndpoints.forEach(function(ep) {
+				for(var i = app._router.stack.length - 1; i >= 0; i--) {
+					if(app._router.stack[i].path == ep.endpoint) {
+						app._router.stack.splice(i,1);
+					}
+				}
+			})
+			registeredEndpoints = [];
+			// register endpoints
+			conf.apps.forEach(function(appItem) {
+				appItem.listeners.forEach(function(appLi) {
+					if(appLi.type == 'http') {
+						app[appLi.method.toLowerCase()](appLi.endpoint, defaultHandler);
+						console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ')');
+						registeredEndpoints.push(appLi);
+					}
+				});
+			});
+		});
+	}
 }
+var defaultHandler = function(req, res) {
+	res.end('0');
+}
+var registeredEndpoints = [];
+var EventManager = function() {
+	var listeners = [];
+	this.addListener = function(fn) {
+		listeners.push(fn);
+	}
+	this.trigger = function(conf) {
+		listeners.forEach(function(i) {
+			i(conf);
+		});
+	}
+}
+var eventMgr = new EventManager();
 
 module.exports = mod;
