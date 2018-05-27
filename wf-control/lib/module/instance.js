@@ -89,9 +89,10 @@ var checkConf = function(opts) {
 				var i = 0;
 				var checkNext = function() {
 					var app = apps[i].app;
+					var status = apps[i].status;
 					dataStore.getFlows({app:app}).then(function(flows) {
 						dataStore.getListeners({app:app}).then(function(listeners) {
-							opts.conf.apps.push({app:app, flows:flows, listeners:listeners});
+							opts.conf.apps.push({app:app, status:status, flows:flows, listeners:listeners});
 							
 							if(++i < apps.length) {
 								checkNext();
@@ -103,6 +104,56 @@ var checkConf = function(opts) {
 					});
 				}
 				checkNext();
+			});
+		}
+		else if(opts.conf.action == 'deployAppStatus') {
+			dataStore.getAppsForInstance({id:opts.instance.id}).then(function(apps) {
+				for(var i = 0; i < apps.length; i++) {
+					if(apps[i].app == opts.conf.app) {
+						opts.conf.status = apps[i].status;
+					}
+				}
+				resolve(opts);
+			});
+		}
+		else if(opts.conf.action == 'deployAppFlow') {
+			dataStore.getAppsForInstance({id:opts.instance.id}).then(function(apps) {
+				for(var i = 0; i < apps.length; i++) {
+					if(apps[i].app == opts.conf.app) {
+						dataStore.getFlows({app:opts.conf.app}).then(function(flows) {
+							var flow = flows[opts.conf.flow];
+							opts.conf.flowObj = flow;
+							resolve(opts);
+						});
+					}
+				}
+			});
+		}
+		else if(opts.conf.action == 'deployAppFlows') {
+			dataStore.getAppsForInstance({id:opts.instance.id}).then(function(apps) {
+				for(var i = 0; i < apps.length; i++) {
+					if(apps[i].app == opts.conf.app) {
+						dataStore.getFlows({app:opts.conf.app}).then(function(flows) {
+							opts.conf.flows = flows;
+							resolve(opts);
+						});
+					}
+				}
+			});
+		}
+		else if(opts.conf.action == 'deployApp') {
+			dataStore.getAppsForInstance({id:opts.instance.id}).then(function(apps) {
+				for(var i = 0; i < apps.length; i++) {
+					if(apps[i].app == opts.conf.app) {
+						dataStore.getFlows({app:opts.conf.app}).then(function(flows) {
+							dataStore.getListeners({app:opts.conf.app}).then(function(listeners) {
+								opts.conf.flows = flows;
+								opts.conf.listeners = listeners;
+								resolve(opts);
+							});
+						});
+					}
+				}
 			});
 		}
 		else {
