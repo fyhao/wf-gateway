@@ -4,11 +4,11 @@ var request = require('supertest');
 describe('loading express', function () {
   var control_server;
   var app_server;
-  beforeEach(function () {
+  before(function () {
     control_server = require('../../wf-control/server', { bustCache: true })();
 	app_server = require('../../wf-app/server', { bustCache: true })();
   });
-  afterEach(function (done) {
+  after(function (done) {
 	var numOfDone = 0;
 	var checkDone = function() {
 		numOfDone++;
