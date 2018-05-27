@@ -641,5 +641,82 @@ describe('e2e test - control server push configuration to app server', function 
 		  .get('/rest/test3')
 		  .expect(404)
 	  });
+	  
+	  it('should return status 0 after update new listener endpoint to /rest/test33 for app test3', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/test33',
+			flow : 'flow_3'
+		};
+		return request(control_server)
+		  .put('/app/test3/listener/' + listener_id3)
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, JSON.stringify({status:0}));
+		  });
+	  });
+	  
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+	  it('should return HTTP status 404 after request workflow from apps with endpoint /rest/test33 as apps was disabled', function test() {
+		return request(app_server)
+		  .get('/rest/test33')
+		  .expect(404)
+	  });
+	  it('should return HTTP status 404 after request workflow from apps with endpoint /rest/test3 as apps was disabled and it was changed', function test() {
+		return request(app_server)
+		  .get('/rest/test3')
+		  .expect(404)
+	  });
+	  
+	  it('should return status 0 after enable app for this instance', function test() {
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/app/test3/enable')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+	  it('should return HTTP status 200 after request workflow from apps with endpoint /rest/test33 as apps was enabled', function test() {
+		return request(app_server)
+		  .get('/rest/test33')
+		  .expect(200)
+	  });
+	  it('should return HTTP status 404 after request workflow from apps with endpoint /rest/test3 as apps was enabled but it was changed', function test() {
+		return request(app_server)
+		  .get('/rest/test3')
+		  .expect(404)
+	  });
   });
 }); 
