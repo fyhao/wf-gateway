@@ -101,7 +101,22 @@ describe('e2e test - control server push configuration to app server', function 
 		  assert.equal(json.status, 0);
 	  });
   });
-  
+  var listener_id = 0;
+  it('should return status 0 with one listener for app test', function test() {
+    return request(control_server)
+      .get('/app/test/listener')
+      .expect(200)
+	  .expect(function(res) {
+		  var json = JSON.parse(res.text);
+		  assert.equal(json.status, 0);
+		  assert.equal(json.listeners.length, 1);
+		  assert.equal(json.listeners[0].type, 'http');
+		  assert.equal(json.listeners[0].endpoint, '/rest/test');
+		  assert.equal(json.listeners[0].flow, 'flow_1');
+		  listener_id = json.listeners[0].id;
+		  console.log('Temp check listener id: ' + listener_id);
+	  });
+  });
   it('should return status 0 after create an instance', function test() {
     return request(control_server)
       .post('/instance')
@@ -196,12 +211,58 @@ describe('e2e test - control server push configuration to app server', function 
 	  });
   });
   
-  it('should return status 0 after request workflow from apps', function test() {
+  it('should return status 0 after request workflow from apps with endpoint /rest/test', function test() {
     return request(app_server)
       .get('/rest/test')
       .expect(200)
 	  .expect(function(res) {
 		  assert.equal(res.text,"0")
+	  });
+  });
+  
+  describe('e2e test - manage routing test', function () {
+	  it('should return status 0 after update new listener endpoint to /rest/test1 for app test', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/test1',
+			flow : 'flow_1'
+		};
+		return request(control_server)
+		  .put('/app/test/listener/' + listener_id)
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, JSON.stringify({status:0}));
+		  });
+	  });
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+	  it('should return HTTP status 404 after request workflow from apps with endpoint /rest/test', function test() {
+		return request(app_server)
+		  .get('/rest/test')
+		  .expect(404)
+	  });
+	  
+	  it('should return status 0 after request workflow from apps with endpoint /rest/test1', function test() {
+		return request(app_server)
+		  .get('/rest/test1')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text,"0")
+		  });
 	  });
   });
 }); 
