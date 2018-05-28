@@ -964,6 +964,11 @@ describe('e2e test - control server push configuration to app server', function 
 					{type:'response',body:'My fullname is ##fullName##. Nickname: {{varNickName}}. With my auth: {{varAuth}}'},
 				]
 			},
+			put_flow : {
+				steps : [
+					{type:'post_flow'},
+				]
+			},
 			calcFullName: {
 				steps : [
 					{type:'setVar',name:'fullName',value:'{{varFirst}} {{varLast}}'},
@@ -1001,6 +1006,22 @@ describe('e2e test - control server push configuration to app server', function 
 			endpoint : '/rest/post',
 			flow : 'post_flow',
 			method : 'POST'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after create new listener /rest/put for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/put',
+			flow : 'put_flow',
+			method : 'PUT'
 		};
 		return request(control_server)
 		  .post('/app/test4/listener')
@@ -1060,6 +1081,18 @@ describe('e2e test - control server push configuration to app server', function 
 	  it('should return OK for calling workflows with POST', function test() {
 		return request(app_server)
 		  .post('/rest/post?nickName=Kate')
+		  .send({firstName:'mary',lastName:'brown'})
+		  .set('auth','myauth')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown. Nickname: Kate. With my auth: myauth")
+			  assert.equal(res.headers.myheader, 'myHeaderValue')
+		  });
+	  });
+	  
+	  it('should return OK for calling workflows with PUT', function test() {
+		return request(app_server)
+		  .put('/rest/put?nickName=Kate')
 		  .send({firstName:'mary',lastName:'brown'})
 		  .set('auth','myauth')
 		  .expect(200)
