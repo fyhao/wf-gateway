@@ -163,7 +163,7 @@ describe('modServlet module', function () {
   });	
   
   describe('#response', function() {
-	  it('should be OK to set request body', function test(done) {
+	  it('should be OK to set response body', function test(done) {
 		  executeTestCase({
 			  flows:{
 				flow_1: {
