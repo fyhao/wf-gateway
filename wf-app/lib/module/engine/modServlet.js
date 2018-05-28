@@ -1,7 +1,6 @@
 var DataStore = ProjRequire('./lib/data-store.js');
 var dataStore = new DataStore();
 var modFlow = require('./modFlow');
-global.STEP_TIMEOUT = 0;
 
 var createHandler = function(eventMgr, appItem, appLi) {
 	
