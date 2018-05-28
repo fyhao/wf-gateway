@@ -974,6 +974,20 @@ describe('e2e test - control server push configuration to app server', function 
 					{type:'post_flow'},
 				]
 			},
+			call_http_flow : {
+				steps : [
+					{type:'http','url':'http://localhost:8081/rest/calcFullName?firstName=mary&lastName=brown',var:'respBody'},
+					{type:'response',body:'My fullname is ##respBody##'},
+				]
+			},
+			calcFullName_flow: {
+				steps : [
+					{type:'request',action:'getParam',key:'firstName',var:'varFirst'},
+					{type:'request',action:'getParam',key:'lastName',var:'varLast'},
+					{type:'calcFullName'},
+					{type:'response',body:'{{fullName}}'},
+				]
+			},
 			calcFullName: {
 				steps : [
 					{type:'setVar',name:'fullName',value:'{{varFirst}} {{varLast}}'},
@@ -1043,6 +1057,36 @@ describe('e2e test - control server push configuration to app server', function 
 			endpoint : '/rest/delete',
 			flow : 'delete_flow',
 			method : 'DELETE'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after create new listener /rest/callhttp for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/callhttp',
+			flow : 'call_http_flow'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after create new listener /rest/calcFullName for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/calcFullName',
+			flow : 'calcFullName_flow'
 		};
 		return request(control_server)
 		  .post('/app/test4/listener')
@@ -1132,6 +1176,15 @@ describe('e2e test - control server push configuration to app server', function 
 		  .expect(function(res) {
 			  assert.equal(res.text, "My fullname is mary brown. Nickname: Kate. With my auth: myauth")
 			  assert.equal(res.headers.myheader, 'myHeaderValue')
+		  });
+	  });
+	  
+	  it('should return OK for calling workflows with /rest/callhttp', function test() {
+		return request(app_server)
+		  .get('/rest/callhttp?firstName=mary&lastName=brown')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown")
 		  });
 	  });
   });
