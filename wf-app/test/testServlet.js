@@ -83,7 +83,7 @@ describe('modServlet module', function () {
 	  });
   });
   describe('#setVar', function() {
-	  it('should be OK to setVar and response the variable in ##xxx##', function test(done) {
+	  it('should be OK to setVar and response the variable in ##xxx## (string)', function test(done) {
 		  executeTestCase({
 			  flows:{
 				flow_1: {
@@ -97,6 +97,23 @@ describe('modServlet module', function () {
 			  done:done,
 			  resEnd : function(body) {
 				  assert.equal(body,"the response name is ali")
+			  }
+		  });
+	  });
+	  it('should be OK to setVar and response the variable in ##xxx## (integer)', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'setVar',name:'id',value:123},
+						{type:'response',body:'the response id is ##id##'},
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  done:done,
+			  resEnd : function(body) {
+				  assert.equal(body,"the response id is 123")
 			  }
 		  });
 	  });
