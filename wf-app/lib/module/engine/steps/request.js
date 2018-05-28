@@ -5,6 +5,10 @@ module.exports = {
 			var value = ctx.req.param(step.key);
 			ctx.vars[step.var] = value;
 		}
+		else if(step.action == 'getHeader') {
+			var value = ctx.req.headers[step.key];
+			ctx.vars[step.var] = value;
+		}
 		setTimeout(next, global.STEP_TIMEOUT);
 	}
 }

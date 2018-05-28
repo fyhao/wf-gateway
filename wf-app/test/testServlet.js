@@ -10,6 +10,7 @@ describe('modServlet module', function () {
 		var appLi = { flow: opts.entryFlow};
 		var req = {
 			params : opts.requestParams,
+			headers : opts.requestHeaders,
 			param : function(name) {
 				return this.params[name]
 			}
@@ -137,6 +138,24 @@ describe('modServlet module', function () {
 			  done:done,
 			  resEnd : function(body) {
 				  assert.equal(body,"My fullname is mary brown")
+			  }
+		  });
+	  });
+	  it('should be OK to get request header', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'request',action:'getHeader',key:'auth',var:'varAuth'},
+						{type:'response',body:'the header is ##varAuth##'},
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  done:done,
+			  requestHeaders : {auth:'authvalue'},
+			  resEnd : function(body) {
+				  assert.equal(body,"the header is authvalue")
 			  }
 		  });
 	  });
