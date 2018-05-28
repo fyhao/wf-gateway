@@ -176,7 +176,7 @@ describe('modServlet module', function () {
 				},
 				calcFullName: {
 					steps : [
-						{type:'setVar',name:'fullName',value:'{{varFirst}} {{varLast}}'},
+						{type:'setVar',name:'fullName',value:'{{varFirst + " " + varLast}}'},
 					]
 				}
 			  },
