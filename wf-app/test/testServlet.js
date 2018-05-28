@@ -120,21 +120,23 @@ describe('modServlet module', function () {
   });
   
   describe('#request', function() {
-	  it('should be OK to get request param', function test(done) {
+	  it('should be OK to get request param in hash and eval', function test(done) {
 		  executeTestCase({
 			  flows:{
 				flow_1: {
 					steps : [
-						{type:'request',action:'getParam',param:'name',var:'varName'},
-						{type:'response',body:'the response name is ##varName##'},
+						{type:'request',action:'getParam',param:'firstName',var:'varFirst'},
+						{type:'request',action:'getParam',param:'lastName',var:'varLast'},
+						{type:'setVar',name:'fullName',value:'{{varFirst}} {{varLast}}'},
+						{type:'response',body:'My fullname is ##fullName##'},
 					]
 				}
 			  },
 			  entryFlow:'flow_1',
-			  requestParams : {name:'ali'},
+			  requestParams : {firstName:'mary',lastName:'brown'},
 			  done:done,
 			  resEnd : function(body) {
-				  assert.equal(body,"the response name is ali")
+				  assert.equal(body,"My fullname is mary brown")
 			  }
 		  });
 	  });
