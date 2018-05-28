@@ -16,7 +16,14 @@ describe('modServlet module', function () {
 			}
 		};
 		var res = {
-			end : opts.resEnd
+			end : opts.resEnd,
+			set : function(key,value) {
+				this.headers[key] = value;
+			},
+			get : function(key) {
+				return this.headers[key];
+			},
+			headers : {}
 		}
 		eventMgr.trigger = function(name, opts1) {
 			if(name == 'flowExecutedDone') {
@@ -176,6 +183,26 @@ describe('modServlet module', function () {
 			  done:done,
 			  resEnd : function(body) {
 				  assert.equal(body,"My fullname")
+			  }
+		  });
+	  }); // end it
+	  
+	  it('should be OK to set response header', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'response',action:'setHeader',key:'statusCode',value:'404'},
+						{type:'response',action:'getHeader',key:'statusCode',var:'varCode'},
+						{type:'response',body:'the code is ##varCode##'},
+						
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  done:done,
+			  resEnd : function(body) {
+				  assert.equal(body,"the code is 404")
 			  }
 		  });
 	  }); // end it
