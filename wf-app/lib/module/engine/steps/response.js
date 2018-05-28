@@ -1,7 +1,15 @@
 module.exports = {
 	
 	process : function(ctx, step, next) {
-		ctx.res.end(step.body);
+		var action = step.action;
+		if(action != null) {
+			if(action == 'setHeader') {
+				ctx.res.set(step.key, step.value);
+			}
+		}
+		else {
+			ctx.res.end(step.body);
+		}
 		process.nextTick(next);
 	}
 }

@@ -161,6 +161,25 @@ describe('modServlet module', function () {
 		  });
 	  });
   });	
+  
+  describe('#response', function() {
+	  it('should be OK to set request body', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'response',body:'My fullname'},
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  done:done,
+			  resEnd : function(body) {
+				  assert.equal(body,"My fullname")
+			  }
+		  });
+	  }); // end it
+  });	
 
 	describe('#subflow', function() {
 	  it('should be OK to call subflow', function test(done) {
