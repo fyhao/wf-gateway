@@ -125,8 +125,8 @@ describe('modServlet module', function () {
 			  flows:{
 				flow_1: {
 					steps : [
-						{type:'request',action:'getParam',param:'firstName',var:'varFirst'},
-						{type:'request',action:'getParam',param:'lastName',var:'varLast'},
+						{type:'request',action:'getParam',key:'firstName',var:'varFirst'},
+						{type:'request',action:'getParam',key:'lastName',var:'varLast'},
 						{type:'setVar',name:'fullName',value:'{{varFirst}} {{varLast}}'},
 						{type:'response',body:'My fullname is ##fullName##'},
 					]
