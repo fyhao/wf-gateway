@@ -10,7 +10,8 @@ describe('modServlet module', function () {
 		var appLi = { flow: opts.entryFlow};
 		var req = {
 			query : opts.requestParams,
-			headers : opts.requestHeaders
+			headers : opts.requestHeaders,
+			body : opts.requestBodys
 		};
 		var res = {
 			end : opts.resEnd,
@@ -159,6 +160,24 @@ describe('modServlet module', function () {
 			  requestHeaders : {auth:'authvalue','user-agent':'mozilla'},
 			  resEnd : function(body) {
 				  assert.equal(body,"the header is authvalue, mozilla")
+			  }
+		  });
+	  }); // end it
+	  it('should be OK to get request body', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'request',action:'getBody',key:'myBody',var:'body'},
+						{type:'response',body:'the body is ##body##'},
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  done:done,
+			  requestBodys : {myBody:'bodyValue'},
+			  resEnd : function(body) {
+				  assert.equal(body,"the body is bodyValue")
 			  }
 		  });
 	  }); // end it
