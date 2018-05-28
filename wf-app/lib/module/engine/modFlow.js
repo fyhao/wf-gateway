@@ -51,23 +51,23 @@ var FlowEngine = function(flow) {
 				}
 				else {
 					if(done.length == 1) {
-						setTimeout(function() {
+						process.nextTick(function() {
 							var outputVars = {};
 							for(var i in ctx.vars) {
 								outputVars[i] = ctx.vars[i];
 							}
 							done(outputVars);
-						}, 0);
+						});
 					}
 					else {
-						setTimeout(done, 0);
+						process.nextTick(done);
 					}
 				}
 			}
-			setTimeout(checkNext, 0);
+			process.nextTick(checkNext);
 		}
 		else {
-			setTimeout(done, 0);
+			process.nextTick(done);
 		}
 	}
 	this.cancel = function() {
@@ -118,7 +118,7 @@ var FlowEngine = function(flow) {
 			//console.log('search flow ' + step.type + " = " + (typeof flow));
 			if(typeof flow != 'undefined') {
 				new FlowEngine(flow).setContext(ctx).setInputVars(step).execute(function() {
-					setTimeout(next, 0);
+					process.nextTick(next);
 				});
 				return;
 			}
