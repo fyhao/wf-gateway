@@ -147,15 +147,16 @@ describe('modServlet module', function () {
 				flow_1: {
 					steps : [
 						{type:'request',action:'getHeader',key:'auth',var:'varAuth'},
-						{type:'response',body:'the header is ##varAuth##'},
+						{type:'request',action:'getHeader',key:'user-agent',var:'userAgent'},
+						{type:'response',body:'the header is ##varAuth##, ##userAgent##'},
 					]
 				}
 			  },
 			  entryFlow:'flow_1',
 			  done:done,
-			  requestHeaders : {auth:'authvalue'},
+			  requestHeaders : {auth:'authvalue','user-agent':'mozilla'},
 			  resEnd : function(body) {
-				  assert.equal(body,"the header is authvalue")
+				  assert.equal(body,"the header is authvalue, mozilla")
 			  }
 		  });
 	  });
