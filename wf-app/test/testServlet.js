@@ -118,4 +118,25 @@ describe('modServlet module', function () {
 		  });
 	  });
   });
+  
+  describe('#request', function() {
+	  it('should be OK to get request param', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'request',action:'getParam',param:'name',var:'varName'},
+						{type:'response',body:'the response name is ##varName##'},
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  requestParams : {name:'ali'},
+			  done:done,
+			  resEnd : function(body) {
+				  assert.equal(body,"the response name is ali")
+			  }
+		  });
+	  });
+  });	  
 });
