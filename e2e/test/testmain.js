@@ -929,4 +929,264 @@ describe('e2e test - control server push configuration to app server', function 
 		  });
 	  });
   });
+  
+  describe('e2e test - call workflows', function() {
+	  it('should return status 0 after create an app with name test4', function test() {
+		return request(control_server)
+		  .post('/app')
+		  .send({name:'test4','description':'This is a test app'})
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, JSON.stringify({status:0}));
+		  });
+	  });
+	  
+	  it('should return status 0 after create flow for app test4', function test() {
+		var flows = {
+			main_flow : {
+				steps : [
+					{type:'request',action:'getParam',key:'firstName',var:'varFirst'},
+					{type:'request',action:'getParam',key:'lastName',var:'varLast'},
+					{type:'request',action:'getHeader',key:'auth',var:'varAuth'},
+					{type:'request',action:'getPathParam',key:'id',var:'id'},
+					{type:'calcFullName'},
+					{type:'response',action:'setHeader',key:'myheader',value:'myHeaderValue'},
+					{type:'response',body:'My fullname is ##fullName##. With my auth: {{varAuth}}. Id: ##id##'},
+				]
+			},
+			post_flow : {
+				steps : [
+					{type:'request',action:'getBody',key:'firstName',var:'varFirst'},
+					{type:'request',action:'getBody',key:'lastName',var:'varLast'},
+					{type:'request',action:'getParam',key:'nickName',var:'varNickName'},
+					{type:'request',action:'getHeader',key:'auth',var:'varAuth'},
+					{type:'calcFullName'},
+					{type:'response',action:'setHeader',key:'myheader',value:'myHeaderValue'},
+					{type:'response',body:'My fullname is ##fullName##. Nickname: {{varNickName}}. With my auth: {{varAuth}}'},
+				]
+			},
+			put_flow : {
+				steps : [
+					{type:'post_flow'},
+				]
+			},
+			delete_flow : {
+				steps : [
+					{type:'post_flow'},
+				]
+			},
+			call_http_flow : {
+				steps : [
+					{type:'http','url':'http://localhost:8081/rest/calcFullName?firstName=mary&lastName=brown',var:'respBody'},
+					{type:'response',body:'My fullname is ##respBody##'},
+				]
+			},
+			calcFullName_flow: {
+				steps : [
+					{type:'request',action:'getParam',key:'firstName',var:'varFirst'},
+					{type:'request',action:'getParam',key:'lastName',var:'varLast'},
+					{type:'calcFullName'},
+					{type:'response',body:'{{fullName}}'},
+				]
+			},
+			calcFullName: {
+				steps : [
+					{type:'setVar',name:'fullName',value:'{{varFirst}} {{varLast}}'},
+				]
+			}
+		};
+		return request(control_server)
+		  .post('/app/test4/flow')
+		  .send({flows:flows})
+		  .expect(200)
+		  .expect(function(res) {
+			  var expected = {status:0};
+			  assert.equal(res.text, JSON.stringify(expected));
+		  });
+	  });
+	  
+	  it('should return status 0 after create new listener /rest/main for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/main/:id',
+			flow : 'main_flow'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after create new listener /rest/post for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/post',
+			flow : 'post_flow',
+			method : 'POST'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after create new listener /rest/put for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/put',
+			flow : 'put_flow',
+			method : 'PUT'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after create new listener /rest/delete for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/delete',
+			flow : 'delete_flow',
+			method : 'DELETE'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after create new listener /rest/callhttp for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/callhttp',
+			flow : 'call_http_flow'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after create new listener /rest/calcFullName for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/calcFullName',
+			flow : 'calcFullName_flow'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after assign one instance for app test4', function test() {
+		return request(control_server)
+		  .post('/app/test4/instance/' + instance_id)
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  
+	  it('should return status 0 after enable app for this instance', function test() {
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/app/test4/enable')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+	  
+	  it('should return OK for calling workflows with GET', function test() {
+		return request(app_server)
+		  .get('/rest/main/3?firstName=mary&lastName=brown')
+		  .set('auth','myauth')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown. With my auth: myauth. Id: 3")
+			  assert.equal(res.headers.myheader, 'myHeaderValue')
+		  });
+	  });
+	  
+	  it('should return OK for calling workflows with POST', function test() {
+		return request(app_server)
+		  .post('/rest/post?nickName=Kate')
+		  .send({firstName:'mary',lastName:'brown'})
+		  .set('auth','myauth')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown. Nickname: Kate. With my auth: myauth")
+			  assert.equal(res.headers.myheader, 'myHeaderValue')
+		  });
+	  });
+	  
+	  it('should return OK for calling workflows with PUT', function test() {
+		return request(app_server)
+		  .put('/rest/put?nickName=Kate')
+		  .send({firstName:'mary',lastName:'brown'})
+		  .set('auth','myauth')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown. Nickname: Kate. With my auth: myauth")
+			  assert.equal(res.headers.myheader, 'myHeaderValue')
+		  });
+	  });
+	  
+	  it('should return OK for calling workflows with DELETE', function test() {
+		return request(app_server)
+		  .delete('/rest/delete?nickName=Kate')
+		  .send({firstName:'mary',lastName:'brown'})
+		  .set('auth','myauth')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown. Nickname: Kate. With my auth: myauth")
+			  assert.equal(res.headers.myheader, 'myHeaderValue')
+		  });
+	  });
+	  
+	  it('should return OK for calling workflows with /rest/callhttp', function test() {
+		return request(app_server)
+		  .get('/rest/callhttp?firstName=mary&lastName=brown')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown")
+		  });
+	  });
+  });
 }); 

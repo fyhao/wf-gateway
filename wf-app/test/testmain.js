@@ -3,10 +3,10 @@ var assert = require('assert');
 var request = require('supertest');
 describe('loading express', function () {
   var server;
-  beforeEach(function () {
+  before(function () {
     server = require('../server', { bustCache: true })();
   });
-  afterEach(function (done) {
+  after(function (done) {
     server.close(done);
   });
   it('responds to /', function testSlash(done) {

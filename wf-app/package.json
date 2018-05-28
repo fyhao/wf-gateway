@@ -7,13 +7,14 @@
     "test": "nyc --reporter=html --reporter=text mocha test/alltests.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "performance": "node --allow-natives-syntax ./node_modules/mocha/bin/_mocha --reporter mocha-performance ./test/alltests.js",
-	"start" : "node app.js"
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "unirest": "^0.5.1"
   },
   "devDependencies": {
     "coveralls": "^2.13.0",

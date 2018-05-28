@@ -15,6 +15,6 @@ module.exports = {
 				ctx._logs = [];
 			}
 		}
-		setTimeout(next, global.STEP_TIMEOUT);
+		process.nextTick(next);
 	}
 }

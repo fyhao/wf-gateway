@@ -34,6 +34,6 @@ module.exports = {
 				ctx.vars[step.name] = step.value;
 			}
 		}
-		setTimeout(next, global.STEP_TIMEOUT);
+		process.nextTick(next);
 	}
 }
