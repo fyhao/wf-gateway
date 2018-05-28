@@ -10,15 +10,17 @@ var createHandler = function(eventMgr, appItem, appLi) {
 		//appItem.flows
 		//appLi.flow (string)
 		createContext(appItem.app, req, res).then(function(ctx) {
-			ctx.createFlowEngine(appLi.flow).execute(function() {});
+			ctx.createFlowEngine(appLi.flow).execute(function() {
+				eventMgr.trigger('flowExecutedDone', {ctx:ctx});
+			});
 		});
 	}
 }
-
+var dataStore_getApps = dataStore.getApps;
 var createContext = function(app, req, res) {
 	return new Promise(function(resolve,reject) {
 		var flows = null;
-		dataStore.getApps().then(function(apps) {
+		dataStore_getApps().then(function(apps) {
 			apps.forEach(function(appItem) {
 				if(appItem.app == app) {
 					flows = appItem.flows;
@@ -76,4 +78,13 @@ var createContext = function(app, req, res) {
 		});
 	});
 }
+var _injectUnitTest = function(opts) {
+	dataStore_getApps = function() {
+		return new Promise(function(resolve,reject) {
+			var apps = opts.apps
+			resolve(apps);
+		});
+	}
+}
 module.exports.createHandler = createHandler;
+module.exports._injectUnitTest = _injectUnitTest;
