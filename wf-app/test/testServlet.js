@@ -62,7 +62,7 @@ describe('modServlet module', function () {
 		var handler = modServlet.createHandler(eventMgr, appItem, appLi);
 		handler(req, res);
 		
-	  });
+	  }); // end it
 	  
 	  it('should be OK for executeTestCase function structure', function test(done) {
 		  executeTestCase({
@@ -81,7 +81,7 @@ describe('modServlet module', function () {
 				  assert.equal(body,"test")
 			  }
 		  });
-	  });
+	  }); // end it
   });
   describe('#setVar', function() {
 	  it('should be OK to setVar and response the variable in ##xxx## (string)', function test(done) {
@@ -100,7 +100,7 @@ describe('modServlet module', function () {
 				  assert.equal(body,"the response name is ali")
 			  }
 		  });
-	  });
+	  }); // end it
 	  it('should be OK to setVar and response the variable in ##xxx## (integer)', function test(done) {
 		  executeTestCase({
 			  flows:{
@@ -117,7 +117,7 @@ describe('modServlet module', function () {
 				  assert.equal(body,"the response id is 123")
 			  }
 		  });
-	  });
+	  }); // end it
   });
   
   describe('#request', function() {
@@ -140,7 +140,7 @@ describe('modServlet module', function () {
 				  assert.equal(body,"My fullname is mary brown")
 			  }
 		  });
-	  });
+	  }); // end it
 	  it('should be OK to get request header', function test(done) {
 		  executeTestCase({
 			  flows:{
@@ -159,7 +159,7 @@ describe('modServlet module', function () {
 				  assert.equal(body,"the header is authvalue, mozilla")
 			  }
 		  });
-	  });
+	  }); // end it
   });	
   
   describe('#response', function() {
@@ -206,6 +206,6 @@ describe('modServlet module', function () {
 				  assert.equal(body,"My fullname is mary brown")
 			  }
 		  });
-	  });
+	  }); // end it
 	});
 });
