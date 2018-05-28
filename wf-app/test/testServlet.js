@@ -160,5 +160,33 @@ describe('modServlet module', function () {
 			  }
 		  });
 	  });
-  });	  
+  });	
+
+	describe('#subflow', function() {
+	  it('should be OK to call subflow', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'request',action:'getParam',key:'firstName',var:'varFirst'},
+						{type:'request',action:'getParam',key:'lastName',var:'varLast'},
+						{type:'calcFullName'},
+						{type:'response',body:'My fullname is ##fullName##'},
+					]
+				},
+				calcFullName: {
+					steps : [
+						{type:'setVar',name:'fullName',value:'{{varFirst}} {{varLast}}'},
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  requestParams : {firstName:'mary',lastName:'brown'},
+			  done:done,
+			  resEnd : function(body) {
+				  assert.equal(body,"My fullname is mary brown")
+			  }
+		  });
+	  });
+	});
 });
