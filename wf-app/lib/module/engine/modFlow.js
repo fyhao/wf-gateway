@@ -57,17 +57,17 @@ var FlowEngine = function(flow) {
 								outputVars[i] = ctx.vars[i];
 							}
 							done(outputVars);
-						}, 1);
+						}, 0);
 					}
 					else {
-						setTimeout(done, 1);
+						setTimeout(done, 0);
 					}
 				}
 			}
-			setTimeout(checkNext, 10);
+			setTimeout(checkNext, 0);
 		}
 		else {
-			setTimeout(done, 1);
+			setTimeout(done, 0);
 		}
 	}
 	this.cancel = function() {
@@ -118,7 +118,7 @@ var FlowEngine = function(flow) {
 			//console.log('search flow ' + step.type + " = " + (typeof flow));
 			if(typeof flow != 'undefined') {
 				new FlowEngine(flow).setContext(ctx).setInputVars(step).execute(function() {
-					setTimeout(next, 1);
+					setTimeout(next, 0);
 				});
 				return;
 			}

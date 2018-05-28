@@ -43,7 +43,7 @@ var StepProcessor = function(ctx, step, next) {
 	}
 	this.process = function() {
 		if(def === null) {
-			setTimeout(next, 1);
+			setTimeout(next, 0);
 			return;
 		}
 		def.process(ctx, step, next);
