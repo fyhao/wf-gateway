@@ -947,8 +947,10 @@ describe('e2e test - control server push configuration to app server', function 
 				steps : [
 					{type:'request',action:'getParam',key:'firstName',var:'varFirst'},
 					{type:'request',action:'getParam',key:'lastName',var:'varLast'},
+					{type:'request',action:'getHeader',key:'auth',var:'varAuth'},
 					{type:'setVar',name:'fullName',value:'{{varFirst}} {{varLast}}'},
-					{type:'response',body:'My fullname is ##fullName##'},
+					{type:'response',action:'setHeader',key:'myheader',value:'myHeaderValue'},
+					{type:'response',body:'My fullname is ##fullName##. With my auth: {{varAuth}}'},
 				]
 			}
 		};
@@ -1012,12 +1014,14 @@ describe('e2e test - control server push configuration to app server', function 
 		  });
 	  });
 	  
-	  it('should return OK for calling workflows', function test() {
+	  it('should return OK for calling workflows with GET', function test() {
 		return request(app_server)
 		  .get('/rest/main?firstName=mary&lastName=brown')
+		  .set('auth','myauth')
 		  .expect(200)
 		  .expect(function(res) {
-			  assert.equal(res.text, "My fullname is mary brown")
+			  assert.equal(res.text, "My fullname is mary brown. With my auth: myauth")
+			  assert.equal(res.headers.myheader, 'myHeaderValue')
 		  });
 	  });
   });
