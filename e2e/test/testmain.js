@@ -948,9 +948,10 @@ describe('e2e test - control server push configuration to app server', function 
 					{type:'request',action:'getParam',key:'firstName',var:'varFirst'},
 					{type:'request',action:'getParam',key:'lastName',var:'varLast'},
 					{type:'request',action:'getHeader',key:'auth',var:'varAuth'},
+					{type:'request',action:'getPathParam',key:'id',var:'id'},
 					{type:'calcFullName'},
 					{type:'response',action:'setHeader',key:'myheader',value:'myHeaderValue'},
-					{type:'response',body:'My fullname is ##fullName##. With my auth: {{varAuth}}'},
+					{type:'response',body:'My fullname is ##fullName##. With my auth: {{varAuth}}. Id: ##id##'},
 				]
 			},
 			post_flow : {
@@ -1007,7 +1008,7 @@ describe('e2e test - control server push configuration to app server', function 
 	  it('should return status 0 after create new listener /rest/main for app test4', function test() {
 		var listener =  {
 			type : 'http',
-			endpoint : '/rest/main',
+			endpoint : '/rest/main/:id',
 			flow : 'main_flow'
 		};
 		return request(control_server)
@@ -1134,11 +1135,11 @@ describe('e2e test - control server push configuration to app server', function 
 	  
 	  it('should return OK for calling workflows with GET', function test() {
 		return request(app_server)
-		  .get('/rest/main?firstName=mary&lastName=brown')
+		  .get('/rest/main/3?firstName=mary&lastName=brown')
 		  .set('auth','myauth')
 		  .expect(200)
 		  .expect(function(res) {
-			  assert.equal(res.text, "My fullname is mary brown. With my auth: myauth")
+			  assert.equal(res.text, "My fullname is mary brown. With my auth: myauth. Id: 3")
 			  assert.equal(res.headers.myheader, 'myHeaderValue')
 		  });
 	  });

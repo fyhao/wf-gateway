@@ -10,6 +10,7 @@ describe('modServlet module', function () {
 		var appLi = { flow: opts.entryFlow};
 		var req = {
 			query : opts.requestParams,
+			params : opts.requestPathParams,
 			headers : opts.requestHeaders,
 			body : opts.requestBodys
 		};
@@ -178,6 +179,24 @@ describe('modServlet module', function () {
 			  requestBodys : {myBody:'bodyValue'},
 			  resEnd : function(body) {
 				  assert.equal(body,"the body is bodyValue")
+			  }
+		  });
+	  }); // end it
+	  it('should be OK to get request body', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'request',action:'getPathParam',key:'id',var:'id'},
+						{type:'response',body:'the id is ##id##'},
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  done:done,
+			  requestPathParams : {id:'3'},
+			  resEnd : function(body) {
+				  assert.equal(body,"the id is 3")
 			  }
 		  });
 	  }); // end it

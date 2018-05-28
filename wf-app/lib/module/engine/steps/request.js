@@ -5,6 +5,10 @@ module.exports = {
 			var value = ctx.req.query[step.key];
 			ctx.vars[step.var] = value;
 		}
+		else if(step.action == 'getPathParam') {
+			var value = ctx.req.params[step.key];
+			ctx.vars[step.var] = value;
+		}
 		else if(step.action == 'getBody') {
 			var value = ctx.req.body[step.key];
 			ctx.vars[step.var] = value;
