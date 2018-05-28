@@ -929,4 +929,96 @@ describe('e2e test - control server push configuration to app server', function 
 		  });
 	  });
   });
+  
+  describe('e2e test - call workflows', function() {
+	  it('should return status 0 after create an app with name test4', function test() {
+		return request(control_server)
+		  .post('/app')
+		  .send({name:'test4','description':'This is a test app'})
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, JSON.stringify({status:0}));
+		  });
+	  });
+	  
+	  it('should return status 0 after create flow for app test4', function test() {
+		var flows = {
+			main_flow : {
+				steps : [
+					{type:'request',action:'getParam',key:'firstName',var:'varFirst'},
+					{type:'request',action:'getParam',key:'lastName',var:'varLast'},
+					{type:'setVar',name:'fullName',value:'{{varFirst}} {{varLast}}'},
+					{type:'response',body:'My fullname is ##fullName##'},
+				]
+			}
+		};
+		return request(control_server)
+		  .post('/app/test4/flow')
+		  .send({flows:flows})
+		  .expect(200)
+		  .expect(function(res) {
+			  var expected = {status:0};
+			  assert.equal(res.text, JSON.stringify(expected));
+		  });
+	  });
+	  
+	  it('should return status 0 after create new listener for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/main',
+			flow : 'main_flow'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after assign one instance for app test4', function test() {
+		return request(control_server)
+		  .post('/app/test4/instance/' + instance_id)
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  
+	  it('should return status 0 after enable app for this instance', function test() {
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/app/test4/enable')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+	  
+	  it('should return OK for calling workflows', function test() {
+		return request(app_server)
+		  .get('/rest/main?firstName=mary&lastName=brown')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown")
+		  });
+	  });
+  });
 }); 

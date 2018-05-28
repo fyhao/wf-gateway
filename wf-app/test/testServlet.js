@@ -9,11 +9,8 @@ describe('modServlet module', function () {
 		}
 		var appLi = { flow: opts.entryFlow};
 		var req = {
-			params : opts.requestParams,
-			headers : opts.requestHeaders,
-			param : function(name) {
-				return this.params[name]
-			}
+			query : opts.requestParams,
+			headers : opts.requestHeaders
 		};
 		var res = {
 			end : opts.resEnd,
@@ -50,9 +47,7 @@ describe('modServlet module', function () {
 		}
 		var appLi = { flow: 'flow_1'};
 		var req = {
-			param : function(name) {
-				return name;
-			}
+			query : {}
 		};
 		var res = {
 			end : function(body) {

@@ -2,7 +2,7 @@ module.exports = {
 	
 	process : function(ctx, step, next) {
 		if(step.action == 'getParam') {
-			var value = ctx.req.param(step.key);
+			var value = ctx.req.query[step.key];
 			ctx.vars[step.var] = value;
 		}
 		else if(step.action == 'getHeader') {
