@@ -8,6 +8,7 @@ var mod = {
 	},
 	create : function(req, res) {
 		var item = {
+			id : req.body.name,
 			name : req.body.name, // req.body.xxx for POST req.query.xxx for GET then URL :xxx for req.params
 			description : req.body.description
 		};
