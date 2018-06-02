@@ -17,11 +17,6 @@ class Dashboard extends Component {
 	onNavigatePage(opts) {
 	  var me = this;
 	  me.setState({currentPage:opts.page})
-	  if(opts.row){
-		  ee.on('editFormShown', function(evt){
-			  ee.emit('editForm', {row:opts.row})
-		  })
-	  }
 	}
 	render() {
 	  

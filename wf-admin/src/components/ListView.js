@@ -40,7 +40,7 @@ class ListView extends Component {
   onEdit(row) {
 	  const options = this.props.options;
 	  return () => {
-		  ee.emit('navigatePage', {page:options.editForm,row:row});
+		  ee.emit('navigatePage', {page:options.editForm(row),row:row});
 	  };
   }
   

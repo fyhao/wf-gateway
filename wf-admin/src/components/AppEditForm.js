@@ -5,21 +5,24 @@ import Constants from './Constants';
 import StandardForm from './StandardForm';
 import NavButton from './NavButton';
 import AppList from './AppList';
+import ListenerCreateForm from './ListenerCreateForm';
 import ListView from './ListView';
 import ee from './EventManager';
 class AppEditForm extends Component {
   constructor(opts) {
 	  super(opts)
 	  var me = this;
-	  this.state.options = {
+	  
+	  
+	  this.row = me.props.row;
+		me.state.options = {
 		  title:'Update App',
 		  fields:[
-			{type:'text',label:'Name',id:'name',value:''},
-			{type:'text',label:'Description',id:'description',value:''}
+			{type:'text',label:'Name',id:'name',value:me.row.name},
+			{type:'text',label:'Description',id:'description',value:me.row.description}
 		  ],
 		  onSubmit: function(opts) {
 			  //opts.fields.name
-			  console.log('onsubmit for appeditofmr fields: ' + JSON.stringify(opts.fields));
 			  axios({
 				  method: 'PUT',
 				  url: Constants.API_URL + '/app/' + opts.fields.name,
@@ -36,35 +39,24 @@ class AppEditForm extends Component {
 					}
 				})
 		  }
-	  };
+		};
+		me.requestListener()
+
+
+
 	  this.componentWillMount = this.componentWillMount.bind(this);
 	  this.componentWillUnmount = this.componentWillUnmount.bind(this);
-	  this.onEditForm = this.onEditForm.bind(this);
 	  this.handleDelete = this.handleDelete.bind(this);
   }
   
   state = {
-	  
+	  options:{}
   }
   
   componentWillMount(){
-	  ee.on('editForm', this.onEditForm)
-	  ee.emit('editFormShown')
   }
   componentWillUnmount() {
-	  ee.off('editForm', this.onEditForm)
   }
-  onEditForm(opts) {
-	  var options = this.state.options;
-	  options.fields.map((field,i) => {
-		  field.value = opts.row[field.id]
-	  })
-	  this.setState({options:options});
-	  this.row = opts.row;
-	  
-	  this.requestListener()
-  }
-  
   handleDelete() {
 	  axios({
 		  method: 'DELETE',
@@ -107,7 +99,7 @@ class AppEditForm extends Component {
 		<NavButton onClick={this.handleDelete} title="Delete App"/>
 		<StandardForm options={this.state.options} />
 		<h3>Listeners</h3>
-		<NavButton onClick={this.handleDelete} title="Create Listener"/>
+		<NavButton onClick={() => {ee.emit('navigatePage',{page:<ListenerCreateForm app={this.row} />})}} title="Create Listener"/>
 		<ListView options={options}/>
 	  </div>
 	  

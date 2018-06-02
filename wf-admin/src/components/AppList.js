@@ -34,7 +34,7 @@ class AppList extends Component {
 	];
 	
 	options.hasEdit = true;
-	options.editForm = <AppEditForm />
+	options.editForm = (row) => <AppEditForm row={row} />
     return (
       <div>App Form
 	  <NavButton onClick={() => {ee.emit('navigatePage',{page:<AppCreateForm />})}} title="Create Apps"/>
