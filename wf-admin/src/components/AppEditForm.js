@@ -3,6 +3,7 @@ import EventEmitter from 'eventemitter3';
 import axios from 'axios';
 import Constants from './Constants';
 import StandardForm from './StandardForm';
+import NavButton from './NavButton';
 import AppList from './AppList';
 import ee from './EventManager';
 class AppEditForm extends Component {
@@ -39,6 +40,7 @@ class AppEditForm extends Component {
 	  this.componentWillMount = this.componentWillMount.bind(this);
 	  this.componentWillUnmount = this.componentWillUnmount.bind(this);
 	  this.onEditForm = this.onEditForm.bind(this);
+	  this.handleDelete = this.handleDelete.bind(this);
   }
   
   state = {
@@ -61,10 +63,25 @@ class AppEditForm extends Component {
 	  this.row = opts.row;
   }
   
+  handleDelete() {
+	  axios({
+		  method: 'DELETE',
+		  url: Constants.API_URL + '/app/' + this.row.name,
+		  data: {
+			
+		  }
+		}).then(response => {
+			if(response.data.status == '0') {
+				ee.emit('navigatePage', {page:<AppList />});
+			}
+		})
+  }
+  
   render() {
 	
     return (
       <div>
+		<NavButton onClick={this.handleDelete} title="Delete"/>
 		<StandardForm options={this.state.options} />
 		<p>DEBUG: {this.state.submittedFields}</p>
 	  </div>
