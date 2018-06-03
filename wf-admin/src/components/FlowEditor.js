@@ -44,6 +44,10 @@ class FlowEditor extends Component {
 		  var flowObj = this.state.flows[flowName];
 		  ee.emit('flowEditor', {action:'flowSelected', flowName:flowName,flowObj:flowObj})
 	  }
+	  else if(evt.action == 'sync') {
+		  var flows = this.state.flows;
+		  this.syncFlows(flows);
+	  }
   }
   
   componentDidMount() {
@@ -59,8 +63,24 @@ class FlowEditor extends Component {
 		  }
 		}).then(response => {
 			var flows = response.data.flows;
-			
+			if(typeof flows == 'undefined') {
+				flows = {}
+			}
 			me.setState({flows:flows});
+		})
+  }
+  syncFlows(flows) {
+	  var me = this;
+	  axios({
+		  method: 'PUT',
+		  url: Constants.API_URL + '/app/' + this.props.app + '/flow?isAll=1',
+		  data: {
+			  flows:flows
+		  }
+		}).then(response => {
+			if(response.data.status == 0) {
+				alert('Flows is saved')
+			}
 		})
   }
   setFlow(flowName, flowObj) {
@@ -80,7 +100,8 @@ class FlowEditor extends Component {
 		<h3>Flows</h3>
 		<Container>
 		<Row>
-			<FlowCreatePanel />
+			<Col><FlowCreatePanel /></Col>
+			<Col><Button onClick={() => {ee.emit('flowEditor',{action:'sync'})}}>Sync</Button></Col>
 		</Row>
 		<Row>
 			<Col xs="3">
