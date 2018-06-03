@@ -6,6 +6,7 @@ import StandardForm from './StandardForm';
 import NavButton from './NavButton';
 import AppList from './AppList';
 import ListenerList from './ListenerList';
+import FlowEditor from './FlowEditor';
 import ListView from './ListView';
 import ee from './EventManager';
 import { Button } from 'reactstrap';
@@ -90,6 +91,7 @@ class AppEditForm extends Component {
       <div>
 		<Button color="primary" onClick={this.handleDelete}>Delete Apps</Button>
 		<Button color="primary" onClick={() => {ee.emit('navigatePage', {page:<ListenerList app={this.app} />});}}>Manage Listeners</Button>
+		<Button color="primary" onClick={() => {ee.emit('navigatePage', {page:<FlowEditor app={this.app} />});}}>Flow Editor</Button>
 		<StandardForm options={this.state.options} />
 	  </div>
     );
