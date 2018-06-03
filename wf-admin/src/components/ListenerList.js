@@ -6,6 +6,7 @@ import Constants from './Constants';
 import axios from 'axios';
 import ListenerCreateForm from './ListenerCreateForm';
 import AppEditForm from './AppEditForm';
+import ListenerEditForm from './ListenerEditForm';
 class ListenerList extends Component {
   componentWillMount() {
 	  this.requestListener()
@@ -38,6 +39,8 @@ class ListenerList extends Component {
 		{heading:'Type',key:'type'},
 		{heading:'Endpoint',key:'endpoint'}
 	];
+	options.hasEdit = true;
+	options.editForm = (row) => <ListenerEditForm app={this.props.app} listener_id={row.id} />
     return (
       <div>
 	    <Button color="primary" onClick={() => {ee.emit('navigatePage',{page:<AppEditForm app={this.props.app} />})}}>Back To Edit App</Button>

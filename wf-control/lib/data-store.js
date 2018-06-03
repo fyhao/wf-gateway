@@ -110,6 +110,19 @@ var DataStore = function() {
 			resolve(listeners);
 		});
 	}
+	this.getListener = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var id = opts.id;
+			for(var i = 0; i < listenersStore[app].length; i++) {
+				if(listenersStore[app][i].id == id) {
+					resolve(listenersStore[app][i]);
+					return;
+				}
+			}
+			resolve(null);
+		});
+	}
 	this.createListener = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var app = opts.app;
