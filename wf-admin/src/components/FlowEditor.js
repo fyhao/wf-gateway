@@ -98,21 +98,20 @@ class FlowEditor extends Component {
       <div>
 	    <Button color="primary" onClick={() => {ee.emit('navigatePage',{page:<AppEditForm app={this.props.app} />})}}>Back To Edit App</Button>
 		<h3>Flows</h3>
-		<Container>
+		<Container style={{borderColor:'red',border:1}}>
 		<Row>
-			<Col><FlowCreatePanel /></Col>
-			<Col><Button onClick={() => {ee.emit('flowEditor',{action:'sync'})}}>Sync</Button></Col>
+			<Col sm="2"><FlowCreatePanel /></Col>
+			<Col sm="10"><Button onClick={() => {ee.emit('flowEditor',{action:'sync'})}}>Sync</Button></Col>
 		</Row>
 		<Row>
-			<Col xs="3">
+			<Col sm="2">
 			 <FlowMenu flows={this.state.flows} />
 			</Col>
-			  <Col xs="8">
+			  <Col sm="10">
 				<FlowStepsPanel />
 			  </Col>
 		</Row>
 		</Container>
-		DEBUG:{JSON.stringify(this.state.flows)}
 	  </div>
 	  
     );
@@ -252,18 +251,15 @@ class FlowStepsPanel extends Component {
 	}
 	render() {
 		var demoStep = {type:"request",action:"getParam",key:"key1",var:"var1"}
-		return (<div>
+		return (<div style={{flex:12}}>
 		{this.state.flowName && <div>
 		<p>Editing {this.state.flowName}</p>
 		<Button onClick={() => {ee.emit('flowEditor', {action:'flowUpdated',flowName:this.state.flowName,flowObj:this.state.flowObj})}}>Save Flow</Button>
-		<p>DEBUG: {JSON.stringify(this.state.flowObj)}</p>
-		<Card>
-		<CardBody>
+		
 		{this.state.flowObj.steps.map((step,i) => (
 			<StepEditPanel key={i} index={i} step={step} onSave={this.handleSaveUpdate}/>
 		))}
-		</CardBody>
-		</Card>
+		
 		<StepCreatePanel onSave={this.handleSaveNew} />
 		</div>}
 			
@@ -284,7 +280,9 @@ class StepEditPanel extends Component {
 			stepsLabelArr.push(i);
 			stepsLabelArr.push(this.props.step[i]);
 		}
-		return (<div>
+		return (<div style={{flex:12}}>
+			<Container>
+			<Row><Col sm="9">
 			<Alert color="info" onClick={() => {this.setState({isExpand:!this.state.isExpand})}}>
 			{stepsLabelArr.map((text,i) => (
 				<span key={i}>
@@ -296,6 +294,11 @@ class StepEditPanel extends Component {
 				</span>
 			))}
 			</Alert>
+			</Col><Col sm="3"><Button color="info">Up</Button> <Button color="info">Down</Button></Col></Row>
+			</Container>
+			
+			
+			
 			{this.state.isExpand && <StepWizard step={this.props.step} onSave={this.handleSave} />}
 		</div>)
 	}
@@ -366,7 +369,7 @@ class StepWizard extends Component {
 		}
 	}
 	render() {
-		return (<div>
+		return (<div style={{flex:12}}>
 		
 		<Card>
 		
