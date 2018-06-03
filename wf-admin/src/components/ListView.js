@@ -20,7 +20,11 @@ class ListView extends Component {
 		{data.map((row,i) => {
 	      var rowItems = [];
 		  fields.map((field,i) => {
-			  rowItems.push(row[field.key])
+			  var v = row[field.key];
+			  if(field.render) {
+				  v = field.render(v,row);
+			  }
+			  rowItems.push(v)
 		  })
 		  return (<tr key={i}>
 		  {rowItems.map((col,j) => {

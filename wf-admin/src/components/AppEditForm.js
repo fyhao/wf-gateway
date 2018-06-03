@@ -5,7 +5,7 @@ import Constants from './Constants';
 import StandardForm from './StandardForm';
 import NavButton from './NavButton';
 import AppList from './AppList';
-import ListenerCreateForm from './ListenerCreateForm';
+import ListenerList from './ListenerList';
 import ListView from './ListView';
 import ee from './EventManager';
 import { Button } from 'reactstrap';
@@ -41,10 +41,7 @@ class AppEditForm extends Component {
 				})
 		  }
 		};
-		me.requestListener()
-
-
-
+		
 	  this.componentWillMount = this.componentWillMount.bind(this);
 	  this.componentWillUnmount = this.componentWillUnmount.bind(this);
 	  this.handleDelete = this.handleDelete.bind(this);
@@ -72,38 +69,14 @@ class AppEditForm extends Component {
 		})
   }
   
-  requestListener() {
-	  var me = this;
-	  axios({
-		  method: 'GET',
-		  url: Constants.API_URL + '/app/' + this.row.name + '/listener',
-		  data: {
-		  }
-		}).then(response => {
-			me.setState({listenerData:response.data.listeners});
-		})
-  }
-  state = {
-	 listenerData:[]
-  }
+ 
   render() {
-	var options = {};
-	
-	options.data = this.state.listenerData;
-	options.fields = [
-		{heading:'Type',key:'type'},
-		{heading:'Endpoint',key:'endpoint'}
-	];
-	
     return (
       <div>
 		<Button color="primary" onClick={this.handleDelete}>Delete Apps</Button>
+		<Button color="primary" onClick={() => {ee.emit('navigatePage', {page:<ListenerList app={this.row} />});}}>Manage Listeners</Button>
 		<StandardForm options={this.state.options} />
-		<h3>Listeners</h3>
-		<Button color="primary" onClick={() => {ee.emit('navigatePage',{page:<ListenerCreateForm app={this.row} />})}}>Create Listener</Button>
-		<ListView options={options}/>
 	  </div>
-	  
     );
   }
   
