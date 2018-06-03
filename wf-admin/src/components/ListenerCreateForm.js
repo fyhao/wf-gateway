@@ -22,7 +22,7 @@ class ListenerCreateForm extends Component {
 			  console.log('onSubmit fields: ' + JSON.stringify(opts.fields));
 			  axios({
 				  method: 'post',
-				  url: Constants.API_URL + '/app/' + app.name + '/listener',
+				  url: Constants.API_URL + '/app/' + app + '/listener',
 				  data: {
 					listener:{
 						type:opts.fields.type,
@@ -32,7 +32,7 @@ class ListenerCreateForm extends Component {
 				}).then(response => {
 					console.log(response.data)
 					if(response.data.status == '0') {
-						ee.emit('navigatePage', {page:<AppEditForm row={app} />});
+						ee.emit('navigatePage', {page:<AppEditForm app={app} />});
 					}
 				})
 		  }

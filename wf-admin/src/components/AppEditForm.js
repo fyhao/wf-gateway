@@ -14,15 +14,16 @@ class AppEditForm extends Component {
 	  super(opts)
 	  var me = this;
 	  
+	  this.app = me.props.app;
 	  
-	  this.row = me.props.row;
-		me.state.options = {
+	  me.state.options = {
 		  title:'Update App',
 		  fields:[
-			{type:'text',label:'Name',id:'name',value:me.row.name},
-			{type:'text',label:'Description',id:'description',value:me.row.description}
+			{type:'text',label:'Name',id:'name',value:''},
+			{type:'text',label:'Description',id:'description',value:''}
 		  ],
 		  onSubmit: function(opts) {
+			  console.log('AppEditForm onSubmit:' + JSON.stringify(opts));
 			  //opts.fields.name
 			  axios({
 				  method: 'PUT',
@@ -39,8 +40,22 @@ class AppEditForm extends Component {
 						ee.emit('navigatePage', {page:<AppList />});
 					}
 				})
-		  }
-		};
+				
+		  } // end onSubmit
+	  }; 
+		  
+	  axios({
+		  method:'GET',
+		  url: Constants.API_URL + '/app/' + this.app
+	  }).then(response => {
+		  console.log(response.data)
+		  var item = response.data;
+		  me.state.options.fields.map((field,i) => {
+			  field.value = item[field.id];
+		  });
+		  me.setState({options:me.state.options})
+	  });
+		
 		
 	  this.componentWillMount = this.componentWillMount.bind(this);
 	  this.componentWillUnmount = this.componentWillUnmount.bind(this);
@@ -58,7 +73,7 @@ class AppEditForm extends Component {
   handleDelete() {
 	  axios({
 		  method: 'DELETE',
-		  url: Constants.API_URL + '/app/' + this.row.name,
+		  url: Constants.API_URL + '/app/' + this.app,
 		  data: {
 			
 		  }
@@ -74,7 +89,7 @@ class AppEditForm extends Component {
     return (
       <div>
 		<Button color="primary" onClick={this.handleDelete}>Delete Apps</Button>
-		<Button color="primary" onClick={() => {ee.emit('navigatePage', {page:<ListenerList app={this.row} />});}}>Manage Listeners</Button>
+		<Button color="primary" onClick={() => {ee.emit('navigatePage', {page:<ListenerList app={this.app} />});}}>Manage Listeners</Button>
 		<StandardForm options={this.state.options} />
 	  </div>
     );

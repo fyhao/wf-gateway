@@ -11,12 +11,7 @@ class StandardForm extends Component {
 	  this.fields = {};
 	  this.handleFormSubmit = this.handleFormSubmit.bind(this)
 	  this.handleChange = this.handleChange.bind(this)
-	  this.props.options.fields.map((field,i) => {
-		  if(field.type == 'selectone' && !field.value && field.options.length) {
-			  field.value = field.options[0].value; // default value
-		  }
-		  me.fields[field.id] = field.value;
-	  })
+	  
   }
   
   state = {
@@ -25,6 +20,13 @@ class StandardForm extends Component {
   
   
   render() {
+	  var me = this;
+	  this.props.options.fields.map((field,i) => {
+		  if(field.type == 'selectone' && !field.value && field.options.length) {
+			  field.value = field.options[0].value; // default value
+		  }
+		  me.fields[field.id] = field.value;
+	  })
     return (
 	  <div>
 		<h2>{this.state.options.title}</h2>

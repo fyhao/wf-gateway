@@ -18,7 +18,7 @@ class ListenerList extends Component {
 	  var me = this;
 	  axios({
 		  method: 'GET',
-		  url: Constants.API_URL + '/app/' + this.props.app.name + '/listener',
+		  url: Constants.API_URL + '/app/' + this.props.app + '/listener',
 		  data: {
 		  }
 		}).then(response => {
@@ -40,7 +40,7 @@ class ListenerList extends Component {
 	];
     return (
       <div>
-	    <Button color="primary" onClick={() => {ee.emit('navigatePage',{page:<AppEditForm row={this.props.app} />})}}>Back To Edit App</Button>
+	    <Button color="primary" onClick={() => {ee.emit('navigatePage',{page:<AppEditForm app={this.props.app} />})}}>Back To Edit App</Button>
 		<Button color="primary" onClick={() => {ee.emit('navigatePage',{page:<ListenerCreateForm app={this.props.app} />})}}>Create Listener</Button>
 		<h3>Listeners</h3>
 		<ListView options={options}/>
