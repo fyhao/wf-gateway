@@ -35,7 +35,7 @@ class ListenerCreateForm extends Component {
 				}).then(response => {
 					console.log(response.data)
 					if(response.data.status == '0') {
-						ee.emit('navigatePage', {page:<AppEditForm app={me.app} />});
+						ee.emit('navigatePage', {page:<ListenerList app={me.app} />});
 					}
 				})
 		  }
@@ -53,6 +53,7 @@ class ListenerCreateForm extends Component {
 		  me.setState({options:me.state.options})
 	  });
 		
+	 this.handleDelete = this.handleDelete.bind(this)
   }
   
   state = {
@@ -68,7 +69,7 @@ class ListenerCreateForm extends Component {
 		  }
 		}).then(response => {
 			if(response.data.status == '0') {
-				ee.emit('navigatePage', {page:<AppEditForm app={me.app} />});
+				ee.emit('navigatePage', {page:<ListenerList app={me.app} />});
 			}
 		})
   }
