@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import NavButton from './NavButton';
+import { Button } from 'reactstrap';
 import ListView from './ListView';
 import AppCreateForm from './AppCreateForm';
 import AppEditForm from './AppEditForm';
@@ -13,8 +14,7 @@ class AppList extends Component {
 	  var me = this;
 	  axios.get(Constants.API_URL + '/app')
 	    .then(response => {
-			var rows = me.state.rows;
-			me.setState({rows:rows,data:response.data})
+			me.setState({data:response.data})
 		})
 		
   }
@@ -36,8 +36,8 @@ class AppList extends Component {
 	options.hasEdit = true;
 	options.editForm = (row) => <AppEditForm row={row} />
     return (
-      <div>App Form
-	  <NavButton onClick={() => {ee.emit('navigatePage',{page:<AppCreateForm />})}} title="Create Apps"/>
+      <div>
+	  <Button color="danger" onClick={() => {ee.emit('navigatePage',{page:<AppCreateForm />})}}>Create Apps</Button>
 	  
 	  <ListView options={options}/>
 	  </div>

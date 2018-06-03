@@ -4,6 +4,10 @@ import InstanceList from './InstanceList';
 import NavButton from './NavButton';
 import NavBar from './NavBar';
 import ee from './EventManager';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Container, Row, Col, Badge } from 'reactstrap';
+
+
 class Dashboard extends Component {
 	constructor(props) {
 		super(props)
@@ -21,13 +25,24 @@ class Dashboard extends Component {
 	render() {
 	  
 	return (
-	  <div>DashBoard {this.text}
-		<NavBar>
+	  <Container>
+		<Row>
+			<Col>
+			<h1>wf-admin <Badge color="secondary">New</Badge></h1>
+			</Col>
+		</Row>
+        <Row>
+          <Col xs="3">
+		 <NavBar>
 			<NavButton onClick={() => {ee.emit('navigatePage',{page:<AppList />})}} title="App"/>
 			<NavButton onClick={() => {ee.emit('navigatePage',{page:<InstanceList />})}} title="Instance"/>
 		</NavBar>
-		{this.state.currentPage}
-	  </div>
+		</Col>
+          <Col xs="6">
+		  {this.state.currentPage}
+		  </Col>
+        </Row>
+	  </Container>
 	);
 	}
 	state = {

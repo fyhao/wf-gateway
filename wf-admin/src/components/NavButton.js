@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-
+import { NavLink,NavItem } from 'reactstrap';
 class NavButton extends Component {
   render() {
     return (
-      <button onClick={this.props.onClick}>{this.props.title}</button>
+		<NavItem>
+      <NavLink onClick={this.props.onClick} href="#">{this.props.title}</NavLink>
+	  </NavItem>
     );
   }
   
