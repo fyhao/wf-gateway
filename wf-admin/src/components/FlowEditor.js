@@ -32,6 +32,17 @@ class FlowEditor extends Component {
 	  else if(evt.action == 'flowAdded') {
 		  var flowName = evt.flowName;
 		  this.setFlow(flowName, {steps:[]});
+		  ee.emit('flowEditor',{action:'flowSelectedToEdit', flowName:flowName})
+	  }
+	  else if(evt.action == 'flowUpdated') {
+		  var flowName = evt.flowName;
+		  var flowObj = evt.flowObj;
+		  this.setFlow(flowName, flowObj);
+	  }
+	  else if(evt.action == 'flowSelectedToEdit') {
+		  var flowName = evt.flowName;
+		  var flowObj = this.state.flows[flowName];
+		  ee.emit('flowEditor', {action:'flowSelected', flowName:flowName,flowObj:flowObj})
 	  }
   }
   
@@ -76,10 +87,11 @@ class FlowEditor extends Component {
 			 <FlowMenu flows={this.state.flows} />
 			</Col>
 			  <Col xs="6">
-			  
+				<FlowStepsPanel />
 			  </Col>
 		</Row>
 		</Container>
+		DEBUG:{JSON.stringify(this.state.flows)}
 	  </div>
 	  
     );
@@ -92,7 +104,7 @@ class FlowMenu extends Component {
 	constructor(opts) {
 	  super(opts)
 	  this.onFlowEditor = this.onFlowEditor.bind(this);
-  }
+    }
 	componentWillMount() {
 	  ee.on('flowEditor', this.onFlowEditor)
 	}
@@ -111,7 +123,7 @@ class FlowMenu extends Component {
 			<div>
 			<NavBar>
 				{flowNames.map((flowName,i) => (
-					<NavButton title={flowName}/>
+					<NavButton key={i} title={flowName} onClick={() => {ee.emit('flowEditor',{action:'flowSelectedToEdit', flowName:flowName})}}/>
 				))}
 				
 			</NavBar>
@@ -185,4 +197,63 @@ class FlowCreatePanel extends Component {
 	}
 }
 
+class FlowStepsPanel extends Component {
+	constructor(opts) {
+	  super(opts)
+	  this.onFlowEditor = this.onFlowEditor.bind(this);
+    }
+	componentWillMount() {
+	  ee.on('flowEditor', this.onFlowEditor)
+	}
+	componentWillUnmount() {
+	  ee.off('flowEditor', this.onFlowEditor)
+	}
+	onFlowEditor(evt) {
+	   if(evt.action == 'flowSelected') {// flowSelected
+		   var flowName = evt.flowName;
+		   var flowObj = evt.flowObj;
+		   this.setState({flowName:flowName,flowObj:flowObj})
+		   
+		   // Sample code for flowUpdated notification
+		   //flowObj.steps.push('1')
+		   //ee.emit('flowEditor', {action:'flowUpdated',flowName:flowName,flowObj:flowObj});
+	   }
+	}
+	state = {
+		flowObj : {steps:[]}
+	}
+	render() {
+		return (<div>
+		{this.state.flowName && <p>Editing {this.state.flowName}</p>}
+			
+			Steps: {this.state.flowObj.steps.length}
+			
+			<StepCreatePanel />
+		</div>)
+	}
+}
+
+class StepCreatePanel extends Component {
+	constructor(opts) {
+	  super(opts)
+	  this.onFlowEditor = this.onFlowEditor.bind(this);
+    }
+	componentWillMount() {
+	  ee.on('flowEditor', this.onFlowEditor)
+	}
+	componentWillUnmount() {
+	  ee.off('flowEditor', this.onFlowEditor)
+	}
+	onFlowEditor(evt) {
+	   
+	}
+	state = {
+		
+	}
+	render() {
+		return (<div>
+		 Create step wizard
+		</div>)
+	}
+}
 export default FlowEditor;
