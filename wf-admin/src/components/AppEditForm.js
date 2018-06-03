@@ -8,6 +8,7 @@ import AppList from './AppList';
 import ListenerCreateForm from './ListenerCreateForm';
 import ListView from './ListView';
 import ee from './EventManager';
+import { Button } from 'reactstrap';
 class AppEditForm extends Component {
   constructor(opts) {
 	  super(opts)
@@ -96,10 +97,10 @@ class AppEditForm extends Component {
 	
     return (
       <div>
-		<NavButton onClick={this.handleDelete} title="Delete App"/>
+		<Button color="primary" onClick={this.handleDelete}>Delete Apps</Button>
 		<StandardForm options={this.state.options} />
 		<h3>Listeners</h3>
-		<NavButton onClick={() => {ee.emit('navigatePage',{page:<ListenerCreateForm app={this.row} />})}} title="Create Listener"/>
+		<Button color="primary" onClick={() => {ee.emit('navigatePage',{page:<ListenerCreateForm app={this.row} />})}}>Create Listener</Button>
 		<ListView options={options}/>
 	  </div>
 	  

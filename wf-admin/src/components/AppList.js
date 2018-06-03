@@ -37,7 +37,7 @@ class AppList extends Component {
 	options.editForm = (row) => <AppEditForm row={row} />
     return (
       <div>
-	  <Button color="danger" onClick={() => {ee.emit('navigatePage',{page:<AppCreateForm />})}}>Create Apps</Button>
+	  <Button color="primary" onClick={() => {ee.emit('navigatePage',{page:<AppCreateForm />})}}>Create Apps</Button>
 	  
 	  <ListView options={options}/>
 	  </div>

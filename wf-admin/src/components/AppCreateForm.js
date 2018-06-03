@@ -14,7 +14,7 @@ class AppCreateForm extends Component {
 		  title:'Create App',
 		  fields:[
 			{type:'text',label:'Name',id:'name',value:''},
-			{type:'text',label:'Description',id:'description',value:''}
+			{type:'text',label:'Description',id:'description',value:''},
 		  ],
 		  onSubmit: function(opts) {
 			  //opts.fields.name
@@ -31,13 +31,29 @@ class AppCreateForm extends Component {
 					if(response.data.status == '0') {
 						ee.emit('navigatePage', {page:<AppList />});
 					}
+					else if(response.data.status == '100') {
+						me.setErrorMessage('The name of app cannot be blank')
+					}
+					else if(response.data.status == '101') {
+						me.setErrorMessage('The name of app is exist')
+					}
+					else {
+						me.setErrorMessage('Undefined error:' + JSON.stringify(response.data));
+					}
 				})
 		  }
 	  };
+	  this.setErrorMessage = this.setErrorMessage.bind(this)
   }
   
   state = {
 	  
+  }
+  
+  setErrorMessage(msg) {
+	  var o = this.state.options;
+	  this.state.options.errorMessage = msg;
+	  this.setState({options:this.state.options})
   }
   
   

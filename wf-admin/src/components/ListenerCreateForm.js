@@ -14,8 +14,8 @@ class ListenerCreateForm extends Component {
 	  this.state.options = {
 		  title:'Create Listener',
 		  fields:[
-			{type:'text',label:'Type',id:'type',value:'http'},
-			{type:'text',label:'Endpoint',id:'endpoint',value:''}
+			{type:'selectone',label:'Type',id:'type',options:[{key:'http',value:'http'},{key:'smtp',value:'smtp'}],value:'http'},
+			{type:'text',label:'Endpoint',id:'endpoint',value:''},
 		  ],
 		  onSubmit: function(opts) {
 			  //opts.fields.name

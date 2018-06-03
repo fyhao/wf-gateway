@@ -3,6 +3,7 @@ import NavButton from './NavButton';
 import ListView from './ListView';
 import EventEmitter from 'eventemitter3';
 import axios from 'axios';
+import { Button, Form, FormGroup, Label, Input, FormText, Col, Alert} from 'reactstrap';
 class StandardForm extends Component {
   componentWillMount() {
 	  var me = this;
@@ -27,30 +28,37 @@ class StandardForm extends Component {
     return (
 	  <div>
 		<h2>{this.state.options.title}</h2>
-		<form>
-			<table>
-				<tbody>
+		
+			{this.state.options.errorMessage && 
+				<Alert color="danger">
+				{this.state.options.errorMessage}
+				</Alert>}
+			
+		<Form>
 			{this.props.options.fields.map((field,i) => (
-				<tr key={i}>
-					<td>{field.label}</td>
-					<td>
-				      {field.type=="text" && <input type="text" name={field.id} id={field.id} value={field.value} onChange={this.handleChange}/>}
-				      {field.type=="selectone" && <select value={field.value} name={field.id} id={field.id} onChange={this.handleChange}>
+				<FormGroup key={i}>
+					
+					<Label for={field.id}>{field.label}</Label>
+					
+					 {field.type=="text" && 
+						<Input type="text" name={field.id} id={field.id} placeholder={field.id + "(" + field.label + ")"} value={field.value} onChange={this.handleChange} />}
+				      {field.type=="selectone" && 
+					  <Input type="select" value={field.value} name={field.id} id={field.id} onChange={this.handleChange}>
 						  {field.options.map((k,i) => (
 							  <option key={i} value={k.value}>{k.key}</option>
 						  ))}
-					  </select>}
-					</td>
-				</tr>
+					  </Input>}
+				</FormGroup>
 			))}
-			<tr>
-				<td colSpan="2">
-					<input type="button" value="Submit" onClick={this.handleFormSubmit}/>
-				</td>
-			</tr>
-				</tbody>
-			</table>
-		</form>
+			
+			<FormGroup check row>
+          <Col sm={{ size: 10, offset: 2 }}>
+            <Button onClick={this.handleFormSubmit} color="success">Submit</Button>
+          </Col>
+        </FormGroup>
+					
+			
+		</Form>
 	  </div>
 	  
     );
