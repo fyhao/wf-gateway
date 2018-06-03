@@ -97,6 +97,15 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({name:'test','description':'Changed desc'}));
 	  });
   });
+  it('should return status 101 after create app detail with same app name', function test() {
+    return request(server)
+      .post('/app')
+	  .send({name:'test'})
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:101}));
+	  });
+  });
   it('should return status 0 after request to delete for app with name test', function test() {
     return request(server)
       .delete('/app/test')
