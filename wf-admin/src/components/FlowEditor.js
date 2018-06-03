@@ -201,6 +201,7 @@ class FlowStepsPanel extends Component {
 	constructor(opts) {
 	  super(opts)
 	  this.onFlowEditor = this.onFlowEditor.bind(this);
+	  this.handleSaveNew = this.handleSaveNew.bind(this);
     }
 	componentWillMount() {
 	  ee.on('flowEditor', this.onFlowEditor)
@@ -222,21 +223,52 @@ class FlowStepsPanel extends Component {
 	state = {
 		flowObj : {steps:[]}
 	}
+	handleSaveNew(step) {
+		this.state.flowObj.steps.push(step);
+		this.setState({flowObj:this.state.flowObj});
+	}
 	render() {
+		var demoStep = {type:"request",action:"getParam",key:"key1",var:"var1"}
 		return (<div>
-		{this.state.flowName && <p>Editing {this.state.flowName}</p>}
+		{this.state.flowName && <div>
+		<p>Editing {this.state.flowName}</p>
+		<p>DEBUG: {JSON.stringify(this.state.flowObj)}</p>
+		
+		{this.state.flowObj.steps.map((step,i) => (
+			<StepWizard key={i} step={step} />
+		))}
+		
+		<StepCreatePanel onSave={this.handleSaveNew} />
+		</div>}
 			
-			Steps: {this.state.flowObj.steps.length}
-			
-			<StepCreatePanel />
 		</div>)
 	}
 }
-
 class StepCreatePanel extends Component {
+	constructor(opts) {
+	  super(opts);
+	  this.handleSave = this.handleSave.bind(this);
+	 }
+	render() {
+		return (<div>
+			<h6>Create Steps</h6>
+			<StepWizard onSave={this.handleSave} />
+		</div>)
+	}
+	handleSave(step) {
+		this.props.onSave(step)
+	}
+}
+class StepWizard extends Component {
 	constructor(opts) {
 	  super(opts)
 	  this.onFlowEditor = this.onFlowEditor.bind(this);
+	  this.handleChange = this.handleChange.bind(this);
+	  this.handleSave = this.handleSave.bind(this);
+	  this.state.step = this.props.step;
+	  if(typeof this.state.step == 'undefined') {
+		  this.state.step = {type:'setVar'}; 
+	  }
     }
 	componentWillMount() {
 	  ee.on('flowEditor', this.onFlowEditor)
@@ -250,10 +282,112 @@ class StepCreatePanel extends Component {
 	state = {
 		
 	}
+	handleSave() {
+		this.props.onSave(this.state.step)
+	}
+	handleChange(evt) {
+		var name = evt.target.name;
+		var value = evt.target.value;
+		if(name == 'type') {
+			var oldValue = this.state.step[name];
+			if(value != oldValue) { // reinitialize a new step with single attribute type
+				this.state.step = {type:value}; 
+				if(value == 'request') { // set default value here
+					this.state.step.action = 'getParam';
+				}
+				else if(value == 'response') {
+					this.state.step.action = 'setHeader';
+				}
+				this.setState({step:this.state.step});
+			}
+		}
+		else {
+			this.state.step[name] = value;
+			this.setState({step:this.state.step});
+		}
+	}
 	render() {
 		return (<div>
-		 Create step wizard
+		 <Form>
+			<FormGroup>
+				<Label for="type">type</Label>
+				<Input type="select" name="type" id="type" placeholder="type of flow" value={this.state.step.type} onChange={this.handleChange}>
+					<option value="setVar">setVar</option>
+					<option value="request">request</option>
+					<option value="response">response</option>
+					<option value="log">log</option>
+					<option value="http">http</option>
+				</Input>
+			</FormGroup>
+			
+			{this.state.step.type == 'setVar' && <span>
+				<SimpleTextInput id="name" value={this.state.step.name} onChange={this.handleChange}/>
+				<SimpleTextInput id="value" value={this.state.step.value} onChange={this.handleChange}/>
+			</span>}
+			
+			{this.state.step.type == 'request' && <span>
+				<SimpleSelectInput id="action" value={this.state.step.action} onChange={this.handleChange} options={['getParam','getPathParam','getBody','getHeader']} />
+				<SimpleTextInput id="key" value={this.state.step.key} onChange={this.handleChange}/>
+				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
+			</span>}
+			
+			{this.state.step.type == 'response' && <span>
+				<SimpleSelectInput id="action" value={this.state.step.action} onChange={this.handleChange} options={['setHeader','getHeader']} />
+				<SimpleTextInput id="key" value={this.state.step.key} onChange={this.handleChange}/>
+				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
+				<SimpleTextInput id="value" value={this.state.step.value} onChange={this.handleChange}/>
+			</span>}
+			
+			{this.state.step.type == 'log' && <span>
+				<SimpleTextInput id="log" value={this.state.step.log} onChange={this.handleChange}/>
+			</span>}
+			
+			{this.state.step.type == 'http' && <span>
+				<SimpleTextInput id="method" value={this.state.step.method} onChange={this.handleChange}/>
+				<SimpleTextInput id="url" value={this.state.step.url} onChange={this.handleChange}/>
+				<SimpleTextInput id="params" value={this.state.step.params} onChange={this.handleChange}/>
+				<SimpleTextInput id="headers" value={this.state.step.headers} onChange={this.handleChange}/>
+				<SimpleTextInput id="varJson" value={this.state.step.varJson} onChange={this.handleChange}/>
+				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
+			</span>}
+			
+			<Button color="success" onClick={this.handleSave}>Save</Button>
+		 </Form>
+		 <p>DEBUG_STEPWIZARD: {JSON.stringify(this.state.step)}</p>
 		</div>)
 	}
+} 
+
+class SimpleTextInput extends Component {
+	constructor(opts) {
+		super(opts);
+		this.state.value = this.props.value;
+	}
+	state={}
+	render() {
+		return (<FormGroup>
+					<Label for={this.props.id}>{this.props.id}</Label>
+					<Input type="text" name={this.props.id} id={this.props.id} value={this.state.value} onChange={this.props.onChange}/>
+				</FormGroup>)
+	}
 }
+
+class SimpleSelectInput extends Component {
+	constructor(opts) {
+		super(opts);
+		this.state.value = this.props.value;
+	}
+	state={}
+	render() {
+		return (<FormGroup>
+					<Label for={this.props.id}>{this.props.id}</Label>
+					<Input type="select" name={this.props.id} id={this.props.id} value={this.state.value} onChange={this.props.onChange}>
+						{this.props.options.map((o,i) => (
+							<option key={i} value={o}>{o}</option>
+						))}
+					</Input>
+				</FormGroup>)
+	}
+}
+
 export default FlowEditor;
