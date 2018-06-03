@@ -95,6 +95,13 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.updateEntireFlow = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			flowStore[app] = opts.flows;
+			resolve();
+		});
+	}
 	this.deleteFlow = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var app = opts.app;

@@ -15,9 +15,17 @@ var mod = {
 	},
 	update : function(req, res) {
 		var name = req.params.name;
-		dataStore.updateFlow({app:name,flows:req.body.flows}).then(function() {
-			res.json({status:0});
-		});
+		var isAll = req.query.isAll;
+		if(isAll && isAll == '1') {
+			dataStore.updateEntireFlow({app:name,flows:req.body.flows}).then(function() {
+				res.json({status:0});
+			});
+		}
+		else {
+			dataStore.updateFlow({app:name,flows:req.body.flows}).then(function() {
+				res.json({status:0});
+			});
+		}
 	},
 	getSingle : function(req, res) {
 		var name = req.params.name;
