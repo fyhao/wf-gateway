@@ -100,14 +100,14 @@ class FlowEditor extends Component {
 		<h3>Flows</h3>
 		<Container style={{borderColor:'red',border:1}}>
 		<Row>
-			<Col sm="2"><FlowCreatePanel /></Col>
-			<Col sm="10"><Button onClick={() => {ee.emit('flowEditor',{action:'sync'})}}>Sync</Button></Col>
+			<Col sm="3"><FlowCreatePanel /></Col>
+			<Col sm="9"><Button onClick={() => {ee.emit('flowEditor',{action:'sync'})}}>Sync</Button></Col>
 		</Row>
 		<Row>
-			<Col sm="2">
+			<Col sm="3">
 			 <FlowMenu flows={this.state.flows} />
 			</Col>
-			  <Col sm="10">
+			  <Col sm="9">
 				<FlowStepsPanel />
 			  </Col>
 		</Row>
@@ -251,7 +251,7 @@ class FlowStepsPanel extends Component {
 	}
 	render() {
 		var demoStep = {type:"request",action:"getParam",key:"key1",var:"var1"}
-		return (<div style={{flex:12}}>
+		return (<div>
 		{this.state.flowName && <div>
 		<p>Editing {this.state.flowName}</p>
 		<Button onClick={() => {ee.emit('flowEditor', {action:'flowUpdated',flowName:this.state.flowName,flowObj:this.state.flowObj})}}>Save Flow</Button>
@@ -280,7 +280,7 @@ class StepEditPanel extends Component {
 			stepsLabelArr.push(i);
 			stepsLabelArr.push(this.props.step[i]);
 		}
-		return (<div style={{flex:12}}>
+		return (<div>
 			<Container>
 			<Row><Col sm="9">
 			<Alert color="info" onClick={() => {this.setState({isExpand:!this.state.isExpand})}}>
@@ -430,13 +430,23 @@ class StepWizard extends Component {
 class SimpleTextInput extends Component {
 	constructor(opts) {
 		super(opts);
-		this.state.value = this.props.value;
+		if(this.props.value) {
+			this.state.value = this.props.value;
+		}
+		else {
+			this.state.value = '';
+		}
+		this.onChange = this.onChange.bind(this);
 	}
 	state={}
+	onChange(evt) {
+		this.state.value = evt.target.value;
+		this.props.onChange(evt);
+	}
 	render() {
 		return (<FormGroup>
 					<Label for={this.props.id}>{this.props.id}</Label>
-					<Input type="text" name={this.props.id} id={this.props.id} value={this.state.value} onChange={this.props.onChange}/>
+					<Input type="text" name={this.props.id} id={this.props.id} value={this.state.value} onChange={this.onChange}/>
 				</FormGroup>)
 	}
 }
@@ -444,13 +454,24 @@ class SimpleTextInput extends Component {
 class SimpleSelectInput extends Component {
 	constructor(opts) {
 		super(opts);
-		this.state.value = this.props.value;
+		if(this.props.value) {
+			this.state.value = this.props.value;
+		}
+		else {
+			this.state.value = '';
+		}
+		
+		this.onChange = this.onChange.bind(this);
 	}
 	state={}
+	onChange(evt) {
+		this.state.value = evt.target.value;
+		this.props.onChange(evt);
+	}
 	render() {
 		return (<FormGroup>
 					<Label for={this.props.id}>{this.props.id}</Label>
-					<Input type="select" name={this.props.id} id={this.props.id} value={this.state.value} onChange={this.props.onChange}>
+					<Input type="select" name={this.props.id} id={this.props.id} value={this.state.value} onChange={this.onChange}>
 						{this.props.options.map((o,i) => (
 							<option key={i} value={o}>{o}</option>
 						))}
