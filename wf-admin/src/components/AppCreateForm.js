@@ -45,7 +45,6 @@ class AppCreateForm extends Component {
     return (
       <div>
 		<StandardForm options={this.state.options} />
-		<p>DEBUG: {this.state.submittedFields}</p>
 	  </div>
 	  
     );
