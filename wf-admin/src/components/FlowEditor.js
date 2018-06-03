@@ -202,6 +202,7 @@ class FlowStepsPanel extends Component {
 	  super(opts)
 	  this.onFlowEditor = this.onFlowEditor.bind(this);
 	  this.handleSaveNew = this.handleSaveNew.bind(this);
+	  this.handleSaveUpdate = this.handleSaveUpdate.bind(this);
     }
 	componentWillMount() {
 	  ee.on('flowEditor', this.onFlowEditor)
@@ -227,21 +228,41 @@ class FlowStepsPanel extends Component {
 		this.state.flowObj.steps.push(step);
 		this.setState({flowObj:this.state.flowObj});
 	}
+	handleSaveUpdate(step, index) {
+		this.state.flowObj.steps[index] = step;
+		this.setState({flowObj:this.state.flowObj});
+	}
 	render() {
 		var demoStep = {type:"request",action:"getParam",key:"key1",var:"var1"}
 		return (<div>
 		{this.state.flowName && <div>
 		<p>Editing {this.state.flowName}</p>
+		<Button onClick={() => {ee.emit('flowEditor', {action:'flowUpdated',flowName:this.state.flowName,flowObj:this.state.flowObj})}}>Save Flow</Button>
 		<p>DEBUG: {JSON.stringify(this.state.flowObj)}</p>
 		
 		{this.state.flowObj.steps.map((step,i) => (
-			<StepWizard key={i} step={step} />
+			<StepEditPanel key={i} index={i} step={step} onSave={this.handleSaveUpdate}/>
 		))}
 		
 		<StepCreatePanel onSave={this.handleSaveNew} />
 		</div>}
 			
 		</div>)
+	}
+}
+class StepEditPanel extends Component {
+	constructor(opts) {
+	  super(opts);
+	  this.handleSave = this.handleSave.bind(this);
+	 }
+	render() {
+		return (<div>
+			<h6>Update Steps</h6>
+			<StepWizard step={this.props.step} onSave={this.handleSave} />
+		</div>)
+	}
+	handleSave(step) {
+		this.props.onSave(step,this.props.index)
 	}
 }
 class StepCreatePanel extends Component {
