@@ -3,6 +3,7 @@ import AppList from './AppList';
 import InstanceList from './InstanceList';
 import NavButton from './NavButton';
 import NavBar from './NavBar';
+import FlowEditor from './FlowEditor';
 import ee from './EventManager';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Badge } from 'reactstrap';
@@ -47,6 +48,7 @@ class Dashboard extends Component {
 	}
 	state = {
 	  currentPage : <AppList />
+	  //currentPage : <FlowEditor app="test" />
 	}
 }
 
