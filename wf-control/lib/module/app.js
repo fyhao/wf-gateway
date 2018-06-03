@@ -11,8 +11,14 @@ var mod = {
 			name : req.body.name, // req.body.xxx for POST req.query.xxx for GET then URL :xxx for req.params
 			description : req.body.description
 		};
-		dataStore.createApp(item);
-		res.json({status:0});
+		if(item.name == '') {
+			res.json({status:100});
+		}
+		else {
+			dataStore.createApp(item).then(function(result) {
+				res.json({status:result.status})
+			});
+		}
 	},
 	item : function(req, res) {
 		var name = req.params.name;

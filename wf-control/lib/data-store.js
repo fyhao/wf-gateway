@@ -5,9 +5,17 @@ var DataStore = function() {
 		})
 	}
 	this.createApp = function(item) {
-		data.push(item);
-		flowStore[item.name] = {};
-		listenersStore[item.name] = [];
+		return new Promise(function(resolve,reject){
+			if(typeof flowStore[item.name] != 'undefined') {
+				resolve({status:101})
+				return;
+			}
+			data.push(item);
+			flowStore[item.name] = {};
+			listenersStore[item.name] = [];
+			resolve({status:0});
+		});
+		
 	}
 	this.getApp = function(name) {
 		return new Promise(function(resolve, reject) {

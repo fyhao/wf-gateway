@@ -130,6 +130,15 @@ describe('app module', function () {
 		  assert.equal(res.text, JSON.stringify({status:100}));
 	  });
   });
+  it('should return status 100 after create app detail with blank app name', function test() {
+    return request(server)
+      .post('/app')
+	  .send({name:''})
+      .expect(200)
+	  .expect(function(res) {
+		  assert.equal(res.text, JSON.stringify({status:100}));
+	  });
+  });
 });
 
 describe('flow module', function () {
