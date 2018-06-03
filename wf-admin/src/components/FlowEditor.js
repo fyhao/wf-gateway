@@ -123,11 +123,14 @@ class FlowMenu extends Component {
 class FlowCreatePanel extends Component {
 	constructor(opts) {
 		super(opts)
+		this.reset();
+		this.onFlowEditor = this.onFlowEditor.bind(this);
+		this.handleAddNewFlow = this.handleAddNewFlow.bind(this);
+	}
+	reset() {
 		this.state.isToAdd = false;
 		this.state.flowName = '';
 		this.state.errorMessage = '';
-		this.onFlowEditor = this.onFlowEditor.bind(this);
-		this.handleAddNewFlow = this.handleAddNewFlow.bind(this);
 	}
 	componentWillMount() {
 	  ee.on('flowEditor', this.onFlowEditor)
@@ -140,6 +143,7 @@ class FlowCreatePanel extends Component {
 		   var status = evt.status;
 		   if(status == 0) {
 			   ee.emit('flowEditor', {action:'flowAdded', flowName:this.state.flowName});
+			   this.reset();
 		   }
 		   else {
 			   this.setErrorMessage("Flow is Exist, Cannot Add")
