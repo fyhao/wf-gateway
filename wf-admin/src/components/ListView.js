@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Table,Button } from 'reactstrap';
 import ee from './EventManager';
 class ListView extends Component {
   render() {
@@ -7,12 +8,12 @@ class ListView extends Component {
 	 const data = options.data;
     return (
       <div>
-		<table border="1">
+		<Table>
 			<thead><tr>
 		{fields.map((field,i) => {
-			return (<td key={i}>{field.heading}</td>)
+			return (<th key={i}>{field.heading}</th>)
 		})}
-			{options.hasEdit && <td>Edit</td>}
+			{options.hasEdit && <th>Edit</th>}
 		
 			</tr></thead>
 			<tbody>
@@ -26,12 +27,12 @@ class ListView extends Component {
 			  return (<td key={j}>{col}</td>)
 		  })}
 		  
-		  {options.hasEdit && <td><button onClick={this.onEdit(row)}>Edit</button></td>}
+		  {options.hasEdit && <td><Button onClick={this.onEdit(row)} outline color="primary">Edit</Button></td>}
 		  
 		  </tr>)
 		})}
 		</tbody>
-		</table>
+		</Table>
 	  
 	  </div>
     );
