@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Row, Col, Badge, Button,Form, FormGroup, Label, Input, FormText, Alert } from 'reactstrap';
+import { Container, Row, Col, Badge, Button,Form, FormGroup, Label, Input, FormText, Alert, Card, CardBody, CardText, CardTitle } from 'reactstrap';
 import ListView from './ListView';
 import ee from './EventManager';
 import Constants from './Constants';
@@ -107,7 +107,7 @@ class FlowEditor extends Component {
 			<Col xs="3">
 			 <FlowMenu flows={this.state.flows} />
 			</Col>
-			  <Col xs="6">
+			  <Col xs="8">
 				<FlowStepsPanel />
 			  </Col>
 		</Row>
@@ -237,9 +237,6 @@ class FlowStepsPanel extends Component {
 		   var flowObj = evt.flowObj;
 		   this.setState({flowName:flowName,flowObj:flowObj})
 		   
-		   // Sample code for flowUpdated notification
-		   //flowObj.steps.push('1')
-		   //ee.emit('flowEditor', {action:'flowUpdated',flowName:flowName,flowObj:flowObj});
 	   }
 	}
 	state = {
@@ -260,11 +257,13 @@ class FlowStepsPanel extends Component {
 		<p>Editing {this.state.flowName}</p>
 		<Button onClick={() => {ee.emit('flowEditor', {action:'flowUpdated',flowName:this.state.flowName,flowObj:this.state.flowObj})}}>Save Flow</Button>
 		<p>DEBUG: {JSON.stringify(this.state.flowObj)}</p>
-		
+		<Card>
+		<CardBody>
 		{this.state.flowObj.steps.map((step,i) => (
 			<StepEditPanel key={i} index={i} step={step} onSave={this.handleSaveUpdate}/>
 		))}
-		
+		</CardBody>
+		</Card>
 		<StepCreatePanel onSave={this.handleSaveNew} />
 		</div>}
 			
@@ -275,11 +274,29 @@ class StepEditPanel extends Component {
 	constructor(opts) {
 	  super(opts);
 	  this.handleSave = this.handleSave.bind(this);
+	  this.state.isExpand = false;
 	 }
+	 state = {}
 	render() {
+		var me = this;
+		var stepsLabelArr = [];
+		for(var i in this.props.step) {
+			stepsLabelArr.push(i);
+			stepsLabelArr.push(this.props.step[i]);
+		}
 		return (<div>
-			<h6>Update Steps</h6>
-			<StepWizard step={this.props.step} onSave={this.handleSave} />
+			<Alert color="info" onClick={() => {this.setState({isExpand:!this.state.isExpand})}}>
+			{stepsLabelArr.map((text,i) => (
+				<span key={i}>
+				{i%2==0 && <strong>{text}</strong>}
+				<span> </span>
+				{i%2==1 && <span>{text}</span>}
+				<span> </span>
+				<span> </span>
+				</span>
+			))}
+			</Alert>
+			{this.state.isExpand && <StepWizard step={this.props.step} onSave={this.handleSave} />}
 		</div>)
 	}
 	handleSave(step) {
@@ -293,8 +310,7 @@ class StepCreatePanel extends Component {
 	 }
 	render() {
 		return (<div>
-			<h6>Create Steps</h6>
-			<StepWizard onSave={this.handleSave} />
+			<StepWizard onSave={this.handleSave} heading="Create Step" />
 		</div>)
 	}
 	handleSave(step) {
@@ -311,6 +327,7 @@ class StepWizard extends Component {
 	  if(typeof this.state.step == 'undefined') {
 		  this.state.step = {type:'setVar'}; 
 	  }
+	  this.state.heading = this.props.heading;
     }
 	componentWillMount() {
 	  ee.on('flowEditor', this.onFlowEditor)
@@ -350,7 +367,12 @@ class StepWizard extends Component {
 	}
 	render() {
 		return (<div>
-		 <Form>
+		
+		<Card>
+		
+        <CardBody>
+			{this.state.heading && <CardTitle>{this.state.heading}</CardTitle>}
+           <Form>
 			<FormGroup>
 				<Label for="type">type</Label>
 				<Input type="select" name="type" id="type" placeholder="type of flow" value={this.state.step.type} onChange={this.handleChange}>
@@ -395,7 +417,9 @@ class StepWizard extends Component {
 			
 			<Button color="success" onClick={this.handleSave}>Save</Button>
 		 </Form>
-		 <p>DEBUG_STEPWIZARD: {JSON.stringify(this.state.step)}</p>
+          
+        </CardBody>
+      </Card>
 		</div>)
 	}
 } 
