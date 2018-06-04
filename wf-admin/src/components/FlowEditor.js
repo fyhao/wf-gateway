@@ -237,6 +237,28 @@ class FlowStepsPanel extends Component {
 		   this.setState({flowName:flowName,flowObj:flowObj})
 		   
 	   }
+	   else if(evt.action == 'stepEditMoveUp') {
+		   //ee.emit('flowEditor', {action:'stepEditMoveUp',index:this.props.index});
+		   // get requested step
+		   if(evt.index > 0) {
+		       var step = this.state.flowObj.steps[evt.index];
+			   this.state.flowObj.steps = this.swap(this.state.flowObj.steps, evt.index, evt.index-1);
+			   this.setState({flowObj:this.state.flowObj});
+		   }
+	   }
+	   else if(evt.action == 'stepEditMoveDown') {
+		   if(evt.index < this.state.flowObj.steps.length - 1) {
+			   var step = this.state.flowObj.steps[evt.index];
+			   this.state.flowObj.steps = this.swap(this.state.flowObj.steps, evt.index, evt.index+1);
+			   this.setState({flowObj:this.state.flowObj});
+		   }
+	   }
+	}
+	swap = function (arr, x,y) {
+	  var b = arr[x];
+	  arr[x] = arr[y];
+	  arr[y] = b;
+	  return arr;
 	}
 	state = {
 		flowObj : {steps:[]}
@@ -270,6 +292,8 @@ class StepEditPanel extends Component {
 	constructor(opts) {
 	  super(opts);
 	  this.handleSave = this.handleSave.bind(this);
+	  this.moveUp = this.moveUp.bind(this);
+	  this.moveDown = this.moveDown.bind(this);
 	  this.state.isExpand = false;
 	 }
 	 state = {}
@@ -294,16 +318,19 @@ class StepEditPanel extends Component {
 				</span>
 			))}
 			</Alert>
-			</Col><Col sm="3"><Button color="info">Up</Button> <Button color="info">Down</Button></Col></Row>
+			</Col><Col sm="3"><Button color="info" onClick={this.moveUp}>Up</Button> <Button color="info" onClick={this.moveDown}>Down</Button></Col></Row>
 			</Container>
-			
-			
-			
 			{this.state.isExpand && <StepWizard step={this.props.step} onSave={this.handleSave} />}
 		</div>)
 	}
 	handleSave(step) {
 		this.props.onSave(step,this.props.index)
+	}
+	moveUp() {
+		ee.emit('flowEditor', {action:'stepEditMoveUp',index:this.props.index});
+	}
+	moveDown() {
+		ee.emit('flowEditor', {action:'stepEditMoveDown',index:this.props.index});
 	}
 }
 class StepCreatePanel extends Component {
