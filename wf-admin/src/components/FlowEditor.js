@@ -251,6 +251,10 @@ class FlowStepsPanel extends Component {
 			   this.setState({flowObj:this.state.flowObj});
 		   }
 	   }
+	   else if(evt.action == 'stepEditDeleteStep') {
+		   this.state.flowObj.steps.splice(evt.index,1);
+		   this.setState({flowObj:this.state.flowObj});
+	   }
 	}
 	swap = function (arr, x,y) {
 	  var b = arr[x];
@@ -292,6 +296,7 @@ class StepEditPanel extends Component {
 	  this.handleSave = this.handleSave.bind(this);
 	  this.moveUp = this.moveUp.bind(this);
 	  this.moveDown = this.moveDown.bind(this);
+	  this.deleteStep = this.deleteStep.bind(this);
 	  this.state.isExpand = false;
 	 }
 	 state = {}
@@ -316,7 +321,11 @@ class StepEditPanel extends Component {
 				</span>
 			))}
 			</Alert>
-			</Col><Col sm="3"><Button color="info" onClick={this.moveUp}>Up</Button> <Button color="info" onClick={this.moveDown}>Down</Button></Col></Row>
+			</Col><Col sm="3">
+			<Button color="info" onClick={this.moveUp}>Up</Button> 
+			<Button color="info" onClick={this.moveDown}>Down</Button> 
+			<Button color="danger" onClick={this.deleteStep}>DEL</Button>
+			</Col></Row>
 			</Container>
 			{this.state.isExpand && <StepWizard step={this.props.step} onSave={this.handleSave} />}
 		</div>)
@@ -329,6 +338,9 @@ class StepEditPanel extends Component {
 	}
 	moveDown() {
 		ee.emit('flowEditor', {action:'stepEditMoveDown',index:this.props.index});
+	}
+	deleteStep() {
+		ee.emit('flowEditor', {action:'stepEditDeleteStep',index:this.props.index});
 	}
 }
 class StepCreatePanel extends Component {
