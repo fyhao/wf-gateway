@@ -26,20 +26,20 @@ class Dashboard extends Component {
 	render() {
 	  
 	return (
-	  <Container>
+	  <Container fluid={true}>
 		<Row>
 			<Col>
 			<h1>wf-admin <Badge color="secondary">New</Badge></h1>
 			</Col>
 		</Row>
         <Row>
-          <Col xs="3">
+          <Col sm="2">
 		 <NavBar>
 			<NavButton onClick={() => {ee.emit('navigatePage',{page:<AppList />})}} title="App"/>
 			<NavButton onClick={() => {ee.emit('navigatePage',{page:<InstanceList />})}} title="Instance"/>
 		</NavBar>
 		</Col>
-          <Col xs="6">
+          <Col sm="10">
 		  {this.state.currentPage}
 		  </Col>
         </Row>
