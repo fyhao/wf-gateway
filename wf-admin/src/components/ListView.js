@@ -32,7 +32,7 @@ class ListView extends Component {
 		  })}
 		  
 		  {options.hasEdit && <td><Button onClick={this.onEdit(row)} outline color="primary">Edit</Button></td>}
-		  
+		  {options.hasDelete && <td><Button onClick={this.onDelete(row)} outline color="danger">Delete</Button></td>}
 		  </tr>)
 		})}
 		</tbody>
@@ -48,7 +48,12 @@ class ListView extends Component {
 		  ee.emit('navigatePage', {page:options.editForm(row),row:row});
 	  };
   }
-  
+  onDelete(row) {
+	  const options = this.props.options;
+	  return () => {
+		  options.handleDelete(row);
+	  };
+  }
 }
 
 export default ListView;
