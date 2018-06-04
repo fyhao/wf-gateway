@@ -34,6 +34,12 @@ var mod = {
 			res.json({status:0});
 		});
 	},
+	getSingle : function(req, res) {
+		var id = req.params.id;
+		dataStore.getInstance({id:id}).then(function(result) {
+			res.json({status:0,instance:result}});
+		});
+	},
 	listForApp : function(req, res) {
 		var name = req.params.name;
 		dataStore.getInstancesForApp({app:name}).then(function(result) {
