@@ -82,18 +82,45 @@ class InstanceEditForm extends Component {
 		})
   }
   handleDeploy() {
+	  var me = this;
+	  this.enableApp(() => {
+		  axios({
+			  method: 'post',
+			  url: Constants.API_URL + '/instance/' + this.instance_id + '/deploy',
+			  data: {
+				conf:{
+					action:'deployAll'
+				}
+			  }
+			}).then(response => {
+				if(response.data.status == '0') {
+					alert('Deployed')
+				}
+			})
+	  })
+  }
+  
+  enableApp(next) {
+	  var me = this;
+	  // temporary enable app directly, should create another button to enable later
 	  axios({
-		  method: 'post',
-		  url: Constants.API_URL + '/instance/' + this.instance_id + '/deploy',
+		  method: 'get',
+		  url: Constants.API_URL + '/instance/' + this.instance_id + '/app/',
 		  data: {
-			conf:{
-				action:'deployAll'
-			}
+			
 		  }
 		}).then(response => {
-			if(response.data.status == '0') {
-				alert('Deployed')
-			}
+			response.data.apps.map((app,i) => {
+				axios({
+					  method: 'post',
+					  url: Constants.API_URL + '/instance/' + this.instance_id + '/app/' + app.app + '/enable',
+					  data: {
+						
+					  }
+					}).then(response => {
+						next()
+					})
+			});
 		})
   }
  
