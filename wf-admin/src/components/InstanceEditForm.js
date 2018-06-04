@@ -57,6 +57,7 @@ class InstanceEditForm extends Component {
 	  this.componentWillMount = this.componentWillMount.bind(this);
 	  this.componentWillUnmount = this.componentWillUnmount.bind(this);
 	  this.handleDelete = this.handleDelete.bind(this);
+	  this.handleDeploy = this.handleDeploy.bind(this);
   }
   
   state = {
@@ -80,12 +81,27 @@ class InstanceEditForm extends Component {
 			}
 		})
   }
-  
+  handleDeploy() {
+	  axios({
+		  method: 'post',
+		  url: Constants.API_URL + '/instance/' + this.instance_id + '/deploy',
+		  data: {
+			conf:{
+				action:'deployAll'
+			}
+		  }
+		}).then(response => {
+			if(response.data.status == '0') {
+				alert('Deployed')
+			}
+		})
+  }
  
   render() {
     return (
       <div>
 		<Button color="primary" onClick={this.handleDelete}>Delete Instance</Button>
+		<Button color="primary" onClick={this.handleDeploy}>Deploy</Button>
 		<StandardForm options={this.state.options} />
 	  </div>
     );
