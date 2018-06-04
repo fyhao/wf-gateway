@@ -238,8 +238,6 @@ class FlowStepsPanel extends Component {
 		   
 	   }
 	   else if(evt.action == 'stepEditMoveUp') {
-		   //ee.emit('flowEditor', {action:'stepEditMoveUp',index:this.props.index});
-		   // get requested step
 		   if(evt.index > 0) {
 		       var step = this.state.flowObj.steps[evt.index];
 			   this.state.flowObj.steps = this.swap(this.state.flowObj.steps, evt.index, evt.index-1);

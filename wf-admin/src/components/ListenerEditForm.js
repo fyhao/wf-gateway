@@ -18,6 +18,7 @@ class ListenerCreateForm extends Component {
 		  title:'Update Listener',
 		  fields:[
 			{type:'selectone',label:'Type',id:'type',options:[{key:'http',value:'http'},{key:'smtp',value:'smtp'}],value:'http'},
+			{type:'selectone',label:'Method',id:'method',options:[{key:'GET',value:'GET'},{key:'POST',value:'POST'},{key:'PUT',value:'PUT'},{key:'DELETE',value:'DELETE'}],value:'GET'},
 			{type:'text',label:'Endpoint',id:'endpoint',value:''},
 		  ],
 		  onSubmit: function(opts) {
@@ -29,7 +30,9 @@ class ListenerCreateForm extends Component {
 				  data: {
 					listener:{
 						type:opts.fields.type,
-						endpoint:opts.fields.endpoint
+						endpoint:opts.fields.endpoint,
+						method:opts.fields.method,
+						flow:opts.fields.flow
 					}
 				  }
 				}).then(response => {
@@ -40,22 +43,45 @@ class ListenerCreateForm extends Component {
 				})
 		  }
 	  };
-	  
-	  axios({
-		  method:'GET',
-		  url: Constants.API_URL + '/app/' + this.app + '/listener/' + this.listener_id
-	  }).then(response => {
-		  console.log(response.data)
-		  var item = response.data.listener;
-		  me.state.options.fields.map((field,i) => {
-			  field.value = item[field.id];
+	  this.requestFlows(function() {
+		  axios({
+			  method:'GET',
+			  url: Constants.API_URL + '/app/' + me.app + '/listener/' + me.listener_id
+		  }).then(response => {
+			  console.log(response.data)
+			  var item = response.data.listener;
+			  me.state.options.fields.map((field,i) => {
+				  field.value = item[field.id];
+			  });
+			  me.setState({options:me.state.options})
 		  });
-		  me.setState({options:me.state.options})
 	  });
+	  
 		
 	 this.handleDelete = this.handleDelete.bind(this)
   }
-  
+  requestFlows(done) {
+	  var me = this;
+	  axios({
+		  method: 'GET',
+		  url: Constants.API_URL + '/app/' + this.props.app + '/flow',
+		  data: {
+		  }
+		}).then(response => {
+			var flows = response.data.flows;
+			if(typeof flows == 'undefined') {
+				flows = {}
+			}
+			var selectOptions = [];
+			for(var flowName in flows) {
+				selectOptions.push({key:flowName,value:flowName});
+			}
+			me.state.options.fields.push({type:'selectone',label:'Flow',id:'flow',options:selectOptions});
+			me.setState({flows:flows});
+			
+			done();
+		})
+  }
   state = {
 	  options:{}
   }

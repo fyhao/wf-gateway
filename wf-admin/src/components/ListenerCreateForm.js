@@ -15,6 +15,7 @@ class ListenerCreateForm extends Component {
 		  title:'Create Listener',
 		  fields:[
 			{type:'selectone',label:'Type',id:'type',options:[{key:'http',value:'http'},{key:'smtp',value:'smtp'}],value:'http'},
+			{type:'selectone',label:'Method',id:'method',options:[{key:'GET',value:'GET'},{key:'POST',value:'POST'},{key:'PUT',value:'PUT'},{key:'DELETE',value:'DELETE'}],value:'GET'},
 			{type:'text',label:'Endpoint',id:'endpoint',value:''},
 		  ],
 		  onSubmit: function(opts) {
@@ -26,7 +27,9 @@ class ListenerCreateForm extends Component {
 				  data: {
 					listener:{
 						type:opts.fields.type,
-						endpoint:opts.fields.endpoint
+						endpoint:opts.fields.endpoint,
+						method:opts.fields.method,
+						flow:opts.fields.flow
 					}
 				  }
 				}).then(response => {
@@ -37,8 +40,28 @@ class ListenerCreateForm extends Component {
 				})
 		  }
 	  };
+	  this.requestFlows();
   }
-  
+  requestFlows() {
+	  var me = this;
+	  axios({
+		  method: 'GET',
+		  url: Constants.API_URL + '/app/' + this.props.app + '/flow',
+		  data: {
+		  }
+		}).then(response => {
+			var flows = response.data.flows;
+			if(typeof flows == 'undefined') {
+				flows = {}
+			}
+			var selectOptions = [];
+			for(var flowName in flows) {
+				selectOptions.push({key:flowName,value:flowName});
+			}
+			me.state.options.fields.push({type:'selectone',label:'Flow',id:'flow',options:selectOptions});
+			me.setState({flows:flows});
+		})
+  }
   state = {
 	  
   }

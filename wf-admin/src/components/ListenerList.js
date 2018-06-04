@@ -37,7 +37,9 @@ class ListenerList extends Component {
 	options.data = this.state.listenerData;
 	options.fields = [
 		{heading:'Type',key:'type'},
-		{heading:'Endpoint',key:'endpoint'}
+		{heading:'Endpoint',key:'endpoint'},
+		{heading:'Method',key:'method'},
+		{heading:'Flow',key:'flow'},
 	];
 	options.hasEdit = true;
 	options.editForm = (row) => <ListenerEditForm app={this.props.app} listener_id={row.id} />
