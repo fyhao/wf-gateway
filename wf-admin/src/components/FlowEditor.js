@@ -358,7 +358,7 @@ class StepWizard extends Component {
 					this.state.step.action = 'getParam';
 				}
 				else if(value == 'response') {
-					this.state.step.action = 'setHeader';
+					this.state.step.action = '';
 				}
 				this.setState({step:this.state.step});
 			}
@@ -399,7 +399,8 @@ class StepWizard extends Component {
 			</span>}
 			
 			{this.state.step.type == 'response' && <span>
-				<SimpleSelectInput id="action" value={this.state.step.action} onChange={this.handleChange} options={['setHeader','getHeader']} />
+				<SimpleTextInput id="body" value={this.state.step.body} onChange={this.handleChange}/>
+				<SimpleSelectInput id="action" value={this.state.step.action} onChange={this.handleChange} options={['','setHeader','getHeader']} />
 				<SimpleTextInput id="key" value={this.state.step.key} onChange={this.handleChange}/>
 				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
 				<SimpleTextInput id="value" value={this.state.step.value} onChange={this.handleChange}/>
@@ -419,6 +420,8 @@ class StepWizard extends Component {
 			</span>}
 			
 			<Button color="success" onClick={this.handleSave}>Save</Button>
+			
+			<p>DEBUG {JSON.stringify(this.state.step)}</p>
 		 </Form>
           
         </CardBody>
