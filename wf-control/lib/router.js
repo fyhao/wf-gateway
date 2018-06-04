@@ -25,6 +25,7 @@ var router = function(app) {
 	var instanceModule = ProjRequire('lib/module/instance');
 	app.get('/instance', instanceModule.list);
 	app.post('/instance', instanceModule.create);
+	app.get('/instance/:id', instanceModule.getSingle);
 	app.put('/instance/:id', instanceModule.update);
 	app.delete('/instance/:id', instanceModule.remove);
 	app.get('/app/:name/instance', instanceModule.listForApp);
