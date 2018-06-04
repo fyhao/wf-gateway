@@ -20,6 +20,13 @@ var mod = {
 			res.json({status:status});
 		}
 	},
+	getSingle : function(req, res) {
+		var app = req.params.name;
+		var id = req.params.id;
+		dataStore.getListener({app:app,id:id}).then(function(resultListener) {
+			res.json({status:0,listener:resultListener});
+		});
+	},
 	update : function(req, res) {
 		var app = req.params.name;
 		var id = req.params.id;

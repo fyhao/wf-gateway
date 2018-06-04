@@ -5,9 +5,17 @@ var DataStore = function() {
 		})
 	}
 	this.createApp = function(item) {
-		data.push(item);
-		flowStore[item.name] = {};
-		listenersStore[item.name] = [];
+		return new Promise(function(resolve,reject){
+			if(typeof flowStore[item.name] != 'undefined') {
+				resolve({status:101})
+				return;
+			}
+			data.push(item);
+			flowStore[item.name] = {};
+			listenersStore[item.name] = [];
+			resolve({status:0});
+		});
+		
 	}
 	this.getApp = function(name) {
 		return new Promise(function(resolve, reject) {
@@ -87,6 +95,13 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.updateEntireFlow = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			flowStore[app] = opts.flows;
+			resolve();
+		});
+	}
 	this.deleteFlow = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var app = opts.app;
@@ -100,6 +115,19 @@ var DataStore = function() {
 			var app = opts.app;
 			var listeners = listenersStore[app];
 			resolve(listeners);
+		});
+	}
+	this.getListener = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var app = opts.app;
+			var id = opts.id;
+			for(var i = 0; i < listenersStore[app].length; i++) {
+				if(listenersStore[app][i].id == id) {
+					resolve(listenersStore[app][i]);
+					return;
+				}
+			}
+			resolve(null);
 		});
 	}
 	this.createListener = function(opts) {
