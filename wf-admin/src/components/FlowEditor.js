@@ -385,6 +385,7 @@ class StepWizard extends Component {
 	  this.handleAddCustomField = this.handleAddCustomField.bind(this);
 	  this.handleCustomFieldIdChange = this.handleCustomFieldIdChange.bind(this);
 	  this.handleSave = this.handleSave.bind(this);
+	  this.loadCustomFlows = this.loadCustomFlows.bind(this);
 	  this.state.step = this.props.step;
 	  if(typeof this.state.step == 'undefined') {
 		  this.state.step = {type:'setVar'}; 
@@ -394,7 +395,15 @@ class StepWizard extends Component {
 	  this.state.isCustomTypeSelected = false;
 	  this.state.customFields = [];
 	  this.state.customFieldId = "";
-	  this.getCustomFlows(function(flows) {
+	  this.loadCustomFlows();
+	  
+	  
+	  // initialize customFields if any
+	  
+    }
+	loadCustomFlows() {
+		var me = this;
+		this.getCustomFlows(function(flows) {
 		  var temp = [];
 		  for(var flow in flows) {
 			  temp.push(flow);
@@ -411,10 +420,7 @@ class StepWizard extends Component {
 			  }
 		  }
 	  });
-	  
-	  // initialize customFields if any
-	  
-    }
+	}
 	componentWillMount() {
 	  ee.on('flowEditor', this.onFlowEditor)
 	}
@@ -422,7 +428,9 @@ class StepWizard extends Component {
 	  ee.off('flowEditor', this.onFlowEditor)
 	}
 	onFlowEditor(evt) {
-	   
+	   if(evt.action == 'flowAdded' || evt.action == 'flowUpdated') {
+		   this.loadCustomFlows();
+	   }
 	}
 	state = {
 	}
