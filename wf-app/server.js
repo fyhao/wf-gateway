@@ -17,7 +17,7 @@ function createServer(opts) {
 	const router = ProjRequire('./lib/router');
 	router(app);
 
-	var server = app.listen(port, () => console.log('wf-control server listening on port ' + port + '!'))
+	var server = app.listen(port, () => console.log('wf-app server listening on port ' + port + '!'))
 	return server;
 
 }
