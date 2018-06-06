@@ -29,6 +29,8 @@ module.exports = function(){
 			return val(vars);
 		} catch (e) {
 			return '';
+		} finally {
+			for(key in vars) {delete global[key];}
 		}
 	}
 	var replacePatternRes = function(result, pattern, res) {
