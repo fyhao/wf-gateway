@@ -366,6 +366,9 @@ class StepWizard extends Component {
 	  var me = this;
 	  this.onFlowEditor = this.onFlowEditor.bind(this);
 	  this.handleChange = this.handleChange.bind(this);
+	  this.handleCustomFieldChange = this.handleCustomFieldChange.bind(this);
+	  this.handleAddCustomField = this.handleAddCustomField.bind(this);
+	  this.handleCustomFieldIdChange = this.handleCustomFieldIdChange.bind(this);
 	  this.handleSave = this.handleSave.bind(this);
 	  this.state.step = this.props.step;
 	  if(typeof this.state.step == 'undefined') {
@@ -373,9 +376,29 @@ class StepWizard extends Component {
 	  }
 	  this.state.heading = this.props.heading;
 	  this.state.customFlows = [];
+	  this.state.isCustomTypeSelected = false;
+	  this.state.customFields = [];
+	  this.state.customFieldId = "";
 	  this.getCustomFlows(function(flows) {
-		  me.state.customFlows = flows;
+		  var temp = [];
+		  for(var flow in flows) {
+			  temp.push(flow);
+		  }
+		  me.state.customFlows = temp
+		  
+		  // initialize existing
+		  if(temp.indexOf(me.state.step.type) > -1) {
+			  me.state.isCustomTypeSelected = true;
+			  for(var field in me.state.step) {
+				  if(field == 'type') continue;
+				  var value = me.state.step[field];
+				  me.state.customFields.push({id:field,value:value});
+			  }
+		  }
 	  });
+	  
+	  // initialize customFields if any
+	  
     }
 	componentWillMount() {
 	  ee.on('flowEditor', this.onFlowEditor)
@@ -387,7 +410,6 @@ class StepWizard extends Component {
 	   
 	}
 	state = {
-		
 	}
 	getCustomFlows(fn) {
 		var key = Math.random()
@@ -399,6 +421,10 @@ class StepWizard extends Component {
 		ee.emit('flowEditor', {action:'getCustomFlows',requestKey:key});
 	}
 	handleSave() {
+		var me = this;
+		me.state.customFields.map((field,i) => {
+			me.state.step[field.id] = field.value;
+		});
 		this.props.onSave(this.state.step)
 	}
 	handleChange(evt) {
@@ -414,12 +440,44 @@ class StepWizard extends Component {
 				else if(value == 'response') {
 					this.state.step.action = '';
 				}
-				this.setState({step:this.state.step});
+				var isCustomTypeSelected = this.state.customFlows.indexOf(this.state.step.type) > -1;
+				if(!isCustomTypeSelected) {
+					this.state.customFields = [];
+				}
+				this.setState({step:this.state.step,isCustomTypeSelected:isCustomTypeSelected});
 			}
 		}
 		else {
 			this.state.step[name] = value;
 			this.setState({step:this.state.step});
+		}
+	}
+	//<SimpleTextInput id={field.id} value={field.value} onChange={this.handleCustomFieldChange} />
+	handleCustomFieldChange(evt) {
+		this.state.customFields.map((field,i) => {
+			if(field.id == evt.target.id) {
+				field.value = evt.target.value;
+			}
+		})
+		this.setState({customFields:this.state.customFields});
+	}
+	handleAddCustomField(evt) {
+		this.state.customFields.push({id:this.state.customFieldId,value:''});
+		this.state.customFieldId = '';
+		this.setState({customFields:this.state.customFields,customFieldId:this.state.customFieldId});
+	}
+	handleCustomFieldIdChange(evt) {
+		this.state.customFieldId = evt.target.value;
+		this.setState({customFieldId:this.state.customFieldId});
+	}
+	handleCustomFieldDelete(field) {
+		for(var i = 0; i < this.state.customFields.length; i++) {
+			if(this.state.customFields[i].id == field.id) {
+				this.state.customFields.splice(i,1);
+				delete this.state.step[field.id];
+				this.setState({customFields:this.state.customFields,step:this.state.step});
+				break;
+			}
 		}
 	}
 	render() {
@@ -438,9 +496,11 @@ class StepWizard extends Component {
 					<option value="response">response</option>
 					<option value="log">log</option>
 					<option value="http">http</option>
+					{this.state.customFlows.map((flow,i) => (
+						<option key={i} value={flow}>{flow}</option>
+					))}
 				</Input>
 			</FormGroup>
-			
 			{this.state.step.type == 'setVar' && <span>
 				<SimpleTextInput id="name" value={this.state.step.name} onChange={this.handleChange}/>
 				<SimpleTextInput id="value" value={this.state.step.value} onChange={this.handleChange}/>
@@ -472,6 +532,20 @@ class StepWizard extends Component {
 				<SimpleTextInput id="varJson" value={this.state.step.varJson} onChange={this.handleChange}/>
 				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
 			</span>}
+			
+			{this.state.isCustomTypeSelected && <div>
+				{this.state.customFields.map((field,i) => (
+					<span key={i}>
+					<p>ID: {field.id}</p>
+					<SimpleTextInput id={field.id} value={field.value} onChange={this.handleCustomFieldChange} />
+					<Button color="danger" onClick={(evt) => {this.handleCustomFieldDelete(field)}}>Del</Button>
+					</span>
+				))}
+				
+				<p>Enter Custom ID</p>
+				<SimpleTextInput value={this.state.customFieldId} onChange={this.handleCustomFieldIdChange} />
+				<Button color="success" onClick={this.handleAddCustomField}>Add New Custom Field</Button>
+			</div>}
 			
 			<Button color="success" onClick={this.handleSave}>Save</Button>
 			
