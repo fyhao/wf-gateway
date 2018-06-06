@@ -299,7 +299,7 @@ class FlowStepsPanel extends Component {
 		<Button onClick={() => {ee.emit('flowEditor', {action:'flowDeleted',flowName:this.state.flowName})}}>Delete Flow</Button>
 		
 		{this.state.flowObj.steps.map((step,i) => (
-			<StepEditPanel key={i} index={i} step={step} onSave={this.handleSaveUpdate}/>
+			<StepEditPanel key={Math.random()} index={i} step={step} onSave={this.handleSaveUpdate}/>
 		))}
 		
 		<StepCreatePanel onSave={this.handleSaveNew} />
