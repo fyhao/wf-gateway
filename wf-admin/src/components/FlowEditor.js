@@ -48,6 +48,9 @@ class FlowEditor extends Component {
 		  var flows = this.state.flows;
 		  this.syncFlows(flows);
 	  }
+	  else if(evt.action == 'getCustomFlows') {
+		  ee.emit('flowEditor_getCustomFlows_' + evt.requestKey, {flows:this.state.flows});
+	  }
   }
   
   componentDidMount() {
@@ -360,6 +363,7 @@ class StepCreatePanel extends Component {
 class StepWizard extends Component {
 	constructor(opts) {
 	  super(opts)
+	  var me = this;
 	  this.onFlowEditor = this.onFlowEditor.bind(this);
 	  this.handleChange = this.handleChange.bind(this);
 	  this.handleSave = this.handleSave.bind(this);
@@ -368,6 +372,10 @@ class StepWizard extends Component {
 		  this.state.step = {type:'setVar'}; 
 	  }
 	  this.state.heading = this.props.heading;
+	  this.state.customFlows = [];
+	  this.getCustomFlows(function(flows) {
+		  me.state.customFlows = flows;
+	  });
     }
 	componentWillMount() {
 	  ee.on('flowEditor', this.onFlowEditor)
@@ -380,6 +388,15 @@ class StepWizard extends Component {
 	}
 	state = {
 		
+	}
+	getCustomFlows(fn) {
+		var key = Math.random()
+		ee.on('flowEditor_getCustomFlows_' + key, function(evt) {
+			var flows = evt.flows;
+			fn(flows);
+			ee.off('flowEditor_getCustomFlows_' + key);
+		});
+		ee.emit('flowEditor', {action:'getCustomFlows',requestKey:key});
 	}
 	handleSave() {
 		this.props.onSave(this.state.step)
