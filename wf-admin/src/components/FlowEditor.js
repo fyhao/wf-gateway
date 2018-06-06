@@ -39,6 +39,12 @@ class FlowEditor extends Component {
 		  var flowObj = evt.flowObj;
 		  this.setFlow(flowName, flowObj);
 	  }
+	  else if(evt.action == 'flowDeleted') {
+		  var flowName = evt.flowName;
+		  var flows = this.state.flows;
+		  delete flows[flowName];
+		  this.setState({flows:flows})
+	  }
 	  else if(evt.action == 'flowSelectedToEdit') {
 		  var flowName = evt.flowName;
 		  var flowObj = this.state.flows[flowName];
@@ -47,6 +53,9 @@ class FlowEditor extends Component {
 	  else if(evt.action == 'sync') {
 		  var flows = this.state.flows;
 		  this.syncFlows(flows);
+	  }
+	  else if(evt.action == 'getCustomFlows') {
+		  ee.emit('flowEditor_getCustomFlows_' + evt.requestKey, {flows:this.state.flows});
 	  }
   }
   
@@ -266,11 +275,19 @@ class FlowStepsPanel extends Component {
 		flowObj : {steps:[]}
 	}
 	handleSaveNew(step) {
-		this.state.flowObj.steps.push(step);
+		var temp = {};
+		for(var i in step) {
+			temp[i] = step[i];
+		}
+		this.state.flowObj.steps.push(temp);
 		this.setState({flowObj:this.state.flowObj});
 	}
 	handleSaveUpdate(step, index) {
-		this.state.flowObj.steps[index] = step;
+		var temp = {};
+		for(var i in step) {
+			temp[i] = step[i];
+		}
+		this.state.flowObj.steps[index] = temp;
 		this.setState({flowObj:this.state.flowObj});
 	}
 	render() {
@@ -279,9 +296,10 @@ class FlowStepsPanel extends Component {
 		{this.state.flowName && <div>
 		<p>Editing {this.state.flowName}</p>
 		<Button onClick={() => {ee.emit('flowEditor', {action:'flowUpdated',flowName:this.state.flowName,flowObj:this.state.flowObj})}}>Save Flow</Button>
+		<Button onClick={() => {ee.emit('flowEditor', {action:'flowDeleted',flowName:this.state.flowName})}}>Delete Flow</Button>
 		
 		{this.state.flowObj.steps.map((step,i) => (
-			<StepEditPanel key={i} index={i} step={step} onSave={this.handleSaveUpdate}/>
+			<StepEditPanel key={Math.random()} index={i} step={step} onSave={this.handleSaveUpdate}/>
 		))}
 		
 		<StepCreatePanel onSave={this.handleSaveNew} />
@@ -360,15 +378,49 @@ class StepCreatePanel extends Component {
 class StepWizard extends Component {
 	constructor(opts) {
 	  super(opts)
+	  var me = this;
 	  this.onFlowEditor = this.onFlowEditor.bind(this);
 	  this.handleChange = this.handleChange.bind(this);
+	  this.handleCustomFieldChange = this.handleCustomFieldChange.bind(this);
+	  this.handleAddCustomField = this.handleAddCustomField.bind(this);
+	  this.handleCustomFieldIdChange = this.handleCustomFieldIdChange.bind(this);
 	  this.handleSave = this.handleSave.bind(this);
+	  this.loadCustomFlows = this.loadCustomFlows.bind(this);
 	  this.state.step = this.props.step;
 	  if(typeof this.state.step == 'undefined') {
 		  this.state.step = {type:'setVar'}; 
 	  }
 	  this.state.heading = this.props.heading;
+	  this.state.customFlows = [];
+	  this.state.isCustomTypeSelected = false;
+	  this.state.customFields = [];
+	  this.state.customFieldId = "";
+	  this.loadCustomFlows();
+	  
+	  
+	  // initialize customFields if any
+	  
     }
+	loadCustomFlows() {
+		var me = this;
+		this.getCustomFlows(function(flows) {
+		  var temp = [];
+		  for(var flow in flows) {
+			  temp.push(flow);
+		  }
+		  me.state.customFlows = temp
+		  
+		  // initialize existing
+		  if(temp.indexOf(me.state.step.type) > -1) {
+			  me.state.isCustomTypeSelected = true;
+			  for(var field in me.state.step) {
+				  if(field == 'type') continue;
+				  var value = me.state.step[field];
+				  me.state.customFields.push({id:field,value:value});
+			  }
+		  }
+	  });
+	}
 	componentWillMount() {
 	  ee.on('flowEditor', this.onFlowEditor)
 	}
@@ -376,12 +428,26 @@ class StepWizard extends Component {
 	  ee.off('flowEditor', this.onFlowEditor)
 	}
 	onFlowEditor(evt) {
-	   
+	   if(evt.action == 'flowAdded' || evt.action == 'flowUpdated') {
+		   this.loadCustomFlows();
+	   }
 	}
 	state = {
-		
+	}
+	getCustomFlows(fn) {
+		var key = Math.random()
+		ee.on('flowEditor_getCustomFlows_' + key, function(evt) {
+			var flows = evt.flows;
+			fn(flows);
+			ee.off('flowEditor_getCustomFlows_' + key);
+		});
+		ee.emit('flowEditor', {action:'getCustomFlows',requestKey:key});
 	}
 	handleSave() {
+		var me = this;
+		me.state.customFields.map((field,i) => {
+			me.state.step[field.id] = field.value;
+		});
 		this.props.onSave(this.state.step)
 	}
 	handleChange(evt) {
@@ -397,12 +463,44 @@ class StepWizard extends Component {
 				else if(value == 'response') {
 					this.state.step.action = '';
 				}
-				this.setState({step:this.state.step});
+				var isCustomTypeSelected = this.state.customFlows.indexOf(this.state.step.type) > -1;
+				if(!isCustomTypeSelected) {
+					this.state.customFields = [];
+				}
+				this.setState({step:this.state.step,isCustomTypeSelected:isCustomTypeSelected});
 			}
 		}
 		else {
 			this.state.step[name] = value;
 			this.setState({step:this.state.step});
+		}
+	}
+	//<SimpleTextInput id={field.id} value={field.value} onChange={this.handleCustomFieldChange} />
+	handleCustomFieldChange(evt) {
+		this.state.customFields.map((field,i) => {
+			if(field.id == evt.target.id) {
+				field.value = evt.target.value;
+			}
+		})
+		this.setState({customFields:this.state.customFields});
+	}
+	handleAddCustomField(evt) {
+		this.state.customFields.push({id:this.state.customFieldId,value:''});
+		this.state.customFieldId = '';
+		this.setState({customFields:this.state.customFields,customFieldId:this.state.customFieldId});
+	}
+	handleCustomFieldIdChange(evt) {
+		this.state.customFieldId = evt.target.value;
+		this.setState({customFieldId:this.state.customFieldId});
+	}
+	handleCustomFieldDelete(field) {
+		for(var i = 0; i < this.state.customFields.length; i++) {
+			if(this.state.customFields[i].id == field.id) {
+				this.state.customFields.splice(i,1);
+				delete this.state.step[field.id];
+				this.setState({customFields:this.state.customFields,step:this.state.step});
+				break;
+			}
 		}
 	}
 	render() {
@@ -421,9 +519,11 @@ class StepWizard extends Component {
 					<option value="response">response</option>
 					<option value="log">log</option>
 					<option value="http">http</option>
+					{this.state.customFlows.map((flow,i) => (
+						<option key={i} value={flow}>{flow}</option>
+					))}
 				</Input>
 			</FormGroup>
-			
 			{this.state.step.type == 'setVar' && <span>
 				<SimpleTextInput id="name" value={this.state.step.name} onChange={this.handleChange}/>
 				<SimpleTextInput id="value" value={this.state.step.value} onChange={this.handleChange}/>
@@ -455,6 +555,20 @@ class StepWizard extends Component {
 				<SimpleTextInput id="varJson" value={this.state.step.varJson} onChange={this.handleChange}/>
 				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
 			</span>}
+			
+			{this.state.isCustomTypeSelected && <div>
+				{this.state.customFields.map((field,i) => (
+					<span key={i}>
+					<p>ID: {field.id}</p>
+					<SimpleTextInput id={field.id} value={field.value} onChange={this.handleCustomFieldChange} />
+					<Button color="danger" onClick={(evt) => {this.handleCustomFieldDelete(field)}}>Del</Button>
+					</span>
+				))}
+				
+				<p>Enter Custom ID</p>
+				<SimpleTextInput value={this.state.customFieldId} onChange={this.handleCustomFieldIdChange} />
+				<Button color="success" onClick={this.handleAddCustomField}>Add New Custom Field</Button>
+			</div>}
 			
 			<Button color="success" onClick={this.handleSave}>Save</Button>
 			
@@ -521,3 +635,4 @@ class SimpleSelectInput extends Component {
 }
 
 export default FlowEditor;
+

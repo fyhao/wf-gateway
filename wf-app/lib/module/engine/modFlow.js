@@ -20,7 +20,7 @@ var FlowEngine = function(flow) {
 	
 	function enable_FLOW_ENGINE_CANCELLED() {
 		_FLOW_ENGINE_CANCELED = true;
-		console.log('enable_FLOW_ENGINE_CANCELLED called');
+		//console.log('enable_FLOW_ENGINE_CANCELLED called');
 	}
 	this.setContext = function(v) {
 		ctx = v;
@@ -87,9 +87,12 @@ var FlowEngine = function(flow) {
 		for(var k in ctx.vars) {
 			__vars[k] = ctx.vars[k];
 		}
+		//console.log('evalParser __vars: ' + JSON.stringify(__vars));
+		//console.log('evalParser c1: ' + c);
 		var parser = new evalParser();
 		c = parser.parse(c, __vars);
 		c = propParser.parse(ctx,c);
+		//console.log('evalParser c2: ' + c);
 		return c;
 	}
 	var replaceVarsStep = function(step) {
@@ -110,6 +113,8 @@ var FlowEngine = function(flow) {
 		if(_FLOW_ENGINE_CANCELED) {
 			return;
 		}
+		//console.log('vars:'+JSON.stringify(vars))
+		//console.log('ctx.vars:'+JSON.stringify(ctx.vars));
 		step = replaceVarsStep(step);
 		//console.log(JSON.stringify(step)); 
 		// search ctx.flows if any
