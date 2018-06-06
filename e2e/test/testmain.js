@@ -1189,4 +1189,31 @@ describe('e2e test - control server push configuration to app server', function 
 		  });
 	  });
   });
+  
+  describe('e2e test - delete 3rd apps and deployAll again and should not crash', function() {
+	  it('should return status 0 after delete app test3', function test() {
+		return request(control_server)
+		  .delete('/app/test3')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, JSON.stringify({status:0}));
+		  });
+	  });
+	  
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+  });
 }); 

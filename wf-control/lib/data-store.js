@@ -58,6 +58,13 @@ var DataStore = function() {
 					data.splice(i,1);
 					delete flowStore[name];
 					delete listenersStore[name];
+					for(var j = 0; j < appInstanceMappingStore.length; j++) {
+						var m = appInstanceMappingStore[j];
+						if(m.app == name) {
+							appInstanceMappingStore.splice(j,1);
+							break;
+						}
+					}
 					resolve();
 					found = true;
 					break;
