@@ -269,11 +269,19 @@ class FlowStepsPanel extends Component {
 		flowObj : {steps:[]}
 	}
 	handleSaveNew(step) {
-		this.state.flowObj.steps.push(step);
+		var temp = {};
+		for(var i in step) {
+			temp[i] = step[i];
+		}
+		this.state.flowObj.steps.push(temp);
 		this.setState({flowObj:this.state.flowObj});
 	}
 	handleSaveUpdate(step, index) {
-		this.state.flowObj.steps[index] = step;
+		var temp = {};
+		for(var i in step) {
+			temp[i] = step[i];
+		}
+		this.state.flowObj.steps[index] = temp;
 		this.setState({flowObj:this.state.flowObj});
 	}
 	render() {
