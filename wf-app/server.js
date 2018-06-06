@@ -1,4 +1,7 @@
-function createServer() {
+function createServer(opts) {
+	if(typeof opts == 'undefined') opts = {};
+	var port = 8081; // default port
+	if(typeof opts['port'] != 'undefined') port = opts['port'];
 	const express = require('express')
 	const bodyParser = require('body-parser');
 	const app = express()
@@ -14,7 +17,7 @@ function createServer() {
 	const router = ProjRequire('./lib/router');
 	router(app);
 
-	var server = app.listen(8081, () => console.log('Example app listening on port 8081!'))
+	var server = app.listen(port, () => console.log('wf-control server listening on port ' + port + '!'))
 	return server;
 
 }
