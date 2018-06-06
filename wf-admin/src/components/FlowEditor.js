@@ -39,6 +39,12 @@ class FlowEditor extends Component {
 		  var flowObj = evt.flowObj;
 		  this.setFlow(flowName, flowObj);
 	  }
+	  else if(evt.action == 'flowDeleted') {
+		  var flowName = evt.flowName;
+		  var flows = this.state.flows;
+		  delete flows[flowName];
+		  this.setState({flows:flows})
+	  }
 	  else if(evt.action == 'flowSelectedToEdit') {
 		  var flowName = evt.flowName;
 		  var flowObj = this.state.flows[flowName];
@@ -290,6 +296,7 @@ class FlowStepsPanel extends Component {
 		{this.state.flowName && <div>
 		<p>Editing {this.state.flowName}</p>
 		<Button onClick={() => {ee.emit('flowEditor', {action:'flowUpdated',flowName:this.state.flowName,flowObj:this.state.flowObj})}}>Save Flow</Button>
+		<Button onClick={() => {ee.emit('flowEditor', {action:'flowDeleted',flowName:this.state.flowName})}}>Delete Flow</Button>
 		
 		{this.state.flowObj.steps.map((step,i) => (
 			<StepEditPanel key={i} index={i} step={step} onSave={this.handleSaveUpdate}/>
@@ -620,3 +627,4 @@ class SimpleSelectInput extends Component {
 }
 
 export default FlowEditor;
+
