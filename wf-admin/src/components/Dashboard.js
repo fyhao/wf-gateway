@@ -49,7 +49,7 @@ class Dashboard extends Component {
 	);
 	}
 	state = {
-	  currentPage : <AppList />
+	  currentPage : <ExportPage />
 	  //currentPage : <FlowEditor app="test" />
 	}
 }

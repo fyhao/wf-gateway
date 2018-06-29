@@ -35,5 +35,9 @@ var router = function(app) {
 	app.post('/instance/:id/app/:name/:action', instanceModule.actionAppForInstance);
 	
 	app.post('/instance/:id/deploy', instanceModule.deploy);
+	
+	var backupModule = ProjRequire('lib/module/backup');
+	app.get('/backup/export', backupModule.exportData);
+	app.post('/backup/import', backupModule.importData);
 }
 module.exports = router;
