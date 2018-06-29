@@ -295,6 +295,32 @@ var DataStore = function() {
 			resolve();
 		});
 	}
+	this.exportData = function() {
+		return new Promise(function(resolve,reject) {
+			var result = {};
+			result.appData = data;
+			result.flowData = flowStore;
+			result.listenerData = listenersStore;
+			result.instanceData = instancesStore;
+			result.appInstanceMappingData = appInstanceMappingStore;
+			resolve(result);
+		});
+	}
+	this.importData = function(opts) {
+		return new Promise(function(resolve,reject) {
+			try {
+				var input = JSON.parse(opts.input);
+				data = input.appData;
+				flowStore = input.flowData;
+				listenersStore = input.listenerData;
+				instancesStore = input.instanceData;
+				appInstanceMappingStore = input.appInstanceMappingData;
+				resolve(0);
+			} catch (e) {
+				resolve(1);
+			}
+		});
+	}
 }
 var data = [];
 var flowStore = {};
