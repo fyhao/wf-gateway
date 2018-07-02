@@ -35,7 +35,7 @@ class ExportPage extends Component {
 		  }
 		}).then(response => {
 			var result = response.data;
-			this.state.ta = JSON.stringify(result);
+			this.state.ta = JSON.stringify(result,undefined,4);
 			this.setState({ta:this.state.ta})
 		})
   }
@@ -76,7 +76,7 @@ class ExportPage extends Component {
 	  <Button color="primary" onClick={() => {ee.emit('exportPage',{action:'import'})}}>Import</Button>
 	  TODO: Export btn, import btn, also a textarea display current json structure, with save button... 3 features (at least develop textarea feature first)
 	  
-	  <Input type="textarea" value={this.state.ta} onChange={this.onChangeTA}/>
+	  <Input type="textarea" rows="20" value={this.state.ta} onChange={this.onChangeTA}/>
 	  
 	  </div>
 	  
