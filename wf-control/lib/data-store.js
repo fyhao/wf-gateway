@@ -303,6 +303,7 @@ var DataStore = function() {
 			result.listenerData = listenersStore;
 			result.instanceData = instancesStore;
 			result.appInstanceMappingData = appInstanceMappingStore;
+			result.global_id = global_id;
 			resolve(result);
 		});
 	}
@@ -315,6 +316,7 @@ var DataStore = function() {
 				listenersStore = input.listenerData;
 				instancesStore = input.instanceData;
 				appInstanceMappingStore = input.appInstanceMappingData;
+				global_id = input.global_id;
 				resolve(0);
 			} catch (e) {
 				resolve(1);
