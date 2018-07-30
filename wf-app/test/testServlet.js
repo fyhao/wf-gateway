@@ -289,5 +289,29 @@ describe('modServlet module', function () {
 	  }); // end it
 	}); // describe
 	
-	
+	describe('#wait #asyncFlow', function() {
+	  it('should be OK to call wait and asyncFlow', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'asyncFlow',flow:'subflow'},
+						{type:'wait',timeout:5},
+						{type:'response',body:'My fullname ##result##'},
+					]
+				},
+				subflow: {
+					steps : [
+						{type:'setVar',name:'result',value:'1'}
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  done:done,
+			  resEnd : function(body) {
+				  assert.equal(body,"My fullname 1")
+			  }
+		  });
+	  }); // end it
+	}); // describe
 });
