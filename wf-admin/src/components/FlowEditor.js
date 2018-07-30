@@ -520,6 +520,8 @@ class StepWizard extends Component {
 					<option value="log">log</option>
 					<option value="http">http</option>
 					<option value="evaljs">evaljs</option>
+					<option value="asyncFlow">asyncFlow</option>
+					<option value="wait">wait</option>
 					{this.state.customFlows.map((flow,i) => (
 						<option key={i} value={flow}>{flow}</option>
 					))}
@@ -560,6 +562,15 @@ class StepWizard extends Component {
 			{this.state.step.type == 'evaljs' && <span>
 				<SimpleTextInput id="code" value={this.state.step.code} onChange={this.handleChange}/>
 				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
+			</span>}
+			
+			{this.state.step.type == 'asyncFlow' && <span>
+				<SimpleTextInput id="delay" value={this.state.step.delay} onChange={this.handleChange}/>
+				<SimpleTextInput id="flow" value={this.state.step.flow} onChange={this.handleChange}/>
+			</span>}
+			
+			{this.state.step.type == 'wait' && <span>
+				<SimpleTextInput id="timeout" value={this.state.step.timeout} onChange={this.handleChange}/>
 			</span>}
 			
 			{this.state.isCustomTypeSelected && <div>
