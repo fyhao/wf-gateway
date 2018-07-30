@@ -519,6 +519,7 @@ class StepWizard extends Component {
 					<option value="response">response</option>
 					<option value="log">log</option>
 					<option value="http">http</option>
+					<option value="evaljs">evaljs</option>
 					{this.state.customFlows.map((flow,i) => (
 						<option key={i} value={flow}>{flow}</option>
 					))}
@@ -553,6 +554,11 @@ class StepWizard extends Component {
 				<SimpleTextInput id="params" value={this.state.step.params} onChange={this.handleChange}/>
 				<SimpleTextInput id="headers" value={this.state.step.headers} onChange={this.handleChange}/>
 				<SimpleTextInput id="varJson" value={this.state.step.varJson} onChange={this.handleChange}/>
+				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
+			</span>}
+			
+			{this.state.step.type == 'evaljs' && <span>
+				<SimpleTextInput id="code" value={this.state.step.code} onChange={this.handleChange}/>
 				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
 			</span>}
 			
