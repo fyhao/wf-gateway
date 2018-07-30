@@ -268,4 +268,26 @@ describe('modServlet module', function () {
 		  });
 	  }); // end it
 	});
+	
+	describe('#evaljs', function() {
+	  it('should be OK to call evaljs and assign result to var', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'evaljs',code:'"mary" + " " + "brown"',var:'fullName'},
+						{type:'response',body:'My fullname is ##fullName##'},
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  done:done,
+			  resEnd : function(body) {
+				  assert.equal(body,"My fullname is mary brown")
+			  }
+		  });
+	  }); // end it
+	}); // describe
+	
+	
 });
