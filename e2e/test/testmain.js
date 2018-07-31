@@ -1216,4 +1216,108 @@ describe('e2e test - control server push configuration to app server', function 
 		  });
 	  });
   });
+  
+  describe('e2e test - backup & restore', function() {
+	  var backupedJson = null;
+	  it('should able to backup', function test() {
+		return request(control_server)
+		  .get('/backup/export')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.appData.length, 3);
+			  backupedJson = json;
+		  });
+	  });
+	  
+	  it('should be OK to call the apps after perform backup', function test() {
+		return request(app_server)
+		  .post('/rest/post?nickName=Kate')
+		  .send({firstName:'mary',lastName:'brown'})
+		  .set('auth','myauth')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown. Nickname: Kate. With my auth: myauth")
+			  assert.equal(res.headers.myheader, 'myHeaderValue')
+		  });
+	  });
+	  
+	  it('should return status 0 after delete app test4', function test() {
+		return request(control_server)
+		  .delete('/app/test4')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, JSON.stringify({status:0}));
+		  });
+	  });
+	  
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+	  
+	  it('should be not OK to call the apps after perform destroy', function test() {
+		return request(app_server)
+		  .post('/rest/post?nickName=Kate')
+		  .send({firstName:'mary',lastName:'brown'})
+		  .set('auth','myauth')
+		  .expect(404);
+	  });
+	  
+	  it('should able to restore original json from backup', function test() {
+		return request(control_server)
+		  .post('/backup/import')
+		  .send({input:JSON.stringify(backupedJson)})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should be not OK to call the apps after restore but without redeploy yet', function test() {
+		return request(app_server)
+		  .post('/rest/post?nickName=Kate')
+		  .send({firstName:'mary',lastName:'brown'})
+		  .set('auth','myauth')
+		  .expect(404);
+	  });
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
+		  });
+	  });
+	  
+	  it('should be OK to call the apps after perform restore', function test() {
+		return request(app_server)
+		  .post('/rest/post?nickName=Kate')
+		  .send({firstName:'mary',lastName:'brown'})
+		  .set('auth','myauth')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown. Nickname: Kate. With my auth: myauth")
+			  assert.equal(res.headers.myheader, 'myHeaderValue')
+		  });
+	  });
+  });
 }); 
