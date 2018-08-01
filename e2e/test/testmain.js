@@ -74,6 +74,11 @@ describe('e2e test - control server push configuration to app server', function 
 				{type:'log',log:'Hello world'},
 				{type:'response',body:'This is the response printed from API'}
 			]
+		},
+		flow_app_init : {
+			steps: [
+				{type:'log',log:'Hello world'}
+			]
 		}
 	};
     return request(control_server)
@@ -1317,6 +1322,64 @@ describe('e2e test - control server push configuration to app server', function 
 		  .expect(function(res) {
 			  assert.equal(res.text, "My fullname is mary brown. Nickname: Kate. With my auth: myauth")
 			  assert.equal(res.headers.myheader, 'myHeaderValue')
+		  });
+	  });
+  });
+  
+  describe('e2e test - create listener for deploy init', function() {
+	  var backupedJson = null;
+	  it('should able to backup', function test() {
+		return request(control_server)
+		  .get('/backup/export')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.appData.length, 3);
+			  backupedJson = json;
+		  });
+	  });
+	  it('should return status 0 after create new listener type app_init for app test', function test() {
+		var listener =  {
+			type : 'app_init',
+			flow : 'flow_app_init'
+		};
+		return request(control_server)
+		  .post('/app/test/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  var listener_id = 0;
+	  it('should return status 0 with one listener type app_init for app test', function test() {
+		return request(control_server)
+		  .get('/app/test/listener')
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.listeners.length, 2);
+			  assert.equal(json.listeners[1].type, 'app_init');
+			  assert.equal(json.listeners[1].flow, 'flow_app_init');
+			  listener_id = json.listeners[1].id;
+			  console.log('Temp check listener id: ' + listener_id);
+		  });
+	  });
+	  it('should return status 0 after calling deploy with action deployAll', function test() {
+		var conf = {
+			action : 'deployAll'
+		};
+		return request(control_server)
+		  .post('/instance/' + instance_id + '/deploy')
+		  .send({conf:conf})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+			  assert.equal(json.appResponse.status, 0);
+			  assert.equal(json.appResponse.action, 'deployAll');
 		  });
 	  });
   });

@@ -74,7 +74,12 @@ var mod = {
 								console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ') for app:' + appItem.app);
 								registeredEndpoints.push(appLi);
 							}
+							else if(appLi.type == 'app_init') {
+								// trigger app_init lifecycle
+								triggerFlow(appItem.flows, appLi.flow);
+							}
 						});
+						
 					}
 				});
 				registeredApps = conf.apps;
@@ -94,6 +99,10 @@ var mod = {
 								app[appLi.method.toLowerCase()](appLi.endpoint, createHandler(eventMgr, appItem,appLi));
 								console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ') for app:' + appItem.app);
 								registeredEndpoints.push(appLi);
+							}
+							else if(appLi.type == 'app_init') {
+								// trigger app_init lifecycle
+								triggerFlow(appItem.flows, appLi.flow);
 							}
 						});
 					}
@@ -151,6 +160,10 @@ var mod = {
 								console.log('register endpoint: app.' + appLi.method.toLowerCase() + '(' + appLi.endpoint + ') for app:' + appItem.app);
 								registeredEndpoints.push(appLi);
 							}
+							else if(appLi.type == 'app_init') {
+								// trigger app_init lifecycle
+								triggerFlow(appItem.flows, appLi.flow);
+							}
 						});
 					}
 				});
@@ -160,6 +173,56 @@ var mod = {
 }
 var createHandler = function(eventMgr, appItem, appLi) {
 	return modServlet.createHandler(eventMgr, appItem, appLi);
+}
+var modFlow = ProjRequire('./lib/module/engine/modFlow');
+var triggerFlow = function(flows, flow) {
+	var ctx = {}; // context object
+	ctx.vars = {};
+	ctx.flows = flows;
+	ctx._logs = [];
+	ctx.props = {};
+	ctx.FLOW_ENGINE_CANCELED_notification_queues = [];
+	
+	ctx.enable_FLOW_ENGINE_CANCELLED = function() {
+		var queues = ctx.FLOW_ENGINE_CANCELED_notification_queues;
+		if(queues && queues.length) {
+			for(var i = 0; i < queues.length; i++) {
+				queues[i]();
+			}
+		}
+	}
+	ctx.createFlowEngine = function(flow) {
+		if(typeof flow != 'undefined') {
+			if(typeof flow == 'object') {
+				// flow object
+				return new modFlow.FlowEngine(flow).setContext(ctx);
+			}
+			else if(typeof flow == 'string') {
+				// flow name
+				if(typeof ctx.flows[flow] != 'undefined') {
+					return new modFlow.FlowEngine(ctx.flows[flow]).setContext(ctx);
+				}
+			}
+		}
+		// return dummy function for silent execution
+		return {
+			execute : function(next) {
+				if(next.length == 1) {
+					setTimeout(function() {
+						next({});
+					}, 1);
+				}
+				else {
+					setTimeout(next, 1);
+				}
+			}
+			,
+			setInputVars : function(_vars){
+				return this;
+			}
+		};
+	}
+	ctx.createFlowEngine(flow).execute(function() {});
 }
 var registeredEndpoints = [];
 var registerApps = null;
