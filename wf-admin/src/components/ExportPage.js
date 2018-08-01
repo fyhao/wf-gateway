@@ -74,8 +74,6 @@ class ExportPage extends Component {
 	  <hr />
 	  <Button color="primary" onClick={() => {ee.emit('exportPage',{action:'export'})}}>Export</Button>
 	  <Button color="primary" onClick={() => {ee.emit('exportPage',{action:'import'})}}>Import</Button>
-	  TODO: Export btn, import btn, also a textarea display current json structure, with save button... 3 features (at least develop textarea feature first)
-	  
 	  <Input type="textarea" rows="20" value={this.state.ta} onChange={this.onChangeTA}/>
 	  
 	  </div>
