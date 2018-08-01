@@ -30,7 +30,7 @@ class Dashboard extends Component {
 	  <Container fluid={true}>
 		<Row>
 			<Col>
-			<h1>wf-admin <Badge color="secondary">New</Badge></h1>
+			<h1>wf-admin <Badge color="secondary">New1</Badge></h1>
 			</Col>
 		</Row>
         <Row>
