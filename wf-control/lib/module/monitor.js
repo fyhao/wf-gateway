@@ -30,6 +30,8 @@ setInterval(function() {
 				   })
 		}
 	});
-}, 5000);
-
+}, 60000);
+setInterval(function() {
+	dataStore.clearMonitorHistoricalData();
+}, 86400000);
 module.exports = mod;

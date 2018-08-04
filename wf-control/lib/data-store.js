@@ -329,6 +329,12 @@ var DataStore = function() {
 			resolve(monHistoryStore);
 		});
 	}
+	this.clearMonitorHistoricalData = function(opts) {
+		return new Promise(function(resolve,reject) {
+			monHistoryStore = [];
+			resolve(0);
+		});
+	}
 	this.addMonitorHistoricalData = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var item = opts.item;
