@@ -39,5 +39,8 @@ var router = function(app) {
 	var backupModule = ProjRequire('lib/module/backup');
 	app.get('/backup/export', backupModule.exportData);
 	app.post('/backup/import', backupModule.importData);
+	
+	var monitorModule = ProjRequire('lib/module/monitor');
+	app.get('/monitor/info', monitorModule.info);
 }
 module.exports = router;
