@@ -1,5 +1,6 @@
 var DataStore = ProjRequire('./lib/data-store.js');
 var dataStore = new DataStore();
+var unirest = require('unirest');
 var mod = {
 	info : function(req, res) {
 		dataStore.getMonitorHistoricalData({limit:100}).then(function(result) {
@@ -11,7 +12,8 @@ var mod = {
 setInterval(function() {
 	dataStore.getInstances().then(function(instances) {
 		for(var i = 0; i < instances.length; i++) {
-			var id = instances[i].id;
+			var instance = instances[i];
+			var id = instance.id;
 			var conf = {
 				action : 'monitor'
 			};
@@ -21,9 +23,13 @@ setInterval(function() {
 				   .end(function(appResponse) {
 					   var ret = {status:0,appResponse:appResponse.body};
 					   console.log(ret)
+					   var data = ret.appResponse.data;
+					   data.instance_id = id;
+					   data.host = instance.host;
+					   dataStore.addMonitorHistoricalData({item:data});
 				   })
 		}
 	});
-}, 10000);
+}, 5000);
 
 module.exports = mod;
