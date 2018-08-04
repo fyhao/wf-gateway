@@ -57,6 +57,18 @@ class FlowEditor extends Component {
 	  else if(evt.action == 'getCustomFlows') {
 		  ee.emit('flowEditor_getCustomFlows_' + evt.requestKey, {flows:this.state.flows});
 	  }
+	  else if(evt.action == 'flowDeploySingle') {
+		  alert('got it');
+		  var flowName = evt.flowName;
+		  var flowObj = evt.flowObj;
+		  /*
+		  1. Get this app
+		  2. Get instances id of this app
+		  3. For each instance, deploy single flow to, this app, flow
+		  */
+		  var app = this.props.app;
+		  
+	  }
   }
   
   componentDidMount() {
@@ -297,6 +309,7 @@ class FlowStepsPanel extends Component {
 		<p>Editing {this.state.flowName}</p>
 		<Button onClick={() => {ee.emit('flowEditor', {action:'flowUpdated',flowName:this.state.flowName,flowObj:this.state.flowObj})}}>Save Flow</Button>
 		<Button onClick={() => {ee.emit('flowEditor', {action:'flowDeleted',flowName:this.state.flowName})}}>Delete Flow</Button>
+		<Button onClick={() => {ee.emit('flowEditor', {action:'flowDeploySingle',flowName:this.state.flowName,flowObj:this.state.flowObj})}}>Deploy</Button>
 		
 		{this.state.flowObj.steps.map((step,i) => (
 			<StepEditPanel key={Math.random()} index={i} step={step} onSave={this.handleSaveUpdate}/>
