@@ -44,6 +44,15 @@ var mod = {
 				res.json({status:0,action:action,apps:apps});
 			});
 		}
+		else if(action == 'monitor') {
+			var data = {
+				cpu : 0,
+				mem : 0,
+				disk : 0,
+				server_time : new Date().toString()
+			};
+			res.json({status:0, data:data});
+		}
 		else {
 			res.json({status:0,action:action});
 		}

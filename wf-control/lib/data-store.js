@@ -323,11 +323,25 @@ var DataStore = function() {
 			}
 		});
 	}
+	this.getMonitorHistoricalData = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var limit = opts.limit;
+			resolve(monHistoryStore);
+		});
+	}
+	this.addMonitorHistoricalData = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var item = opts.item;
+			monHistoryStore.push(item);
+			resolve(0);
+		});
+	}
 }
 var data = [];
 var flowStore = {};
 var listenersStore = {};
 var instancesStore = [];
 var appInstanceMappingStore = []; // app name and instance id mapping
+var monHistoryStore = [];
 var global_id = 0;
 module.exports = DataStore
