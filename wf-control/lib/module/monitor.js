@@ -22,11 +22,14 @@ setInterval(function() {
 			       .send({conf:JSON.stringify(conf)})
 				   .end(function(appResponse) {
 					   var ret = {status:0,appResponse:appResponse.body};
-					   console.log(ret)
-					   var data = ret.appResponse.data;
-					   data.instance_id = id;
-					   data.host = instance.host;
-					   dataStore.addMonitorHistoricalData({item:data});
+					   try {
+						   var data = ret.appResponse.data;
+						   data.instance_id = id;
+						   data.host = instance.host;
+						   dataStore.addMonitorHistoricalData({item:data});
+					   } catch (e) {
+						   
+					   }
 				   })
 		}
 	});
