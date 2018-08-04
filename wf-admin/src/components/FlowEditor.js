@@ -20,6 +20,7 @@ class FlowEditor extends Component {
 	  ee.off('flowEditor', this.onFlowEditor)
   }
   onFlowEditor(evt) {
+	  var me = this;
 	  if(evt.action == 'requestAddFlow') {
 		  var flowName = evt.flowName;
 		  if(typeof this.state.flows[flowName] != 'undefined') {
@@ -57,12 +58,58 @@ class FlowEditor extends Component {
 	  else if(evt.action == 'getCustomFlows') {
 		  ee.emit('flowEditor_getCustomFlows_' + evt.requestKey, {flows:this.state.flows});
 	  }
+	  else if(evt.action == 'flowDeploySingle') {
+		  
+		  var flowName = evt.flowName;
+		  var flowObj = evt.flowObj;
+		  /*
+		  1. Get this app
+		  2. Get instances id of this app
+		  3. For each instance, deploy single flow to, this app, flow
+		  */
+		  var app = this.props.app;
+		  this.getInstancesForApp(app, function(instances) {
+			  instances.map((instance,i) => {
+				  var instance_id = instance.id;
+				  me.deployAppSingleFlowToInstance(instance_id, app, flowName, flowObj, (status) => {
+					  alert('Deployed status: ' + status);
+				  });
+			  });
+		  });
+	  }
   }
   
   componentDidMount() {
 	 	
   }
-  
+  deployAppSingleFlowToInstance(instance_id, app, flowName, flowObj, fn) {
+	  axios({
+		  method: 'POST',
+		  url: Constants.API_URL + '/instance/' + instance_id + '/deploy',
+		  data: {
+			  conf: {
+				  action : 'deployAppFlow',
+				  app : app,
+				  flow : flowName,
+				  flowObj : flowObj
+			  }
+		  }
+		}).then(response => {
+			var status = response.data.status;
+			fn(status);
+		})
+  }
+  getInstancesForApp(app, fn) {
+	  axios({
+		  method: 'GET',
+		  url: Constants.API_URL + '/app/' + this.props.app + '/instance',
+		  data: {
+		  }
+		}).then(response => {
+			var instances = response.data.instances;
+			fn(instances);
+		})
+  }
   requestFlows() {
 	  var me = this;
 	  axios({
@@ -297,6 +344,7 @@ class FlowStepsPanel extends Component {
 		<p>Editing {this.state.flowName}</p>
 		<Button onClick={() => {ee.emit('flowEditor', {action:'flowUpdated',flowName:this.state.flowName,flowObj:this.state.flowObj})}}>Save Flow</Button>
 		<Button onClick={() => {ee.emit('flowEditor', {action:'flowDeleted',flowName:this.state.flowName})}}>Delete Flow</Button>
+		<Button onClick={() => {ee.emit('flowEditor', {action:'flowDeploySingle',flowName:this.state.flowName,flowObj:this.state.flowObj})}}>Deploy</Button>
 		
 		{this.state.flowObj.steps.map((step,i) => (
 			<StepEditPanel key={Math.random()} index={i} step={step} onSave={this.handleSaveUpdate}/>
