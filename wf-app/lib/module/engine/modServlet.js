@@ -11,6 +11,11 @@ var createHandler = function(eventMgr, appItem, appLi) {
 		createContext(appItem.app, req, res).then(function(ctx) {
 			ctx.createFlowEngine(appLi.flow).execute(function() {
 				eventMgr.trigger('flowExecutedDone', {ctx:ctx});
+				if(typeof analytic.flows[appLi.flow] == 'undefined') {
+					analytic.flows[appLi.flow] = 0;
+				}
+				analytic.flows[appLi.flow]++;
+				analytic.requestCount++;
 			});
 		});
 	}
@@ -85,5 +90,10 @@ var _injectUnitTest = function(opts) {
 		});
 	}
 }
+var analytic = {
+	flows : {},
+	requestCount : 0
+};
+module.exports.analytic = analytic;
 module.exports.createHandler = createHandler;
 module.exports._injectUnitTest = _injectUnitTest;

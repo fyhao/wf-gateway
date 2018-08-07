@@ -50,7 +50,9 @@ var mod = {
 				cpu : 0,
 				mem : os.freemem(),
 				disk : 0,
-				server_time : new Date().toString()
+				server_time : new Date().toString(),
+				requestCount : modServlet.analytic.requestCount,
+				flowData : modServlet.analytic.flows
 			};
 			res.json({status:0, data:data});
 		}
