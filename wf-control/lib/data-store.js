@@ -326,7 +326,8 @@ var DataStore = function() {
 	this.getMonitorHistoricalData = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var limit = opts.limit;
-			resolve(monHistoryStore);
+			var result = monHistoryStore.slice(0,limit);
+			resolve(result);
 		});
 	}
 	this.clearMonitorHistoricalData = function(opts) {
@@ -342,6 +343,18 @@ var DataStore = function() {
 			resolve(0);
 		});
 	}
+	this.getMonitorRealtimeData = function(opts) {
+		return new Promise(function(resolve,reject) {
+			resolve(monRealtimeStore);
+		});
+	}
+	this.updateMonitorRealtimeData = function(opts) {
+		return new Promise(function(resolve,reject) {
+			var item = opts.item;
+			monRealtimeStore = item;
+			resolve(0);
+		});
+	}
 }
 var data = [];
 var flowStore = {};
@@ -349,5 +362,6 @@ var listenersStore = {};
 var instancesStore = [];
 var appInstanceMappingStore = []; // app name and instance id mapping
 var monHistoryStore = [];
+var monRealtimeStore = {};
 var global_id = 0;
 module.exports = DataStore

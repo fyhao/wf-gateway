@@ -6,6 +6,11 @@ var mod = {
 		dataStore.getMonitorHistoricalData({limit:100}).then(function(result) {
 			res.json(result);
 		});
+	},
+	realtime : function(req, res) {
+		dataStore.getMonitorRealtimeData().then(function(result) {
+			res.json(result);
+		});
 	}
 }
 
@@ -27,6 +32,7 @@ setInterval(function() {
 						   data.instance_id = id;
 						   data.host = instance.host;
 						   dataStore.addMonitorHistoricalData({item:data});
+						   dataStore.updateMonitorRealtimeData({item:data});
 					   } catch (e) {
 						   
 					   }
