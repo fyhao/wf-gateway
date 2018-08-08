@@ -18,6 +18,7 @@ setInterval(function() {
 	dataStore.getInstances().then(function(instances) {
 		for(var i = 0; i < instances.length; i++) {
 			var instance = instances[i];
+			if(!instance.monHistory && !instance.monRealtime) continue;
 			var id = instance.id;
 			var conf = {
 				action : 'monitor'
@@ -31,8 +32,12 @@ setInterval(function() {
 						   var data = ret.appResponse.data;
 						   data.instance_id = id;
 						   data.host = instance.host;
-						   dataStore.addMonitorHistoricalData({item:data});
-						   dataStore.updateMonitorRealtimeData({item:data});
+						   if(instance.monHistory == 'true') {
+						       dataStore.addMonitorHistoricalData({item:data});
+						   }
+						   if(instance.monRealtime == 'true') {
+							   dataStore.updateMonitorRealtimeData({item:data});
+						   }
 					   } catch (e) {
 						   
 					   }
