@@ -20,6 +20,8 @@ class InstanceEditForm extends Component {
 			{type:'text',label:'Name',id:'name',value:''},
 			{type:'text',label:'Description',id:'description',value:''},
 			{type:'text',label:'Host',id:'host',value:''},
+			{type:'text',label:'Mon History',id:'monHistory',value:''},
+			{type:'text',label:'Mon Realtime',id:'monRealtime',value:''},
 		  ],
 		  onSubmit: function(opts) {
 			  console.log('InstanceEditForm onSubmit:' + JSON.stringify(opts));
@@ -30,7 +32,9 @@ class InstanceEditForm extends Component {
 				  data: {
 					name:opts.fields.name,
 					description:opts.fields.description,
-					host:opts.fields.host
+					host:opts.fields.host,
+					monHistory:opts.fields.monHistory,
+					monRealtime:opts.fields.monRealtime
 				  }
 				}).then(response => {
 					console.log(response.data)

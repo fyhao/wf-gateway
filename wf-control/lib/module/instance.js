@@ -11,7 +11,9 @@ var mod = {
 		var instance = {
 			name : req.body.name,
 			description : req.body.description,
-			host : req.body.host
+			host : req.body.host,
+			monHistory : 'true',
+			monRealtime : 'true'
 		};
 		dataStore.createInstance({instance:instance}).then(function(result) {
 			res.json({status:0, instance:result});
@@ -21,7 +23,9 @@ var mod = {
 		var instance = {
 			name : req.body.name,
 			description : req.body.description,
-			host : req.body.host
+			host : req.body.host,
+			monHistory: req.body.monHistory,
+			monRealtime: req.body.monRealtime
 		};
 		var id = req.params.id;
 		dataStore.updateInstance({instance:instance,id:id}).then(function(result) {

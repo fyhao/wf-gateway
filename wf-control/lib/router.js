@@ -42,5 +42,6 @@ var router = function(app) {
 	
 	var monitorModule = ProjRequire('lib/module/monitor');
 	app.get('/monitor/info', monitorModule.info);
+	app.get('/monitor/realtime', monitorModule.realtime);
 }
 module.exports = router;
