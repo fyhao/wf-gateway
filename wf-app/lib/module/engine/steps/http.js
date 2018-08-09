@@ -63,6 +63,9 @@ var frequest = function(args) {
 				if(typeof resp.body === 'string') {
 					json = JSON.parse(resp.body);
 				}
+				else {
+					json = resp.body;
+				}
 				/*
 				else {
 					json = resp.body;
