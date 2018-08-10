@@ -16,7 +16,7 @@ module.exports = {
 		try {
 			ctx.vars[step.var] = val(ctx.vars, ctx, util, nextWrapper);
 		} catch (e) {
-			console.err(e);
+			console.log(e);
 		}
 		
 		if(typeof step.timeout != 'undefined') {
