@@ -13,7 +13,12 @@ module.exports = {
 		}
 		
 		var val = new Function('vars', 'ctx', 'util', 'next', 'vars; ctx; util; next; ' + step.code);
-		ctx.vars[step.var] = val(ctx.vars, ctx, util, nextWrapper);
+		try {
+			ctx.vars[step.var] = val(ctx.vars, ctx, util, nextWrapper);
+		} catch (e) {
+			console.log(e);
+		}
+		
 		if(typeof step.timeout != 'undefined') {
 			setTimeout(nextWrapper, step.timeout);
 		}
