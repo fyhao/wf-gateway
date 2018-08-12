@@ -326,7 +326,11 @@ var DataStore = function() {
 	this.getMonitorHistoricalData = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var limit = opts.limit;
-			var result = monHistoryStore.slice(0,limit);
+			var result = [];
+			for(var i = 0; i < monHistoryStore.length; i++) {
+				result.push(monHistoryStore[i]);
+			}
+			result = result.reverse().slice(0, limit);
 			resolve(result);
 		});
 	}
