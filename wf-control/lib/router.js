@@ -1,5 +1,6 @@
 
-var router = function(app) {
+var router = function(app, serverOpts) {
+	if(typeof serverOpts == 'undefined') serverOpts = {};
 	var appModule = ProjRequire('lib/module/app');
 	app.get('/app', appModule.list);
 	app.post('/app', appModule.create);

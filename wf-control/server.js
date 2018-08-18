@@ -41,7 +41,7 @@ function createServer(opts) {
 	app.get('/', (req, res) => res.send('Hello World!'))
 
 	const router = ProjRequire('./lib/router');
-	router(app);
+	router(app, opts);
 
 	var server = app.listen(port, () => console.log('wf-control server listening on port ' + port + '!'))
 	return server;
