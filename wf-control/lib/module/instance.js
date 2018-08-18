@@ -1,9 +1,9 @@
 var DataStore = ProjRequire('./lib/data-store.js');
-var dataStore = new DataStore();
 var unirest = require('unirest');
 var mod = {
+	_dataStore : new DataStore(),
 	list : function(req, res) {
-		dataStore.getInstances().then(function(result) {
+		mod._dataStore.getInstances().then(function(result) {
 			res.json({status:0,instances:result});
 		});
 	},
@@ -15,7 +15,7 @@ var mod = {
 			monHistory : 'true',
 			monRealtime : 'true'
 		};
-		dataStore.createInstance({instance:instance}).then(function(result) {
+		mod._dataStore.createInstance({instance:instance}).then(function(result) {
 			res.json({status:0, instance:result});
 		});
 	},
@@ -28,45 +28,45 @@ var mod = {
 			monRealtime: req.body.monRealtime
 		};
 		var id = req.params.id;
-		dataStore.updateInstance({instance:instance,id:id}).then(function(result) {
+		mod._dataStore.updateInstance({instance:instance,id:id}).then(function(result) {
 			res.json({status:0});
 		});
 	},
 	remove : function(req, res) {
 		var id = req.params.id;
-		dataStore.deleteInstance({id:id}).then(function(result) {
+		mod._dataStore.deleteInstance({id:id}).then(function(result) {
 			res.json({status:0});
 		});
 	},
 	getSingle : function(req, res) {
 		var id = req.params.id;
-		dataStore.getInstance({id:id}).then(function(result) {
+		mod._dataStore.getInstance({id:id}).then(function(result) {
 			res.json({status:0,instance:result});
 		});
 	},
 	listForApp : function(req, res) {
 		var name = req.params.name;
-		dataStore.getInstancesForApp({app:name}).then(function(result) {
+		mod._dataStore.getInstancesForApp({app:name}).then(function(result) {
 			res.json({status:0, instances:result});
 		})
 	},
 	createForApp : function(req, res) {
 		var name = req.params.name;
 		var id = req.params.id;
-		dataStore.createInstanceForApp({app:name,id:id}).then(function(status) {
+		mod._dataStore.createInstanceForApp({app:name,id:id}).then(function(status) {
 			res.json({status:status});
 		})
 	},
 	deleteForApp : function(req, res) {
 		var name = req.params.name;
 		var id = req.params.id;
-		dataStore.deleteInstanceForApp({app:name,id:id}).then(function(status) {
+		mod._dataStore.deleteInstanceForApp({app:name,id:id}).then(function(status) {
 			res.json({status:status});
 		})
 	},
 	listAppForInstance : function(req, res) {
 		var id = req.params.id;
-		dataStore.getAppsForInstance({id:id}).then(function(result) {
+		mod._dataStore.getAppsForInstance({id:id}).then(function(result) {
 			res.json({status:0,apps:result});
 		});
 	},
@@ -74,14 +74,14 @@ var mod = {
 		var id = req.params.id;
 		var name = req.params.name;
 		var action = req.params.action;
-		dataStore.actionAppForInstance({app:name,id:id,action:action}).then(function(result) {
+		mod._dataStore.actionAppForInstance({app:name,id:id,action:action}).then(function(result) {
 			res.json({status:0});
 		});
 	},
 	deploy : function(req, res) {
 		var id = req.params.id;
 		var conf = req.body.conf;
-		dataStore.getInstance({id:id}).then(function(instance) {
+		mod._dataStore.getInstance({id:id}).then(function(instance) {
 			checkConf({instance:instance,conf:conf})
 				.then(sendConfToInstance)
 				.then(function(ret) {
@@ -92,6 +92,7 @@ var mod = {
 	}
 }
 var checkConf = function(opts) {
+	var dataStore = mod._dataStore;
 	return new Promise(function(resolve,reject) {
 		if(opts.conf.action == 'deployAll') {
 			dataStore.getAppsForInstance({id:opts.instance.id}).then(function(apps) {

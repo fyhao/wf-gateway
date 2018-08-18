@@ -1,21 +1,21 @@
 var DataStore = ProjRequire('./lib/data-store.js');
-var dataStore = new DataStore();
 var unirest = require('unirest');
 var mod = {
+	_dataStore : new DataStore(),
 	info : function(req, res) {
-		dataStore.getMonitorHistoricalData({limit:100}).then(function(result) {
+		mod._dataStore.getMonitorHistoricalData({limit:100}).then(function(result) {
 			res.json(result);
 		});
 	},
 	realtime : function(req, res) {
-		dataStore.getMonitorRealtimeData().then(function(result) {
+		mod._dataStore.getMonitorRealtimeData().then(function(result) {
 			res.json(result);
 		});
 	}
 }
 
 setInterval(function() {
-	dataStore.getInstances().then(function(instances) {
+	mod._dataStore.getInstances().then(function(instances) {
 		for(var i = 0; i < instances.length; i++) {
 			var instance = instances[i];
 			if(!instance.monHistory && !instance.monRealtime) continue;
@@ -46,6 +46,6 @@ setInterval(function() {
 	});
 }, 60000);
 setInterval(function() {
-	dataStore.clearMonitorHistoricalData();
+	mod._dataStore.clearMonitorHistoricalData();
 }, 86400000);
 module.exports = mod;

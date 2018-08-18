@@ -1,9 +1,9 @@
 var DataStore = ProjRequire('./lib/data-store.js');
-var dataStore = new DataStore();
 var mod = {
+	_dataStore : new DataStore(),
 	list : function(req, res) {
 		var app = req.params.name;
-		dataStore.getListeners({app:app}).then(function(result) {
+		mod._dataStore.getListeners({app:app}).then(function(result) {
 			res.json({status:0,listeners:result});
 		});
 	},
@@ -12,7 +12,7 @@ var mod = {
 		var listener = req.body.listener;
 		var status = validateListener(listener);
 		if(status == 0) {
-			dataStore.createListener({app:app,listener:listener}).then(function(resultListener) {
+			mod._dataStore.createListener({app:app,listener:listener}).then(function(resultListener) {
 				res.json({status:0,listener:resultListener});
 			});
 		}
@@ -23,7 +23,7 @@ var mod = {
 	getSingle : function(req, res) {
 		var app = req.params.name;
 		var id = req.params.id;
-		dataStore.getListener({app:app,id:id}).then(function(resultListener) {
+		mod._dataStore.getListener({app:app,id:id}).then(function(resultListener) {
 			res.json({status:0,listener:resultListener});
 		});
 	},
@@ -31,14 +31,14 @@ var mod = {
 		var app = req.params.name;
 		var id = req.params.id;
 		var listener = req.body.listener;
-		dataStore.updateListener({app:app,id:id,listener:listener}).then(function() {
+		mod._dataStore.updateListener({app:app,id:id,listener:listener}).then(function() {
 			res.json({status:0});
 		});
 	},
 	remove : function(req, res) {
 		var app = req.params.name;
 		var id = req.params.id;
-		dataStore.deleteListener({app:app,id:id}).then(function() {
+		mod._dataStore.deleteListener({app:app,id:id}).then(function() {
 			res.json({status:0});
 		});
 	},

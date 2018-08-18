@@ -1,8 +1,10 @@
 var DataStore = ProjRequire('./lib/data-store.js');
-var dataStore = new DataStore();
+
 var mod = {
+	_dataStore : new DataStore(),
+	
 	list : function(req, res) {
-		dataStore.getAppList().then(function(result) {
+		mod._dataStore.getAppList().then(function(result) {
 			res.json(result);
 		});
 	},
@@ -15,14 +17,14 @@ var mod = {
 			res.json({status:100});
 		}
 		else {
-			dataStore.createApp(item).then(function(result) {
+			mod._dataStore.createApp(item).then(function(result) {
 				res.json({status:result.status})
 			});
 		}
 	},
 	item : function(req, res) {
 		var name = req.params.name;
-		dataStore.getApp(name).then(function(result) {
+		mod._dataStore.getApp(name).then(function(result) {
 			res.json(result);
 		}, function(err) {
 			res.json(err)
@@ -30,7 +32,7 @@ var mod = {
 	},
 	update : function(req, res) {
 		var name = req.params.name;
-		dataStore.updateApp(name, req.body.fields).then(function(result) {
+		mod._dataStore.updateApp(name, req.body.fields).then(function(result) {
 			res.json({status:0});
 		}, function(err) {
 			res.json({status:100});
@@ -38,7 +40,7 @@ var mod = {
 	},
 	remove : function(req, res) {
 		var name = req.params.name;
-		dataStore.deleteApp(name).then(function(result) {
+		mod._dataStore.deleteApp(name).then(function(result) {
 			res.json({status:0});
 		}, function(err) {
 			res.json({status:100});
