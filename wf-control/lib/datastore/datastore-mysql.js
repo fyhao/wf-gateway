@@ -1,3 +1,4 @@
+var dbLib = ProjRequire('./lib/dbLib.js');
 var DataStoreMysql = function(dbcfg) {
 	this.getAppList = function(entity) {
 		return new Promise(function(resolve, reject) {

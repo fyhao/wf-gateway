@@ -8,7 +8,32 @@ if(testDBCfg.type == 'mysql') {
 	testServerOpts.dbhost = 'localhost';
 	testServerOpts.dbuser = 'root';
 	testServerOpts.dbpass = 'root';
-	testServerOpts.dbname = 'wf';
+	testServerOpts.dbname = 'testwf';
+	
+	describe('test db connection', function() {
+		it('create test db schema', function test(done) {
+			// Create and destroy test db for testing
+			var dbLib = require('../lib/dbLib.js');
+			var fs = require('fs');
+			var sql = fs.readFileSync('lib/datastore/mysql-schema.sql','utf8');
+			var ctx = {vars:{}};
+			dbLib.query({
+				ctx : ctx,
+				cfg : {
+					type:'mysql',
+					host     : testServerOpts.dbhost,
+				    user     : testServerOpts.dbuser,
+				    password : testServerOpts.dbpass,
+				    database : testServerOpts.dbname,
+					multipleStatements: true
+				},
+				sql : sql,
+				checkNext : function() {
+					done();
+				}
+			});
+		});
+	});
 }
 
 
