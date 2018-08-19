@@ -198,7 +198,6 @@ var DataStoreMysql = function(dbcfg) {
 			dbQuery({sql:'delete from flow where app = ? and name = ?',fields:[opts.app, opts.flowName]}, function(ctx) {
 				resolve();
 			});
-			resolve();
 		});
 	}
 	this.getListeners = function(opts) {
