@@ -43,7 +43,6 @@ var DataStoreMysql = function(dbcfg) {
 	}
 	this.getApp = function(name) {
 		return new Promise(function(resolve, reject) {
-			
 			dbQuery({sql:'select * from app where name = ?',fields:[name]}, function(ctx) {
 				if(ctx.results.length) {
 					resolve(ctx.results[0]);
@@ -56,8 +55,6 @@ var DataStoreMysql = function(dbcfg) {
 	}
 	this.updateApp = function(name, fields) {
 		return new Promise(function(resolve, reject) {
-			
-			
 			dbQuery({sql:'update app set description = ? where name = ?', fields:[fields.description,name]}, function(ctx) {
 				dbQuery({sql:'select * from app where name = ?',fields:[name]}, function(ctx) {
 					if(ctx.results.length) {
@@ -75,6 +72,15 @@ var DataStoreMysql = function(dbcfg) {
 			dbQuery({sql:'select * from app where name = ?',fields:[name]}, function(ctx) {
 				if(ctx.results.length) {
 					dbQuery({sql:'delete from app where name = ?',fields:[name]}, function(ctx) {
+						delete flowStore[name];
+						delete listenersStore[name];
+						for(var j = 0; j < appInstanceMappingStore.length; j++) {
+							var m = appInstanceMappingStore[j];
+							if(m.app == name) {
+								appInstanceMappingStore.splice(j,1);
+								break;
+							}
+						}
 						resolve();
 					});
 				}
@@ -111,43 +117,87 @@ var DataStoreMysql = function(dbcfg) {
 	}
 	this.getFlows = function(opts) {
 		return new Promise(function(resolve,reject) {
-			var app = opts.app;
-			var flows = flowStore[app];
-			resolve(flows);
+			dbQuery({sql:'select * from flow where app = ?',fields:[opts.app]}, function(ctx) {
+				var flows = {};
+				if(ctx.results.length) {
+					for(var i = 0; i < ctx.results.length; i++) {
+						flows[ctx.results[i]['name']] = JSON.parse(ctx.results[i]['content']);
+					}
+				}
+				resolve(flows);
+			});
 		});
 	}
 	this.createFlow = function(opts) {
 		return new Promise(function(resolve,reject) {
-			var app = opts.app;
-			var flows = flowStore[app];
+			var items = [];
 			for(var i in opts.flows) {
-				flows[i] = opts.flows[i];
+				items.push({app:opts.app,name:i,content:JSON.stringify(opts.flows[i])});
 			}
-			resolve();
+			var c = 0;
+			var next = function() {
+				if(c >= items.length) {
+					resolve();
+				}
+				else {
+					dbQuery({sql:'insert into flow SET ?',fields:items[c]}, function(ctx) {
+						++c;
+						next();
+					});
+				}
+			}
+			next();
 		});
 	}
 	this.updateFlow = function(opts) {
 		return new Promise(function(resolve,reject) {
-			var app = opts.app;
-			var flows = flowStore[app];
+			var items = [];
 			for(var i in opts.flows) {
-				flows[i] = opts.flows[i];
+				items.push([i, JSON.stringify(opts.flows[i]), opts.app]);
 			}
-			resolve();
+			var c = 0;
+			var next = function() {
+				if(c >= items.length) {
+					resolve();
+				}
+				else {
+					dbQuery({sql:'update flow set name = ?, content = ? where app = ?',fields:items[c]}, function(ctx) {
+						++c;
+						next();
+					});
+				}
+			}
+			next();
 		});
 	}
 	this.updateEntireFlow = function(opts) {
 		return new Promise(function(resolve,reject) {
-			var app = opts.app;
-			flowStore[app] = opts.flows;
-			resolve();
+			dbQuery({sql:'delete from flow where app = ?',fields:[opts.app]}, function(ctx) {
+				var items = [];
+				for(var i in opts.flows) {
+					items.push({app:opts.app,name:i,content:JSON.stringify(opts.flows[i])});
+				}
+				var c = 0;
+				var next = function() {
+					if(c >= items.length) {
+						resolve();
+					}
+					else {
+						dbQuery({sql:'insert into flow SET ?',fields:items[c]}, function(ctx) {
+							++c;
+							next();
+						});
+					}
+				}
+				next();
+			});
 		});
 	}
 	this.deleteFlow = function(opts) {
 		return new Promise(function(resolve,reject) {
-			var app = opts.app;
-			var flowName = opts.flowName;
-			delete flowStore[app][flowName];
+			dbQuery({sql:'delete from flow where app = ? and name = ?',fields:[opts.app, opts.flowName]}, function(ctx) {
+				resolve();
+			});
 			resolve();
 		});
 	}
