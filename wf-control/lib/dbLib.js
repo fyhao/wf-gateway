@@ -99,6 +99,8 @@ var process_mysql = function(opts) {
 				});
 			});
 		}
+		ctx.results = results;
+		ctx.fields = fields;
 		process.nextTick(checkNext);
 	});
 

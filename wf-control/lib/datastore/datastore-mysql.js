@@ -1,5 +1,24 @@
 var dbLib = ProjRequire('./lib/dbLib.js');
 var DataStoreMysql = function(dbcfg) {
+	var dbQuery = function(opts, fn) {
+		var ctx = {vars:{}};
+		dbLib.query({
+			ctx : ctx,
+			cfg : {
+				type:'mysql',
+				host     : dbcfg.dbhost,
+				user     : dbcfg.dbuser,
+				password : dbcfg.dbpass,
+				database : dbcfg.dbname,
+				multipleStatements: true
+			},
+			sql : opts.sql,
+			recordSets : opts.recordSets,
+			checkNext : function() {
+				fn(ctx);
+			}
+		});
+	}
 	this.getAppList = function(entity) {
 		return new Promise(function(resolve, reject) {
 			resolve(data);
