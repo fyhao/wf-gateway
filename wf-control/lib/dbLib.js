@@ -88,7 +88,7 @@ var process_mysql = function(opts) {
 
 	connection.connect();
 
-	connection.query(sql, function (error, results, fields) {
+	connection.query(sql, opts.fields, function (error, results, fields) {
 		if (error) throw error;
 		if(rs && rs.length) {
 			results.forEach(function(i) {
@@ -100,7 +100,6 @@ var process_mysql = function(opts) {
 			});
 		}
 		ctx.results = results;
-		ctx.fields = fields;
 		process.nextTick(checkNext);
 	});
 

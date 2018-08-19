@@ -13,6 +13,7 @@ var DataStoreMysql = function(dbcfg) {
 				multipleStatements: true
 			},
 			sql : opts.sql,
+			fields : opts.fields,
 			recordSets : opts.recordSets,
 			checkNext : function() {
 				fn(ctx);
@@ -21,7 +22,9 @@ var DataStoreMysql = function(dbcfg) {
 	}
 	this.getAppList = function(entity) {
 		return new Promise(function(resolve, reject) {
-			resolve(data);
+			dbQuery({sql:'select * from app'}, function(ctx) {
+				resolve(ctx.results)
+			});
 		})
 	}
 	this.createApp = function(item) {
@@ -30,6 +33,9 @@ var DataStoreMysql = function(dbcfg) {
 				resolve({status:101})
 				return;
 			}
+			dbQuery({sql:'insert into app SET ?',fields:item}, function(ctx) {
+				resolve(ctx.results)
+			});
 			data.push(item);
 			flowStore[item.name] = {};
 			listenersStore[item.name] = [];
