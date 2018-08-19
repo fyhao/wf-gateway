@@ -34,50 +34,57 @@ var DataStoreMysql = function(dbcfg) {
 				return;
 			}
 			dbQuery({sql:'insert into app SET ?',fields:item}, function(ctx) {
-				resolve(ctx.results)
+				flowStore[item.name] = {};
+				listenersStore[item.name] = [];
+				resolve({status:0});
 			});
-			data.push(item);
-			flowStore[item.name] = {};
-			listenersStore[item.name] = [];
-			resolve({status:0});
 		});
 		
 	}
 	this.getApp = function(name) {
 		return new Promise(function(resolve, reject) {
-			var found = false;
-			for(var i = 0; i < data.length; i++) {
-				if(data[i].name == name) {
-					resolve(data[i]);
-					found = true;
-					break;
+			
+			dbQuery({sql:'select * from app where name = ?',fields:[name]}, function(ctx) {
+				if(ctx.results.length) {
+					resolve(ctx.results[0]);
 				}
-			}
-			if(!found) {
-				reject({status:100})
-			}
+				else {
+					reject({status:100})
+				}
+			});
 		})
 	}
 	this.updateApp = function(name, fields) {
 		return new Promise(function(resolve, reject) {
-			var found = false;
-			for(var i = 0; i < data.length; i++) {
-				if(data[i].name == name) {
-					for(var j in fields) {
-						data[i][j] = fields[j];
+			
+			
+			dbQuery({sql:'update app set description = ? where name = ?', fields:[fields.description,name]}, function(ctx) {
+				dbQuery({sql:'select * from app where name = ?',fields:[name]}, function(ctx) {
+					if(ctx.results.length) {
+						resolve(ctx.results[0]);
 					}
-					resolve(data[i]);
-					found = true;
-					break;
-				}
-			}
-			if(!found) {
-				reject({status:100})
-			}
+					else {
+						reject({status:100})
+					}
+				});
+			});
 		})
 	}
 	this.deleteApp = function(name, fields) {
 		return new Promise(function(resolve, reject) {
+			dbQuery({sql:'select * from app where name = ?',fields:[name]}, function(ctx) {
+				if(ctx.results.length) {
+					dbQuery({sql:'delete from app where name = ?',fields:[name]}, function(ctx) {
+						resolve();
+					});
+				}
+				else {
+					reject({status:100})
+				}
+			});
+			
+			
+			/*
 			var found = false;
 			for(var i = 0; i < data.length; i++) {
 				if(data[i].name == name) {
@@ -99,6 +106,7 @@ var DataStoreMysql = function(dbcfg) {
 			if(!found) {
 				reject({status:100})
 			}
+			*/
 		})
 	}
 	this.getFlows = function(opts) {
