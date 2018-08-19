@@ -202,22 +202,21 @@ var DataStoreMysql = function(dbcfg) {
 	}
 	this.getListeners = function(opts) {
 		return new Promise(function(resolve,reject) {
-			var app = opts.app;
-			var listeners = listenersStore[app];
-			resolve(listeners);
+			dbQuery({sql:'select * from listener where app = ?',fields:[opts.app]}, function(ctx) {
+				resolve(ctx.results);
+			});
 		});
 	}
 	this.getListener = function(opts) {
 		return new Promise(function(resolve,reject) {
-			var app = opts.app;
-			var id = opts.id;
-			for(var i = 0; i < listenersStore[app].length; i++) {
-				if(listenersStore[app][i].id == id) {
-					resolve(listenersStore[app][i]);
-					return;
+			dbQuery({sql:'select * from listener where app = ? and id = ?',fields:[opts.app,opts.id]}, function(ctx) {
+				if(ctx.results.length) {
+					resolve(ctx.results[0]);
 				}
-			}
-			resolve(null);
+				else {
+					resolve(null);
+				}
+			});
 		});
 	}
 	this.createListener = function(opts) {
