@@ -248,9 +248,8 @@ var DataStoreMysql = function(dbcfg) {
 			};
 			dbQuery({sql:'insert into listener SET ?',fields:item}, function(ctx) {
 				dbQuery({sql:'select max(id) as maxid from listener where app = ?', fields:[app]}, function(ctx) {
-					
+					var batches = [];
 					if(listener.requestParams && listener.requestParams.length) {
-						var batches = [];
 						for(var i = 0; i < listener.requestParams.length; i++) {
 							var p = listener.requestParams[i];
 							batches.push({sql:'insert into listenerRequest SET ',fields:{
@@ -261,13 +260,10 @@ var DataStoreMysql = function(dbcfg) {
 								defaultValue:p.defaultValue,
 								description:p.description
 							}});
-							dbBatchQuery(batches, function(ctxs) {
-								resolve(listener);
-							});
 						}
+						
 					}
 					if(listener.requestHeaders && listener.requestHeaders.length) {
-						var batches = [];
 						for(var i = 0; i < listener.requestHeaders.length; i++) {
 							var p = listener.requestHeaders[i];
 							batches.push({sql:'insert into listenerHeader SET ',fields:{
@@ -278,11 +274,11 @@ var DataStoreMysql = function(dbcfg) {
 								defaultValue:p.defaultValue,
 								description:p.description
 							}});
-							dbBatchQuery(batches, function(ctxs) {
-								resolve(listener);
-							});
 						}
 					}
+					dbBatchQuery(batches, function(ctxs) {
+						resolve(listener);
+					});
 				})
 				
 			});
@@ -293,13 +289,8 @@ var DataStoreMysql = function(dbcfg) {
 			var app = opts.app;
 			var listener = opts.listener;
 			var id = opts.id;
-			for(var i = 0; i < listenersStore[app].length; i++) {
-				if(listenersStore[app][i].id == id) {
-					for(var j in listener) {
-						listenersStore[app][i][j] = listener[j];
-					}
-				}
-			}
+			
+			
 			resolve();
 		});
 	}
