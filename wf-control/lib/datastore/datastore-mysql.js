@@ -20,6 +20,23 @@ var DataStoreMysql = function(dbcfg) {
 			}
 		});
 	}
+	var dbBatchQuery = function(batches, fn) {
+		var c = 0;
+		var batchedResults = [];
+		var next = function() {
+			if(c >= batches.length) {
+				fn(batchedResults);
+			}
+			else {
+				dbQuery(batches[c], function(ctx) {
+					batchedResults.push(ctx);
+					++c;
+					next();
+				});
+			}
+		}
+		next();
+	}
 	this.getAppList = function(entity) {
 		return new Promise(function(resolve, reject) {
 			dbQuery({sql:'select * from app'}, function(ctx) {
@@ -223,9 +240,52 @@ var DataStoreMysql = function(dbcfg) {
 		return new Promise(function(resolve,reject) {
 			var app = opts.app;
 			var listener = opts.listener;
-			listener.id = ++global_id;
-			listenersStore[app].push(listener);
-			resolve(listener);
+			var item = {
+				app : app,
+				type : listener.type,
+				endpoint : listener.endpoint,
+				flow : listener.flow
+			};
+			dbQuery({sql:'insert into listener SET ?',fields:item}, function(ctx) {
+				dbQuery({sql:'select max(id) as maxid from listener where app = ?', fields:[app]}, function(ctx) {
+					
+					if(listener.requestParams && listener.requestParams.length) {
+						var batches = [];
+						for(var i = 0; i < listener.requestParams.length; i++) {
+							var p = listener.requestParams[i];
+							batches.push({sql:'insert into listenerRequest SET ',fields:{
+								id:ctx.results[0]['maxid'],
+								name:p.name,
+								conditions:p.condition,
+								type:p.type,
+								defaultValue:p.defaultValue,
+								description:p.description
+							}});
+							dbBatchQuery(batches, function(ctxs) {
+								resolve(listener);
+							});
+						}
+					}
+					if(listener.requestHeaders && listener.requestHeaders.length) {
+						var batches = [];
+						for(var i = 0; i < listener.requestHeaders.length; i++) {
+							var p = listener.requestHeaders[i];
+							batches.push({sql:'insert into listenerHeader SET ',fields:{
+								id:ctx.results[0]['maxid'],
+								name:p.name,
+								conditions:p.condition,
+								type:p.type,
+								defaultValue:p.defaultValue,
+								description:p.description
+							}});
+							dbBatchQuery(batches, function(ctxs) {
+								resolve(listener);
+							});
+						}
+					}
+				})
+				
+			});
 		});
 	}
 	this.updateListener = function(opts) {
