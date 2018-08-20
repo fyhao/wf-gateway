@@ -46,5 +46,7 @@ create table instance (
   id int not null primary key auto_increment,
   name varchar(100) not null,
   description varchar(300),
-  host varchar(50)
+  host varchar(50),
+  monHistory varchar(5) default 'false',
+  monRealtime varchar(5) default 'false'
 );

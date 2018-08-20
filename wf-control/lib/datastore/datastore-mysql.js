@@ -295,12 +295,16 @@ var DataStoreMysql = function(dbcfg) {
 			var batches = [];
 			var fieldstr = '';
 			var fieldcomma = '';
+			var fields = [];
 			for(var field in listener) {
 				fieldstr += fieldcomma;
 				fieldstr += field + ' = ?';
 				fieldcomma = ',';
+				fields.push(listener[field]);
 			}
-			batches.push({sql:'update listener set ' + fieldstr + ' where app = ? and id = ?',fields:[listener.type,listener.endpoint, listener.flow, listener.method, app, id]});
+			fields.push(app);
+			fields.push(id);
+			batches.push({sql:'update listener set ' + fieldstr + ' where app = ? and id = ?',fields:fields});
 			batches.push({sql:'delete from listenerRequest where id = ?', fields:[id]});
 			batches.push({sql:'delete from listenerHeader where id = ?', fields:[id]});
 			if(listener.requestParams && listener.requestParams.length) {
@@ -350,53 +354,57 @@ var DataStoreMysql = function(dbcfg) {
 	}
 	this.getInstances = function(opts) {
 		return new Promise(function(resolve,reject) {
-			resolve(instancesStore);
+			dbQuery({sql:'select * from instance',fields:[]}, function(ctx) {
+				resolve(ctx.results);
+			});
 		});
 	}
 	this.createInstance = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var instance = opts.instance;
-			instance.id = ++global_id;
-			instancesStore.push(instance);
-			resolve(instance);
+			dbQuery({sql:'insert into instance SET ?', fields:{name:instance.name, description:instance.description, host:instance.host}}, function(ctx) {
+				dbQuery({sql:'select max(id) as maxid from instance;'}, function(ctx) {
+					instance.id = ctx.results[0].maxid;
+					resolve(instance);
+				});
+			});
 		});
 	}
 	this.updateInstance = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var instance = opts.instance;
-			for(var i = 0; i < instancesStore.length; i++) {
-				if(instancesStore[i].id == opts.id) {
-					for(var j in instance) {
-						instancesStore[i][j] = instance[j];
-					}
-					break;
-				}
+			var fieldstr = '';
+			var fieldcomma = '';
+			var fields = [];
+			for(var field in instance) {
+				fieldstr += fieldcomma;
+				fieldstr += field + ' = ?';
+				fieldcomma = ',';
+				fields.push(instance[field]);
 			}
-			resolve();
+			fields.push(opts.id);
+			dbQuery({sql:'update instance set ' + fieldstr + ' where id = ?', fields:fields}, function(ctx) {
+				resolve();
+			});
 		});
 	}
 	this.deleteInstance = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var id = opts.id;
-			for(var i = 0; i < instancesStore.length; i++) {
-				if(instancesStore[i].id == id) {
-					instancesStore.splice(i,1);
-					break;
-				}
-			}
-			resolve();
+			dbQuery({sql:'delete from instance where id = ?', fields:[id]}, function(ctx) {
+				resolve();
+			});
 		});
 	}
 	this.getInstance = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var id = opts.id;
-			for(var i = 0; i < instancesStore.length; i++) {
-				if(instancesStore[i].id == id) {
-					resolve(instancesStore[i]);
-					return;
-				}
-			}
-			resolve(null);
+			dbQuery({sql:'select * from instance where id = ?', fields:[id]}, function(ctx) {
+				if(ctx.results.length)
+					resolve(ctx.results[0]);
+				else
+					resolve(null);
+			});
 		});
 	}
 	this.getInstancesForApp = function(opts) {
