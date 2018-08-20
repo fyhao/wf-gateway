@@ -261,7 +261,6 @@ var DataStoreMysql = function(dbcfg) {
 								description:p.description
 							}});
 						}
-						
 					}
 					if(listener.requestHeaders && listener.requestHeaders.length) {
 						for(var i = 0; i < listener.requestHeaders.length; i++) {
@@ -289,9 +288,39 @@ var DataStoreMysql = function(dbcfg) {
 			var app = opts.app;
 			var listener = opts.listener;
 			var id = opts.id;
-			
-			
-			resolve();
+			var batches = [];
+			batches.push({sql:'update listener set type = ?, endpoint = ?, flow = ? where app = ? and id = ?',fields:[listener.type,listener.endpoint, listener.flow, app, id]});
+			batches.push({sql:'delete from listenerRequest where id = ?', fields:[id]});
+			batches.push({sql:'delete from listenerHeader where id = ?', fields:[id]});
+			if(listener.requestParams && listener.requestParams.length) {
+				for(var i = 0; i < listener.requestParams.length; i++) {
+					var p = listener.requestParams[i];
+					batches.push({sql:'insert into listenerRequest SET ',fields:{
+						id:id,
+						name:p.name,
+						conditions:p.condition,
+						type:p.type,
+						defaultValue:p.defaultValue,
+						description:p.description
+					}});
+				}
+			}
+			if(listener.requestHeaders && listener.requestHeaders.length) {
+				for(var i = 0; i < listener.requestHeaders.length; i++) {
+					var p = listener.requestHeaders[i];
+					batches.push({sql:'insert into listenerHeader SET ',fields:{
+						id:id,
+						name:p.name,
+						conditions:p.condition,
+						type:p.type,
+						defaultValue:p.defaultValue,
+						description:p.description
+					}});
+				}
+			}
+			dbBatchQuery(batches, function(ctxs) {
+				resolve();
+			});
 		});
 	}
 	this.deleteListener = function(opts) {
