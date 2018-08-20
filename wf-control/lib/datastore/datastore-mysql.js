@@ -328,13 +328,13 @@ var DataStoreMysql = function(dbcfg) {
 			var app = opts.app;
 			var listener = opts.listener;
 			var id = opts.id;
-			for(var i = 0; i < listenersStore[app].length; i++) {
-				if(listenersStore[app][i].id == id) {
-					listenersStore[app].splice(i,1);
-					break;
-				}
-			}
-			resolve();
+			var batches = [];
+			batches.push({sql:'delete from listenerRequest where id = ?', fields:[id]});
+			batches.push({sql:'delete from listenerHeader where id = ?', fields:[id]});
+			batches.push({sql:'delete from listener where app = ? and id = ?', fields:[app, id]});
+			dbBatchQuery(batches, function(ctxs) {
+				resolve();
+			});
 		});
 	}
 	this.getInstances = function(opts) {
