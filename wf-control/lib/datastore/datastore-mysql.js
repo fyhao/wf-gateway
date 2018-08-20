@@ -244,6 +244,7 @@ var DataStoreMysql = function(dbcfg) {
 				app : app,
 				type : listener.type,
 				endpoint : listener.endpoint,
+				method : listener.method,
 				flow : listener.flow
 			};
 			dbQuery({sql:'insert into listener SET ?',fields:item}, function(ctx) {
@@ -252,7 +253,9 @@ var DataStoreMysql = function(dbcfg) {
 					if(listener.requestParams && listener.requestParams.length) {
 						for(var i = 0; i < listener.requestParams.length; i++) {
 							var p = listener.requestParams[i];
-							batches.push({sql:'insert into listenerRequest SET ',fields:{
+							console.log(p)
+							console.log(ctx.results[0]['maxid'])
+							batches.push({sql:'insert into listenerRequest SET ?',fields:{
 								id:ctx.results[0]['maxid'],
 								name:p.name,
 								conditions:p.condition,
@@ -265,7 +268,7 @@ var DataStoreMysql = function(dbcfg) {
 					if(listener.requestHeaders && listener.requestHeaders.length) {
 						for(var i = 0; i < listener.requestHeaders.length; i++) {
 							var p = listener.requestHeaders[i];
-							batches.push({sql:'insert into listenerHeader SET ',fields:{
+							batches.push({sql:'insert into listenerHeader SET ?',fields:{
 								id:ctx.results[0]['maxid'],
 								name:p.name,
 								conditions:p.condition,
@@ -275,6 +278,7 @@ var DataStoreMysql = function(dbcfg) {
 							}});
 						}
 					}
+					console.log(batches)
 					dbBatchQuery(batches, function(ctxs) {
 						resolve(listener);
 					});
@@ -289,13 +293,20 @@ var DataStoreMysql = function(dbcfg) {
 			var listener = opts.listener;
 			var id = opts.id;
 			var batches = [];
-			batches.push({sql:'update listener set type = ?, endpoint = ?, flow = ? where app = ? and id = ?',fields:[listener.type,listener.endpoint, listener.flow, app, id]});
+			var fieldstr = '';
+			var fieldcomma = '';
+			for(var field in listener) {
+				fieldstr += fieldcomma;
+				fieldstr += field + ' = ?';
+				fieldcomma = ',';
+			}
+			batches.push({sql:'update listener set ' + fieldstr + ' where app = ? and id = ?',fields:[listener.type,listener.endpoint, listener.flow, listener.method, app, id]});
 			batches.push({sql:'delete from listenerRequest where id = ?', fields:[id]});
 			batches.push({sql:'delete from listenerHeader where id = ?', fields:[id]});
 			if(listener.requestParams && listener.requestParams.length) {
 				for(var i = 0; i < listener.requestParams.length; i++) {
 					var p = listener.requestParams[i];
-					batches.push({sql:'insert into listenerRequest SET ',fields:{
+					batches.push({sql:'insert into listenerRequest SET ?',fields:{
 						id:id,
 						name:p.name,
 						conditions:p.condition,
@@ -308,7 +319,7 @@ var DataStoreMysql = function(dbcfg) {
 			if(listener.requestHeaders && listener.requestHeaders.length) {
 				for(var i = 0; i < listener.requestHeaders.length; i++) {
 					var p = listener.requestHeaders[i];
-					batches.push({sql:'insert into listenerHeader SET ',fields:{
+					batches.push({sql:'insert into listenerHeader SET ?',fields:{
 						id:id,
 						name:p.name,
 						conditions:p.condition,

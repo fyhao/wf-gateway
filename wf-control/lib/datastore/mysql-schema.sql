@@ -16,6 +16,7 @@ create table listener (
   id int not null primary key auto_increment,
   app varchar(100) not null,
   type varchar(20) not null,
+  method varchar(10) not null,
   endpoint varchar(100),
   flow varchar(100) not null
 );
