@@ -50,3 +50,10 @@ create table instance (
   monHistory varchar(5) default 'false',
   monRealtime varchar(5) default 'false'
 );
+
+drop table if exists appInstanceMapping;
+create table appInstanceMapping (
+  app varchar(100) not null,
+  instance_id int not null,
+  status varchar(10) not null
+);
