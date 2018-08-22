@@ -46,14 +46,15 @@ var DataStoreMysql = function(dbcfg) {
 	}
 	this.createApp = function(item) {
 		return new Promise(function(resolve,reject){
-			if(typeof flowStore[item.name] != 'undefined') {
-				resolve({status:101})
-				return;
-			}
-			dbQuery({sql:'insert into app SET ?',fields:item}, function(ctx) {
-				flowStore[item.name] = {};
-				listenersStore[item.name] = [];
-				resolve({status:0});
+			dbQuery({sql:'select * from app where name = ?', fields:[item.name]}, function(ctx) {
+				if(ctx.results.length) {
+					resolve({status:101})
+				}
+				else {
+					dbQuery({sql:'insert into app SET ?',fields:item}, function(ctx) {
+						resolve({status:0});
+					});
+				}
 			});
 		});
 		
@@ -89,47 +90,20 @@ var DataStoreMysql = function(dbcfg) {
 			dbQuery({sql:'select * from app where name = ?',fields:[name]}, function(ctx) {
 				if(ctx.results.length) {
 					dbQuery({sql:'delete from app where name = ?',fields:[name]}, function(ctx) {
-						delete flowStore[name];
-						delete listenersStore[name];
-						for(var j = 0; j < appInstanceMappingStore.length; j++) {
-							var m = appInstanceMappingStore[j];
-							if(m.app == name) {
-								appInstanceMappingStore.splice(j,1);
-								break;
-							}
-						}
-						resolve();
+						
+						var batches = [];
+						batches.push({sql:'delete from flow where app = ?', fields:[name]});
+						batches.push({sql:'delete from listener where app = ?', fields:[name]});
+						batches.push({sql:'delete from appInstanceMapping where app = ?', fields:[name]});
+						dbBatchQuery(batches, function(ctxs) {
+							resolve();
+						});
 					});
 				}
 				else {
 					reject({status:100})
 				}
 			});
-			
-			
-			/*
-			var found = false;
-			for(var i = 0; i < data.length; i++) {
-				if(data[i].name == name) {
-					data.splice(i,1);
-					delete flowStore[name];
-					delete listenersStore[name];
-					for(var j = 0; j < appInstanceMappingStore.length; j++) {
-						var m = appInstanceMappingStore[j];
-						if(m.app == name) {
-							appInstanceMappingStore.splice(j,1);
-							break;
-						}
-					}
-					resolve();
-					found = true;
-					break;
-				}
-			}
-			if(!found) {
-				reject({status:100})
-			}
-			*/
 		})
 	}
 	this.getFlows = function(opts) {
@@ -278,7 +252,6 @@ var DataStoreMysql = function(dbcfg) {
 							}});
 						}
 					}
-					console.log(batches)
 					dbBatchQuery(batches, function(ctxs) {
 						resolve(listener);
 					});
