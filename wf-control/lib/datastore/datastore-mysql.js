@@ -439,7 +439,7 @@ var DataStoreMysql = function(dbcfg) {
 					resolve(101);
 				}
 				else {
-					dbQuery({sql:'insert into appInstanceMapping SET ', fields:{app:opts.app,instance_id:opts.id,status:'disabled'}}, function(ctx) {
+					dbQuery({sql:'insert into appInstanceMapping SET ?', fields:{app:opts.app,instance_id:opts.id,status:'disabled'}}, function(ctx) {
 						resolve(0);
 					});
 				}
