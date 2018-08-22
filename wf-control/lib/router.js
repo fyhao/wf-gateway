@@ -52,6 +52,7 @@ var router = function(app, serverOpts) {
 	app.get('/monitor/info', monitorModule.info);
 	app.get('/monitor/realtime', monitorModule.realtime);
 	
+	var dbtype = 'memory';
 	if(typeof serverOpts.dbtype != 'undefined') {
 		var fields = ['dbtype', 'dbhost','dbuser','dbpass','dbname'];
 		var dbcfg = {};
@@ -62,6 +63,23 @@ var router = function(app, serverOpts) {
 		for(var j in modules) {
 			modules[j]._dataStore = new DataStore(dbcfg);
 		}
+		dbtype = dbcfg['dbtype'];
 	}
+	app.post('/datasource', function(req, res) {
+		var fields = ['dbtype', 'dbhost','dbuser','dbpass','dbname'];
+		var dbcfg = {};
+		for(var i in fields) {
+			var field = fields[i];
+			dbcfg[field] = req.body[field];
+		}
+		for(var j in modules) {
+			modules[j]._dataStore = new DataStore(dbcfg);
+		}
+		dbtype = dbcfg['dbtype'];
+		res.end('0');
+	});
+	app.get('/datasource', function(req, res) {
+		res.json({dbtype:dbtype});
+	});
 }
 module.exports = router;
