@@ -409,75 +409,81 @@ var DataStoreMysql = function(dbcfg) {
 	}
 	this.getInstancesForApp = function(opts) {
 		return new Promise(function(resolve,reject) {
-			var instance_id = [];
-			for(var i = 0; i < appInstanceMappingStore.length; i++) {
-				var m = appInstanceMappingStore[i];
-				if(m.app == opts.app) {
-					instance_id.push(m.instance_id);
-				}
-			}
-			var instances = [];
-			for(var i = 0; i < instance_id.length; i++) {
-				for(j = 0; j < instancesStore.length; j++) {
-					if(instancesStore[j].id == instance_id[i]) {
-						instances.push(instancesStore[j]);
+			dbQuery({sql:'select instance_id from appInstanceMapping where app = ?', fields:[opts.app]}, function(ctx) {
+				var instances = [];
+				if(ctx.results.length) {
+					var batches = [];
+					for(var i = 0; i < ctx.results.length; i++) {
+						batches.push({sql:'select * from instances where id = ?', fields:[ctx.results[i].instance_id]});
 					}
+					dbBatchQuery(batches, function(ctxs) {
+						
+						if(ctxs.length) {
+							for(var i = 0; i < ctxs.length; i++) {
+								instances.push(ctxs[i].results[0])
+							}
+						}
+						resolve(instances);
+					});	
 				}
-			}
-			resolve(instances);
+				else {
+					resolve(instances);
+				}
+			});
 		});
 	}
 	this.createInstanceForApp = function(opts) {
 		return new Promise(function(resolve,reject) {
-			for(var i = 0; i < appInstanceMappingStore.length; i++) {
-				var m = appInstanceMappingStore[i];
-				if(m.app == opts.app && m.instance_id == opts.id) {
+			dbQuery({sql:'select instance_id from appInstanceMapping where app = ? and instance_id = ?', fields:[opts.app,opts.id]}, function(ctx) {
+				if(ctx.results.length) {
 					resolve(101);
-					return;
 				}
-			}
-			appInstanceMappingStore.push({app:opts.app,instance_id:opts.id,status:'disabled'});
-			resolve(0);
+				else {
+					dbQuery({sql:'insert into appInstanceMapping SET ', fields:{app:opts.app,instance_id:opts.id,status:'disabled'}}, function(ctx) {
+						resolve(0);
+					});
+				}
+			});
 		});
 	}
 	this.deleteInstanceForApp = function(opts) {
 		return new Promise(function(resolve,reject) {
-			var isDeleted = false;
-			for(var i = 0; i < appInstanceMappingStore.length; i++) {
-				var m = appInstanceMappingStore[i];
-				if(m.app == opts.app && m.instance_id == opts.id) {
-					appInstanceMappingStore.splice(i,1);
-					isDeleted = true;
+			dbQuery({sql:'select instance_id from appInstanceMapping where app = ? and instance_id = ?', fields:[opts.app,opts.id]}, function(ctx) {
+				if(ctx.results.length) {
+					dbQuery({sql:'delete from appInstanceMapping where app = ? and instance_id = ?', fields:[opts.app,opts.id]}, function(ctx) {
+						resolve(0);
+					});
 				}
-			}
-			resolve(isDeleted ? 0 : 102);
+				else {
+					resolve(102);
+				}
+			});
 		});
 	}
 	this.getAppsForInstance = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var apps = [];
-			for(var i = 0; i < appInstanceMappingStore.length; i++) {
-				var m = appInstanceMappingStore[i];
-				if(m.instance_id == opts.id) {
-					apps.push({app:m.app,status:m.status});
+			dbQuery({sql:'select * from appInstanceMapping where instance_id = ?', fields:[opts.id]}, function(ctx) {
+				if(ctx.results.length) {
+					for(var i = 0; i < ctx.results.length; i++) {
+						apps.push({app:ctx.results[i].app,status:ctx.results[i].status});
+					}
 				}
-			}
-			resolve(apps);
+				resolve(apps);
+			});
 		});
 	}
 	this.actionAppForInstance = function(opts) {
 		return new Promise(function(resolve,reject) {
-			for(var i = 0; i < appInstanceMappingStore.length; i++) {
-				var m = appInstanceMappingStore[i];
-				if(m.app == opts.app && m.instance_id == opts.id) {
-					m.status = opts.action == 'enable' ? 'enabled' : 'disabled';
-				}
-			}
-			resolve();
+			var status = opts.action == 'enable' ? 'enabled' : 'disabled';
+			dbQuery({sql:'update appInstanceMapping set status = ? where app = ? and instance_id = ?', fields:[status,opts.app,opts.id]}, function(ctx) {
+				resolve();
+			});
 		});
 	}
 	this.exportData = function() {
 		return new Promise(function(resolve,reject) {
+			
 			var result = {};
 			result.appData = data;
 			result.flowData = flowStore;
