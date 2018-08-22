@@ -516,6 +516,7 @@ var DataStoreMysql = function(dbcfg) {
 				}
 				batches.push({sql:'delete from listener'});
 				for(var app in input.listenerData) {
+					input.listenerData[app].app = app;
 					batches.push({sql:'insert into listener SET ?', fields:input.listenerData[app]});
 				}
 				batches.push({sql:'delete from instance'});
