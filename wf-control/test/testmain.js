@@ -1,10 +1,47 @@
 var assert = require('assert');
 
+var testServerOpts = {};
+// setup testswitch
+var testDBCfg = {type:'memory'}; // memory, mysql
+if(testDBCfg.type == 'mysql') {
+	testServerOpts.dbtype = 'mysql';
+	testServerOpts.dbhost = 'localhost';
+	testServerOpts.dbuser = 'root';
+	testServerOpts.dbpass = 'root';
+	testServerOpts.dbname = 'testwf';
+	
+	describe('test db connection', function() {
+		it('create test db schema', function test(done) {
+			// Create and destroy test db for testing
+			var dbLib = require('../lib/dbLib.js');
+			var fs = require('fs');
+			var sql = fs.readFileSync('lib/datastore/mysql-schema.sql','utf8');
+			var ctx = {vars:{}};
+			dbLib.query({
+				ctx : ctx,
+				cfg : {
+					type:'mysql',
+					host     : testServerOpts.dbhost,
+				    user     : testServerOpts.dbuser,
+				    password : testServerOpts.dbpass,
+				    database : testServerOpts.dbname,
+					multipleStatements: true
+				},
+				sql : sql,
+				checkNext : function() {
+					done();
+				}
+			});
+		});
+	});
+}
+
+
 var request = require('supertest');
 describe('loading express', function () {
   var server;
   beforeEach(function () {
-    server = require('../server', { bustCache: true })();
+    server = require('../server', { bustCache: true })(testServerOpts);
   });
   afterEach(function (done) {
     server.close(done);
@@ -26,7 +63,7 @@ describe('loading express', function () {
 describe('app module', function () {
   var server;
   before(function () {
-    server = require('../server', { bustCache: true })();
+    server = require('../server', { bustCache: true })(testServerOpts);
   });
   after(function (done) {
     server.close(done);
@@ -153,7 +190,7 @@ describe('app module', function () {
 describe('flow module', function () {
   var server;
   before(function () {
-    server = require('../server', { bustCache: true })();
+    server = require('../server', { bustCache: true })(testServerOpts);
   });
   after(function (done) {
     server.close(done);
@@ -306,7 +343,7 @@ describe('flow module', function () {
 describe('listeners module', function () {
   var server;
   before(function () {
-    server = require('../server', { bustCache: true })();
+    server = require('../server', { bustCache: true })(testServerOpts);
   });
   after(function (done) {
     server.close(done);
@@ -670,7 +707,7 @@ describe('listeners module', function () {
 describe('instance module', function () {
   var server;
   before(function () {
-    server = require('../server', { bustCache: true })();
+    server = require('../server', { bustCache: true })(testServerOpts);
   });
   after(function (done) {
     server.close(done);
