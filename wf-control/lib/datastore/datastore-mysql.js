@@ -414,10 +414,9 @@ var DataStoreMysql = function(dbcfg) {
 				if(ctx.results.length) {
 					var batches = [];
 					for(var i = 0; i < ctx.results.length; i++) {
-						batches.push({sql:'select * from instances where id = ?', fields:[ctx.results[i].instance_id]});
+						batches.push({sql:'select * from instance where id = ?', fields:[ctx.results[i].instance_id]});
 					}
 					dbBatchQuery(batches, function(ctxs) {
-						
 						if(ctxs.length) {
 							for(var i = 0; i < ctxs.length; i++) {
 								instances.push(ctxs[i].results[0])
