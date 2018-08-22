@@ -498,14 +498,8 @@ var DataStoreMysql = function(dbcfg) {
 				max = Math.max(max,max4);
 				max = Math.max(max,max5);
 				result.global_id = max;
+				resolve(result);
 			});
-			result.appData = data;
-			result.flowData = flowStore;
-			result.listenerData = listenersStore;
-			result.instanceData = instancesStore;
-			result.appInstanceMappingData = appInstanceMappingStore;
-			result.global_id = global_id;
-			resolve(result);
 		});
 	}
 	this.importData = function(opts) {
