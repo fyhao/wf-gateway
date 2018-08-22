@@ -62,6 +62,7 @@ class AppEditForm extends Component {
 	  this.componentWillMount = this.componentWillMount.bind(this);
 	  this.componentWillUnmount = this.componentWillUnmount.bind(this);
 	  this.handleDelete = this.handleDelete.bind(this);
+	  this.handleDuplicate = this.handleDuplicate.bind(this);
   }
   
   state = {
@@ -85,7 +86,18 @@ class AppEditForm extends Component {
 			}
 		})
   }
-  
+  handleDuplicate() {
+	  var newName
+	  axios({
+		  method: 'POST',
+		  url: Constants.API_URL + '/app/' + this.app + '/duplicate',
+		  data: {
+			newName:prompt('Please enter new app name')
+		  }
+		}).then(response => {
+			alert('Duplicated status: ' + response.data.status);
+		})
+  }
  
   render() {
     return (
@@ -94,6 +106,7 @@ class AppEditForm extends Component {
 		<Button color="primary" onClick={() => {ee.emit('navigatePage', {page:<ListenerList app={this.app} />});}}>Manage Listeners</Button>
 		<Button color="primary" onClick={() => {ee.emit('navigatePage', {page:<AppInstanceList app={this.app} />});}}>Manage Instances</Button>
 		<Button color="primary" onClick={() => {ee.emit('navigatePage', {page:<FlowEditor app={this.app} />});}}>Flow Editor</Button>
+		<Button color="primary" onClick={this.handleDuplicate}>Duplicate Apps</Button>
 		<StandardForm options={this.state.options} />
 	  </div>
     );

@@ -9,6 +9,7 @@ var router = function(app, serverOpts) {
 	app.get('/app/:name', appModule.item);
 	app.put('/app/:name', appModule.update);
 	app.delete('/app/:name', appModule.remove);
+	app.post('/app/:name/duplicate', appModule.duplicate);
 	
 	var flowModule = ProjRequire('lib/module/flow');
 	modules.push(flowModule);
