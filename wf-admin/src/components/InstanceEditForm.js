@@ -114,6 +114,12 @@ class InstanceEditForm extends Component {
 			
 		  }
 		}).then(response => {
+			var c = 0;
+			var checkNext = function() {
+				if(++c >= response.data.apps.length) {
+					next();
+				}
+			}
 			response.data.apps.map((app,i) => {
 				axios({
 					  method: 'post',
@@ -122,7 +128,7 @@ class InstanceEditForm extends Component {
 						
 					  }
 					}).then(response => {
-						next()
+						checkNext()
 					})
 			});
 		})
