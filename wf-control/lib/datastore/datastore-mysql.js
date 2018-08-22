@@ -483,6 +483,7 @@ var DataStoreMysql = function(dbcfg) {
 					var temp = ctxs[2].results[i];
 					delete temp.app;
 					result.listenerData[ctxs[2].results[i].app] = temp;
+					// PENDING for listenerRequest & listenerResponse
 				}
 				result.instanceData = ctxs[3].results;
 				result.appInstanceMappingData = ctxs[4].results;
@@ -506,13 +507,32 @@ var DataStoreMysql = function(dbcfg) {
 		return new Promise(function(resolve,reject) {
 			try {
 				var input = JSON.parse(opts.input);
-				data = input.appData;
-				flowStore = input.flowData;
-				listenersStore = input.listenerData;
-				instancesStore = input.instanceData;
-				appInstanceMappingStore = input.appInstanceMappingData;
-				global_id = input.global_id;
-				resolve(0);
+				var batches = [];
+				batches.push({sql:'delete from app'});
+				for(var i = 0; i < input.appData.length; i++) {
+					batches.push({sql:'insert into app SET ?', fields:input.appData[i]});
+				}
+				batches.push({sql:'delete from flow'});
+				for(var app in input.flowData) {
+					for(var flowName in input.flowData[app]) {
+						batches.push({sql:'insert into flow SET ?', fields:{app:app,name:flowName,content:JSON.stringify(input.flowData[app][flowName])}});
+					}
+				}
+				batches.push({sql:'delete from listener'});
+				for(var app in input.listenerData) {
+					batches.push({sql:'insert into listener SET ?', fields:input.listenerData[app]);
+				}
+				batches.push({sql:'delete from instance'});
+				for(var i = 0; i < input.instanceData.length; i++) {
+					batches.push({sql:'insert into instance SET ?', fields:input.instanceData[i]});
+				}
+				batches.push({sql:'delete from appInstanceMapping'});
+				for(var i = 0; i < input.appInstanceMappingData.length; i++) {
+					batches.push({sql:'insert into appInstanceMapping SET ?', fields:input.appInstanceMappingData[i]});
+				}
+				dbBatchQuery(batches, function(ctxs) {
+					resolve(0);
+				});
 			} catch (e) {
 				resolve(1);
 			}
