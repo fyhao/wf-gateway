@@ -365,7 +365,10 @@ var DataStoreMysql = function(dbcfg) {
 	this.deleteInstance = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var id = opts.id;
-			dbQuery({sql:'delete from instance where id = ?', fields:[id]}, function(ctx) {
+			var batches = [];
+			batches.push({sql:'delete from appInstanceMapping where instance_id = ?',fields:[id]});
+			batches.push({sql:'delete from instance where id = ?',fields:[id]});
+			dbBatchQuery(batches, function(ctxs) {
 				resolve();
 			});
 		});

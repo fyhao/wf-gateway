@@ -205,6 +205,12 @@ var DataStoreMemory = function(dbcfg) {
 	this.deleteInstance = function(opts) {
 		return new Promise(function(resolve,reject) {
 			var id = opts.id;
+			for(var i = 0; i < appInstanceMappingStore.length; i++) {
+				var m = appInstanceMappingStore[i];
+				if(m.instance_id == opts.id) {
+					appInstanceMappingStore.splice(i,1);
+				}
+			}
 			for(var i = 0; i < instancesStore.length; i++) {
 				if(instancesStore[i].id == id) {
 					instancesStore.splice(i,1);
