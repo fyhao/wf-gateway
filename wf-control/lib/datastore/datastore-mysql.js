@@ -519,7 +519,7 @@ var DataStoreMysql = function(dbcfg) {
 					for(var i = 0; i < input.listenerData[app].length; i++) {
 						input.listenerData[app][i].app = app;
 						delete input.listenerData[app][i].id;
-						batches.push({sql:'insert into listener SET ?', fields:input.listenerData[app]});
+						batches.push({sql:'insert into listener SET ?', fields:input.listenerData[app][i]});
 					}
 				}
 				batches.push({sql:'delete from instance'});
