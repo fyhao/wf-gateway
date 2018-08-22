@@ -23,6 +23,7 @@ var DataStoreMysql = function(dbcfg) {
 	var dbBatchQuery = function(batches, fn) {
 		var c = 0;
 		var batchedResults = [];
+		console.log(batches)
 		var next = function() {
 			if(c >= batches.length) {
 				fn(batchedResults);
@@ -462,26 +463,24 @@ var DataStoreMysql = function(dbcfg) {
 			batches.push({sql:'select * from listener'});
 			batches.push({sql:'select * from instance'});
 			batches.push({sql:'select * from appInstanceMapping'});
-			batches.push({sql:'select max(id) as maxid from app'});
-			batches.push({sql:'select max(id) as maxid from flow'});
 			batches.push({sql:'select max(id) as maxid from listener'});
 			batches.push({sql:'select max(id) as maxid from instance'});
-			batches.push({sql:'select max(id) as maxid from appInstanceMapping'});
 			dbBatchQuery(batches, function(ctxs) {
 				result.appData = ctxs[0].results;
 				var i = 0;
+				result.flowData = {};
 				for(i = 0; i < ctxs[1].results.length; i++) {
 					if(typeof result.flowData[ctxs[1].results[i].app] == 'undefined') {
 						result.flowData[ctxs[1].results[i].app] = {};
 					}
 					result.flowData[ctxs[1].results[i].app][ctxs[1].results[i].name] = JSON.parse(ctxs[1].results[i].content);
 				}
+				result.listenerData = {};
 				for(i = 0; i < ctxs[2].results.length; i++) {
 					if(typeof result.listenerData[ctxs[2].results[i].app] == 'undefined') {
 						result.listenerData[ctxs[2].results[i].app] = [];
 					}
 					var temp = ctxs[2].results[i];
-					delete temp.app;
 					result.listenerData[ctxs[2].results[i].app] = temp;
 					// PENDING for listenerRequest & listenerResponse
 				}
@@ -489,15 +488,9 @@ var DataStoreMysql = function(dbcfg) {
 				result.appInstanceMappingData = ctxs[4].results;
 				var max1 = ctxs[5].results[0].maxid;
 				var max2 = ctxs[6].results[0].maxid;
-				var max3 = ctxs[7].results[0].maxid;
-				var max4 = ctxs[8].results[0].maxid;
-				var max5 = ctxs[9].results[0].maxid;
 				var max = 0;
 				max = Math.max(max,max1);
 				max = Math.max(max,max2);
-				max = Math.max(max,max3);
-				max = Math.max(max,max4);
-				max = Math.max(max,max5);
 				result.global_id = max;
 				resolve(result);
 			});
