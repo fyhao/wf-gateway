@@ -89,7 +89,7 @@ var process_mysql = function(opts) {
 	connection.connect();
 
 	connection.query(sql, opts.fields, function (error, results, fields) {
-		connection.destroy():
+		connection.destroy();
 		if(rs && rs.length) {
 			results.forEach(function(i) {
 				rs.forEach(function(j) {
