@@ -609,7 +609,7 @@ class StepWizard extends Component {
 			</span>}
 			
 			{this.state.step.type == 'evaljs' && <span>
-				<SimpleTextInput id="code" value={this.state.step.code} onChange={this.handleChange}/>
+				<SimpleTextAreaInput id="code" value={this.state.step.code} onChange={this.handleChange}/>
 				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
 			</span>}
 			
@@ -700,6 +700,30 @@ class SimpleSelectInput extends Component {
 							<option key={i} value={o}>{o}</option>
 						))}
 					</Input>
+				</FormGroup>)
+	}
+}
+
+class SimpleTextAreaInput extends Component {
+	constructor(opts) {
+		super(opts);
+		if(this.props.value) {
+			this.state.value = this.props.value;
+		}
+		else {
+			this.state.value = '';
+		}
+		this.onChange = this.onChange.bind(this);
+	}
+	state={}
+	onChange(evt) {
+		this.state.value = evt.target.value;
+		this.props.onChange(evt);
+	}
+	render() {
+		return (<FormGroup>
+					<Label for={this.props.id}>{this.props.id}</Label>
+					<Input type="textarea" name={this.props.id} id={this.props.id} value={this.state.value} onChange={this.onChange}/>
 				</FormGroup>)
 	}
 }
