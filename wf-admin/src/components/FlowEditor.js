@@ -604,6 +604,7 @@ class StepWizard extends Component {
 				<SimpleTextInput id="url" value={this.state.step.url} onChange={this.handleChange}/>
 				<SimpleTextInput id="params" value={this.state.step.params} onChange={this.handleChange}/>
 				<SimpleTextInput id="headers" value={this.state.step.headers} onChange={this.handleChange}/>
+				<SimpleTextInput id="varResponse" value={this.state.step.varResponse} onChange={this.handleChange}/>
 				<SimpleTextInput id="varJson" value={this.state.step.varJson} onChange={this.handleChange}/>
 				<SimpleTextInput id="var" value={this.state.step.var} onChange={this.handleChange}/>
 			</span>}
