@@ -42,6 +42,13 @@ var frequest = function(args) {
 		req = unirest.post(args.url);
 	}
 	if(args.headers) {
+		if(typeof args.headers == 'string') {
+			try {
+				args.headers = JSON.parse(args.headers);
+			} catch (e) {
+				
+			}
+		}
 		req.headers(args.headers);
 	}
 	if(args.params) {

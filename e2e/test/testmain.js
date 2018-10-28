@@ -998,6 +998,26 @@ describe('e2e test - control server push configuration to app server', function 
 				steps : [
 					{type:'setVar',name:'fullName',value:'{{varFirst}} {{varLast}}'},
 				]
+			},
+			call_http_header_flow : {
+				steps : [
+					{type:'http','url':'http://localhost:8081/rest/calcHeaders?firstName=mary&lastName=brown',
+						var:'respBody',
+						headers : '{"headera":"headers"}',
+						params : 'paramA=a&paramB=b'
+					},
+					{type:'response',body:'My fullname is ##respBody##'},
+				]
+			},
+			calcHeaders_flow : {
+				steps : [
+					{type:'request',action:'getParam',key:'firstName',var:'varFirst'},
+					{type:'request',action:'getParam',key:'lastName',var:'varLast'},
+					{type:'request',action:'getBody',key:'paramA',var:'paramA'},
+					{type:'request',action:'getBody',key:'paramB',var:'paramB'},
+					{type:'request',action:'getHeader',key:'headera',var:'headera'},
+					{type:'response',body:'{{varFirst}} {{varLast}} {{paramA}} {{paramB}} {{headera}}'},
+				]
 			}
 		};
 		return request(control_server)
@@ -1103,6 +1123,36 @@ describe('e2e test - control server push configuration to app server', function 
 			  assert.equal(json.status, 0);
 		  });
 	  });
+	  it('should return status 0 after create new listener /rest/call_http_header_flow for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/call_http_header_flow',
+			flow : 'call_http_header_flow'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
+	  it('should return status 0 after create new listener /rest/calcHeaders for app test4', function test() {
+		var listener =  {
+			type : 'http',
+			endpoint : '/rest/calcHeaders',
+			flow : 'calcHeaders_flow'
+		};
+		return request(control_server)
+		  .post('/app/test4/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, 0);
+		  });
+	  });
 	  it('should return status 0 after assign one instance for app test4', function test() {
 		return request(control_server)
 		  .post('/app/test4/instance/' + instance_id)
@@ -1191,6 +1241,14 @@ describe('e2e test - control server push configuration to app server', function 
 		  .expect(200)
 		  .expect(function(res) {
 			  assert.equal(res.text, "My fullname is mary brown")
+		  });
+	  });
+	  it('should return OK for calling workflows with /rest/call_http_header_flow', function test() {
+		return request(app_server)
+		  .get('/rest/call_http_header_flow')
+		  .expect(200)
+		  .expect(function(res) {
+			  assert.equal(res.text, "My fullname is mary brown a b headers")
 		  });
 	  });
   });
