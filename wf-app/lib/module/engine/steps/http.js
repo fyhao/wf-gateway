@@ -11,7 +11,13 @@ module.exports = {
 		}
 		if(typeof step.params !== 'undefined') frequestObj.params = step.params;
 		if(typeof step.headers !== 'undefined') frequestObj.headers = step.headers;
-		if(typeof step.varJson !== 'undefined') {
+		if(typeof step.varResponse !== 'undefined') {
+			frequestObj.callback = function(body, response) {
+				ctx.vars[step.varResponse] = response;
+				process.nextTick(checkNext);
+			}
+		}
+		else if(typeof step.varJson !== 'undefined') {
 			frequestObj.callbackJSON = function(json) {
 				ctx.vars[step.varJson] = json;
 				process.nextTick(checkNext);
@@ -20,12 +26,6 @@ module.exports = {
 		else if(typeof step.var !== 'undefined') {
 			frequestObj.callback = function(body) {
 				ctx.vars[step.var] = body;
-				process.nextTick(checkNext);
-			}
-		}
-		else if(typeof step.varResponse !== 'undefined') {
-			frequestObj.callback = function(body, response) {
-				ctx.vars[step.varResponse] = response;
 				process.nextTick(checkNext);
 			}
 		}
