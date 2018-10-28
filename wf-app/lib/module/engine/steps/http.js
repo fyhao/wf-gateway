@@ -23,6 +23,12 @@ module.exports = {
 				process.nextTick(checkNext);
 			}
 		}
+		else if(typeof step.varResponse !== 'undefined') {
+			frequestObj.callback = function(body, response) {
+				ctx.vars[step.varResponse] = response;
+				process.nextTick(checkNext);
+			}
+		}
 		else {
 			process.nextTick(checkNext);
 			return;
@@ -62,7 +68,12 @@ var frequest = function(args) {
 				body = JSON.stringify(resp.body);
 			}
 			*/
-			args.callback(body);
+			if(args.callback.length == 2) {
+				args.callback(body, resp);
+			}
+			else {
+				args.callback(body);
+			}
 		}
 		if(args.callbackJSON) {
 			try {
@@ -78,7 +89,12 @@ var frequest = function(args) {
 					json = resp.body;
 				}
 				*/
-				args.callbackJSON(json);
+				if(args.callback.length == 2) {
+					args.callbackJSON(json, resp);
+				}
+				else {
+					args.callbackJSON(json);
+				}
 			} catch (e) {
 				//console.log(e);
 				if(args.errorCallback) args.errorCallback(e);

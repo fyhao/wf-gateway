@@ -1002,11 +1002,12 @@ describe('e2e test - control server push configuration to app server', function 
 			call_http_header_flow : {
 				steps : [
 					{type:'http','url':'http://localhost:8081/rest/calcHeaders?firstName=mary&lastName=brown',
-						var:'respBody',
+						varResponse:'resp',
 						headers : '{"headera":"headers"}',
 						params : 'paramA=a&paramB=b'
 					},
-					{type:'response',body:'My fullname is ##respBody##'},
+					{type:'setVar',name:'respBody',value:'{{resp.body}}'},
+					{type:'response',body:'My fullname is ##respBody## {{resp.headers.headerb}}'},
 				]
 			},
 			calcHeaders_flow : {
@@ -1016,6 +1017,7 @@ describe('e2e test - control server push configuration to app server', function 
 					{type:'request',action:'getBody',key:'paramA',var:'paramA'},
 					{type:'request',action:'getBody',key:'paramB',var:'paramB'},
 					{type:'request',action:'getHeader',key:'headera',var:'headera'},
+					{type:'response',action:'setHeader',key:'headerb',value:'headerb'},
 					{type:'response',body:'{{varFirst}} {{varLast}} {{paramA}} {{paramB}} {{headera}}'},
 				]
 			}
@@ -1248,7 +1250,7 @@ describe('e2e test - control server push configuration to app server', function 
 		  .get('/rest/call_http_header_flow')
 		  .expect(200)
 		  .expect(function(res) {
-			  assert.equal(res.text, "My fullname is mary brown a b headers")
+			  assert.equal(res.text, "My fullname is mary brown a b headers headerb")
 		  });
 	  });
   });
