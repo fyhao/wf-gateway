@@ -59,14 +59,6 @@ var FlowEngine = function(flow) {
 									});
 								}
 							}
-							else {
-								var exceptionFlow = {
-									flow : me.flow.onException
-								};
-								new FlowEngine(exceptionFlow).setContext(ctx).setInputVars(steps[curStep]).execute(function() {
-									process.nextTick(done);
-								});
-							}
 						}
 					}
 				}
