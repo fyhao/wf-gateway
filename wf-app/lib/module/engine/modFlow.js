@@ -41,13 +41,26 @@ var FlowEngine = function(flow) {
 	this.canceled = false;
 	
 	this.execute = function(done) {
+		var me = this;
 		var steps = this.flow.steps;
 		if(steps && steps.length) {
 			var curStep = -1;
 			var checkNext = function() {
 				curStep++;
 				if(curStep < steps.length) {
-					processStep(steps[curStep], checkNext);
+					try {
+						processStep(steps[curStep], checkNext);
+					} catch (e) {
+						if(typeof me.flow.onException != 'undefined') {
+							if(typeof me.flow.onException == 'string') {
+								if(typeof ctx.flows[me.flow.onException] != 'undefined') {
+									new FlowEngine(ctx.flows[me.flow.onException]).setContext(ctx).setInputVars(steps[curStep]).execute(function() {
+										process.nextTick(done);
+									});
+								}
+							}
+						}
+					}
 				}
 				else {
 					if(done.length == 1) {
