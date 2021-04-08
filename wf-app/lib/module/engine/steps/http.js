@@ -11,7 +11,13 @@ module.exports = {
 		}
 		if(typeof step.params !== 'undefined') frequestObj.params = step.params;
 		if(typeof step.headers !== 'undefined') frequestObj.headers = step.headers;
-		if(typeof step.varJson !== 'undefined') {
+		if(typeof step.varResponse !== 'undefined') {
+			frequestObj.callback = function(body, response) {
+				ctx.vars[step.varResponse] = response;
+				process.nextTick(checkNext);
+			}
+		}
+		else if(typeof step.varJson !== 'undefined') {
 			frequestObj.callbackJSON = function(json) {
 				ctx.vars[step.varJson] = json;
 				process.nextTick(checkNext);
@@ -42,6 +48,13 @@ var frequest = function(args) {
 		req = unirest.post(args.url);
 	}
 	if(args.headers) {
+		if(typeof args.headers == 'string') {
+			try {
+				args.headers = JSON.parse(args.headers);
+			} catch (e) {
+				
+			}
+		}
 		req.headers(args.headers);
 	}
 	if(args.params) {
@@ -55,7 +68,12 @@ var frequest = function(args) {
 				body = JSON.stringify(resp.body);
 			}
 			*/
-			args.callback(body);
+			if(args.callback.length == 2) {
+				args.callback(body, resp);
+			}
+			else {
+				args.callback(body);
+			}
 		}
 		if(args.callbackJSON) {
 			try {
@@ -71,7 +89,12 @@ var frequest = function(args) {
 					json = resp.body;
 				}
 				*/
-				args.callbackJSON(json);
+				if(args.callback.length == 2) {
+					args.callbackJSON(json, resp);
+				}
+				else {
+					args.callbackJSON(json);
+				}
 			} catch (e) {
 				//console.log(e);
 				if(args.errorCallback) args.errorCallback(e);
