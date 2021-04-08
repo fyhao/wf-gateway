@@ -89,7 +89,7 @@ var process_mysql = function(opts) {
 	connection.connect();
 
 	connection.query(sql, opts.fields, function (error, results, fields) {
-		if (error) throw error;
+		connection.destroy();
 		if(rs && rs.length) {
 			results.forEach(function(i) {
 				rs.forEach(function(j) {
@@ -103,5 +103,4 @@ var process_mysql = function(opts) {
 		process.nextTick(checkNext);
 	});
 
-	connection.end();
 }

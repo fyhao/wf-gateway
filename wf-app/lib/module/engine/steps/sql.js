@@ -18,8 +18,12 @@ module.exports = {
 			ctx : ctx,
 			cfg : dbConfig,
 			sql : step.sql,
+			fields : step.fields,
 			recordsets : step.recordsets,
-			checkNext : checkNext
+			checkNext : function() {
+				ctx.vars[step.result] = ctx.results;
+				process.nextTick(checkNext);
+			}
 		});
 	}
 }
