@@ -350,4 +350,37 @@ describe('modServlet module', function () {
 		  });
 	  }); // end it
 	}); // describe
+	
+	describe('#onException', function() {
+	  it('should be OK to call onException with flow name', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'setVar',name:'a',value:'{{throw e}}'},
+						{type:'response',body:'OK'},
+					],
+					onException : 'exceptionFlow'
+				},
+				'exceptionFlow' : {
+					steps : [
+						{type:'setVar',name:'a',value:'{{throw e}}'},
+						{type:'response',body:'Exception'},
+					],
+					onException : 'generalException'
+				},
+				'generalException' : {
+					steps : [
+						{type:'response',body:'Exception General'},
+					],
+				},
+			  },
+			  entryFlow:'flow_1',
+			  done:done,
+			  resEnd : function(body) {
+				  assert.equal(body,"Exception General")
+			  }
+		  });
+	  }); // end it
+	}); // onException
 });
