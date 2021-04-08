@@ -16,7 +16,7 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
-    "unirest": "^0.5.1
+    "unirest": "^0.6.0",
     "snyk": "^1.316.1"
   },
   "devDependencies": {
