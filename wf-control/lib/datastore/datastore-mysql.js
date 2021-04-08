@@ -484,7 +484,7 @@ var DataStoreMysql = function(dbcfg) {
 						result.listenerData[ctxs[2].results[i].app] = [];
 					}
 					var temp = ctxs[2].results[i];
-					result.listenerData[ctxs[2].results[i].app] = temp;
+					result.listenerData[ctxs[2].results[i].app].push(temp);
 					// PENDING for listenerRequest & listenerResponse
 				}
 				result.instanceData = ctxs[3].results;
