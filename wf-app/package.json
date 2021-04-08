@@ -9,7 +9,7 @@
     "performance": "node --allow-natives-syntax ./node_modules/mocha/bin/_mocha --reporter mocha-performance ./test/alltests.js",
     "start": "node app.js",
     "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "prepublish": "npm run snyk-protect"
   },
   "author": "",
   "license": "ISC",
@@ -19,8 +19,7 @@
     "express": "^4.16.3",
     "mssql": "^4.1.0",
     "mysql": "^2.16.0",
-    "unirest": "^0.5.1",
-    "snyk": "^1.104.1"
+    "unirest": "^0.6.0"
   },
   "devDependencies": {
     "coveralls": "^2.13.0",

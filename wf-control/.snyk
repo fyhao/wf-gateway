@@ -5,7 +5,7 @@ ignore: {}
 patch:
   SNYK-JS-LODASH-450202:
     - unirest > request > form-data > async > lodash:
-        patched: '2019-07-04T00:01:49.627Z'
+        patched: '2019-07-04T08:34:29.795Z'
   SNYK-JS-LODASH-567746:
     - unirest > request > form-data > async > lodash:
-        patched: '2020-05-01T00:03:41.523Z'
+        patched: '2020-05-01T08:33:55.357Z'
