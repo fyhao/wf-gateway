@@ -1,6 +1,6 @@
 {
-  "name": "wf-control",
-  "version": "1.0.0",
+  "name":"wf-control",
+  "version":"1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "express": "^4.16.3",
     "mssql": "^4.1.0",
     "mysql": "^2.16.0",
-    "unirest": "^0.6.0"
+    "unirest": "^0.6.0",
     "snyk": "^1.316.1"
   },
   "devDependencies": {
@@ -33,5 +33,5 @@
     "should": ">= 0.0.1",
     "supertest": "^3.0.0"
   },
-  "snyk": true
+  "snyk": "true"
 }
