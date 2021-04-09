@@ -33,5 +33,5 @@
     "should": ">= 0.0.1",
     "supertest": "^3.0.0"
   },
-  "snyk": "true"
+  "snyk": true
 }
