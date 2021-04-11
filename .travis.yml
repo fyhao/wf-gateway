@@ -3,25 +3,17 @@ language: node_js
 node_js:
   - '15'
   - '10'
+  
+env:
+  - TEST_APP=wf-control
+  - TEST_APP=wf-app
+  - TEST_APP=wf-admin
+  - TEST_APP=e2e
+  
+os: linux
+dist: trusty
+sudo: required 
 
-matrix:
-  include:
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: TEST_APP=wf-control
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: TEST_APP=wf-app
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: TEST_APP=wf-admin
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: TEST_APP=e2e
 
       
 before_install:
