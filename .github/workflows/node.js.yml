@@ -27,7 +27,12 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: chmod +x ./scripts/*.sh
-    - run: if [[ $TEST_APP == 'wf-control' ]]; then ./scripts/install-wf-control.sh; fi
+    - name: Test wf-control
+      if: ${{ env.TEST_APP == 'wf-control' }}
+      run: |
+        cd wf-control
+        npm install
+        npm test
     - run: if [[ $TEST_APP == 'wf-app' ]]; then ./scripts/install-wf-app.sh; fi
     - run: if [[ $TEST_APP == 'wf-admin' ]]; then ./scripts/install-wf-admin.sh; fi
     - run: if [[ $TEST_APP == 'e2e' ]]; then ./scripts/install-e2e.sh; fi
