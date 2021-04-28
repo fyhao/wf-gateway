@@ -17,7 +17,6 @@ jobs:
     strategy:
       matrix:
         node-version: [10.x, 15.x]
-        TEST_APP: ["wf-control","wf-app","wf-admin","e2e"]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -26,17 +25,23 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-    - run: chmod +x ./scripts/*.sh
     - name: Test wf-control
       run: |
-        echo $TEST_APP
         cd wf-control
         npm install
         npm test
-    - run: if [[ $TEST_APP == 'wf-app' ]]; then ./scripts/install-wf-app.sh; fi
-    - run: if [[ $TEST_APP == 'wf-admin' ]]; then ./scripts/install-wf-admin.sh; fi
-    - run: if [[ $TEST_APP == 'e2e' ]]; then ./scripts/install-e2e.sh; fi
-    - run: if [[ $TEST_APP == 'wf-control' ]]; then ./scripts/script-wf-control.sh; fi
-    - run: if [[ $TEST_APP == 'wf-app' ]]; then ./scripts/script-wf-app.sh; fi
-    - run: if [[ $TEST_APP == 'wf-admin' ]]; then ./scripts/script-wf-admin.sh; fi
-    - run: if [[ $TEST_APP == 'e2e' ]]; then ./scripts/script-e2e.sh; fi
+    - name: Test wf-app
+      run: |
+        cd wf-app
+        npm install
+        npm test
+    - name: Test wf-admin
+      run: |
+        cd wf-admin
+        npm install
+        npm test
+    - name: Test e2e
+      run: |
+        cd e2e
+        npm install
+        npm test
