@@ -907,7 +907,7 @@ describe('instance module', function () {
 	  .expect(function(res) {
 		  var json = JSON.parse(res.text);
 		  assert.equal(json.status, 0);
-		  assert.equal(json.instances.length, 0);
+		  assert.equal(json.instances.length, 110);
 	  });
   });
 }); 
