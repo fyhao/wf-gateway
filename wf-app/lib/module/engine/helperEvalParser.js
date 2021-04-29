@@ -95,8 +95,9 @@ var searchBrackets = function(block) {
 	var result = [];
 	var temp = '';
 	function whileeval() {
-		temp = findBrackets(block);
-		return temp.indexOf('{{') == 0 && temp.lastIndexOf('}}') == temp.length - 2;
+        temp = findBrackets(block);
+        var x = temp.lastIndexOf('}}');
+		return temp.indexOf('{{') == 0 && x !== -1 && x === temp.length - 2;
 	}
 	while(whileeval()) {
 		block = block.replace(temp, '');
