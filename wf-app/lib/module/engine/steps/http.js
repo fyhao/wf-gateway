@@ -13,7 +13,10 @@ module.exports = {
 		if(typeof step.headers !== 'undefined') {
 			var _headers = step.headers;
 			if(typeof step.headers == 'string') {
-				_headers = ctx.vars[step.headers];
+				// 1) check if json first, if not, then treat it as variable name
+				try { JSON.parse(step.headers) } catch (e) {
+					_headers = ctx.vars[step.headers];
+				}
 			}
 			frequestObj.headers = _headers;
 		}
