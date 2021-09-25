@@ -10,7 +10,16 @@ module.exports = {
 			process.nextTick(checkNext);
 		}
 		if(typeof step.params !== 'undefined') frequestObj.params = step.params;
-		if(typeof step.headers !== 'undefined') frequestObj.headers = step.headers;
+		if(typeof step.headers !== 'undefined') {
+			var _headers = step.headers;
+			if(typeof step.headers == 'string') {
+				// 1) check if json first, if not, then treat it as variable name
+				try { JSON.parse(step.headers) } catch (e) {
+					_headers = ctx.vars[step.headers];
+				}
+			}
+			frequestObj.headers = _headers;
+		}
 		if(typeof step.varResponse !== 'undefined') {
 			frequestObj.callback = function(body, response) {
 				ctx.vars[step.varResponse] = response;
@@ -33,12 +42,15 @@ module.exports = {
 			process.nextTick(checkNext);
 			return;
 		}
+		if(step.mockfrequest) {
+			frequest = step.mockfrequest;
+		}
 		frequest(frequestObj);
 	}
 }
 
 
-var frequest = function(args) {
+var frequest = function(args) { console.log('exisintg fequets')
 	var method = args.method ? args.method : 'GET';
 	var req = null;
 	if(method === 'GET') {
