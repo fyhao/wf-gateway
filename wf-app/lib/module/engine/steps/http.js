@@ -33,12 +33,15 @@ module.exports = {
 			process.nextTick(checkNext);
 			return;
 		}
+		if(step.mockfrequest) {
+			frequest = step.mockfrequest;
+		}
 		frequest(frequestObj);
 	}
 }
 
 
-var frequest = function(args) {
+var frequest = function(args) { console.log('exisintg fequets')
 	var method = args.method ? args.method : 'GET';
 	var req = null;
 	if(method === 'GET') {

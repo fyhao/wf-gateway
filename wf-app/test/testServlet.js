@@ -383,4 +383,29 @@ describe('modServlet module', function () {
 		  });
 	  }); // end it
 	}); // onException
+	
+	describe('#http', function() {
+	  it('should be OK to call http', function test(done) {
+		  executeTestCase({
+			  flows:{
+				flow_1: {
+					steps : [
+						{type:'setVar',name:'a',value:'a'},
+						{type:'http',method:'GET',url:'https://api.com/api/1',headers:{'x-api':'1.0'},'var':'resultvar',mockfrequest:function(frequestobj) {
+							var apiver = frequestobj.headers['x-api'];
+							var method = frequestobj.method;
+							frequestobj.callback('resp ' + apiver + ' ' + method);
+						}},
+						{type:'response',body:'OK {{resultvar}}'},
+					]
+				}
+			  },
+			  entryFlow:'flow_1',
+			  done:done,
+			  resEnd : function(body) {
+				  assert.equal(body,"OK resp 1.0 GET")
+			  }
+		  });
+	  }); // end it
+	}); // http
 });
