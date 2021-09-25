@@ -10,7 +10,13 @@ module.exports = {
 			process.nextTick(checkNext);
 		}
 		if(typeof step.params !== 'undefined') frequestObj.params = step.params;
-		if(typeof step.headers !== 'undefined') frequestObj.headers = step.headers;
+		if(typeof step.headers !== 'undefined') {
+			var _headers = step.headers;
+			if(typeof step.headers == 'string') {
+				_headers = ctx.vars[step.headers];
+			}
+			frequestObj.headers = _headers;
+		}
 		if(typeof step.varResponse !== 'undefined') {
 			frequestObj.callback = function(body, response) {
 				ctx.vars[step.varResponse] = response;
