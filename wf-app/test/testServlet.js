@@ -2,11 +2,11 @@ var assert = require('assert');
 var modServlet = require('../lib/module/engine/modServlet');
 var eventMgr = {};
 describe('modServlet module', function () {
-	var executeTestCase = function(opts) {
-	  var appItem = {
-			app:'test',
-			flows:opts.flows
-		}
+        var executeTestCase = function(opts) {
+          var appItem = {
+                        app:'test',
+                        flows:opts.flows
+                }
 		var appLi = { flow: opts.entryFlow};
 		var req = {
 			query : opts.requestParams,
@@ -31,8 +31,9 @@ describe('modServlet module', function () {
 			}
 		}
 		modServlet._injectUnitTest({apps:[appItem]});
-		var handler = modServlet.createHandler(eventMgr, appItem, appLi);
-		handler(req, res);
+                var handler = modServlet.createHandler(eventMgr, appItem, appLi);
+                handler(req, res);
+                return res;
   }
   describe('createHandler', function() {
 	  it('should be able to get response for simple handler', function test(done) {
@@ -220,26 +221,51 @@ describe('modServlet module', function () {
 		  });
 	  }); // end it
 	  
-	  it('should be OK to set response header', function test(done) {
-		  executeTestCase({
-			  flows:{
-				flow_1: {
-					steps : [
-						{type:'response',action:'setHeader',key:'statusCode',value:'404'},
-						{type:'response',action:'getHeader',key:'statusCode',var:'varCode'},
-						{type:'response',body:'the code is ##varCode##'},
-						
-					]
-				}
-			  },
-			  entryFlow:'flow_1',
-			  done:done,
-			  resEnd : function(body) {
-				  assert.equal(body,"the code is 404")
-			  }
-		  });
-	  }); // end it
-  });	
+          it('should be OK to set response header', function test(done) {
+                  executeTestCase({
+                          flows:{
+                                flow_1: {
+                                        steps : [
+                                                {type:'response',action:'setHeader',key:'statusCode',value:'404'},
+                                                {type:'response',action:'getHeader',key:'statusCode',var:'varCode'},
+                                                {type:'response',body:'the code is ##varCode##'},
+
+                                        ]
+                                }
+                          },
+                          entryFlow:'flow_1',
+                          done:done,
+                          resEnd : function(body) {
+                                  assert.equal(body,"the code is 404")
+                          }
+                  });
+          }); // end it
+
+          it('should be OK to stream audio file', function test(done) {
+                  var fs = require('fs');
+                  var path = require('path');
+                  var sample = path.join(__dirname, 'sample_audio.txt');
+                  fs.writeFileSync(sample, 'audio');
+                  var res = executeTestCase({
+                          flows:{
+                                flow_1: {
+                                        steps : [
+                                                {type:'response',action:'streamAudioFile',path:sample}
+                                        ]
+                                }
+                          },
+                          entryFlow:'flow_1',
+                          done:function(){
+                                  assert.equal(res.headers['Content-Type'],'audio/mpeg');
+                                  fs.unlinkSync(sample);
+                                  done();
+                          },
+                          resEnd : function(body) {
+                                  assert.equal(body.toString(),'audio');
+                          }
+                  });
+          }); // end it
+  });
 
 	describe('#subflow', function() {
 	  it('should be OK to call subflow', function test(done) {

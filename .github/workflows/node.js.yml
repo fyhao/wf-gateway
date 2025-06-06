@@ -28,20 +28,20 @@ jobs:
     - name: Test wf-control
       run: |
         cd wf-control
-        npm install
+        npm install --ignore-scripts
         npm test
     - name: Test wf-app
       run: |
         cd wf-app
-        npm install
+        npm install --ignore-scripts
         npm test
     - name: Test wf-admin
       run: |
         cd wf-admin
-        npm install
+        npm install --ignore-scripts
         npm test
     - name: Test e2e
       run: |
         cd e2e
-        npm install
+        npm install --ignore-scripts
         npm test
