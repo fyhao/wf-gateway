@@ -1,5 +1,10 @@
 var mssql = require('mssql');
 var mysql = require('mysql');
+var oracledb = null;
+
+module.exports._setOracle = function(lib) {
+        oracledb = lib;
+}
 
 module.exports.query = function(opts) {
 	_query(opts);
@@ -12,12 +17,15 @@ var _query = function(opts) {
 	if(type === 'mssql') {
 		process_mssql(opts);
 	}
-	else if(type === 'mysql') {
-		process_mysql(opts);
-	}
-	else {
-		process.nextTick(opts.checkNext);
-	}
+       else if(type === 'mysql') {
+               process_mysql(opts);
+       }
+       else if(type === 'oracle') {
+               process_oracle(opts);
+       }
+       else {
+               process.nextTick(opts.checkNext);
+       }
 }
 
 var process_mssql = function(opts) {
@@ -103,5 +111,49 @@ var process_mysql = function(opts) {
 		process.nextTick(checkNext);
 	});
 
-	connection.end();
+       connection.end();
+}
+
+var process_oracle = function(opts) {
+        if(!oracledb) {
+                try {
+                        oracledb = require('oracledb');
+                } catch(e) {
+                        console.log('oracledb module not available');
+                        if(opts.checkNext) process.nextTick(opts.checkNext);
+                        return;
+                }
+        }
+        var ctx = opts.ctx;
+        var dbConfig = opts.cfg;
+        var sql = opts.sql;
+        var rs = opts.recordsets;
+        var checkNext = opts.checkNext;
+        var fields = opts.fields || [];
+        oracledb.getConnection(dbConfig, function(err, connection) {
+                if(err) {
+                        console.log(err);
+                        if(checkNext) process.nextTick(checkNext);
+                        return;
+                }
+                connection.execute(sql, fields, { outFormat: oracledb.OUT_FORMAT_OBJECT }, function(err, result) {
+                        if(err) {
+                                console.log(err);
+                        } else {
+                                ctx.results = result.rows;
+                                if(rs && rs.length && result.rows) {
+                                        result.rows.forEach(function(row) {
+                                                rs.forEach(function(j) {
+                                                        if(typeof row[j] !== 'undefined' && ctx.vars) {
+                                                                ctx.vars[j] = row[j];
+                                                        }
+                                                });
+                                        });
+                                }
+                        }
+                        connection.close(function() {
+                                if(checkNext) process.nextTick(checkNext);
+                        });
+                });
+        });
 }
