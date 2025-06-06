@@ -1,5 +1,6 @@
 var DataStore = ProjRequire('./lib/data-store.js');
 var modServlet = ProjRequire('./lib/module/engine/modServlet');
+var cronManager = ProjRequire('lib/cronManager');
 var dataStore = new DataStore();
 var mod = {
 	deploy : function(req, res) {
@@ -94,11 +95,12 @@ var mod = {
 						
 					}
 				});
-				registeredApps = conf.apps;
+                                registeredApps = conf.apps;
+                                registerCronFromApps();
 			}
 			else if(conf.action == 'deployAppStatus') {
-				registeredApps.forEach(function(appItem) {
-					var changed = false;
+                                registeredApps.forEach(function(appItem) {
+                                        var changed = false;
 					if(appItem.app == conf.app) {
 						if(appItem.status != conf.status) {
 							changed = true;
@@ -129,27 +131,30 @@ var mod = {
 							}
 						});
 					}
-				});
-			}
-			else if(conf.action == 'deployAppFlow') {
-				registeredApps.forEach(function(appItem) {
-					var changed = false;
-					if(appItem.app == conf.app) {
-						appItem.flows[conf.flow] = conf.flowObj;
-						eventMgr.trigger('flowUpdated', {app:conf.app});
-					}
-				});
-			}
-			else if(conf.action == 'deployAppFlows') {
-				registeredApps.forEach(function(appItem) {
-					var changed = false;
-					if(appItem.app == conf.app) {
-						appItem.flows = conf.flows;
-						eventMgr.trigger('flowUpdated', {app:conf.app});
-					}
-				});
-			}
-			else if(conf.action == 'deployApp') {
+                                });
+                                registerCronFromApps();
+                        }
+                        else if(conf.action == 'deployAppFlow') {
+                                registeredApps.forEach(function(appItem) {
+                                        var changed = false;
+                                        if(appItem.app == conf.app) {
+                                                appItem.flows[conf.flow] = conf.flowObj;
+                                                eventMgr.trigger('flowUpdated', {app:conf.app});
+                                        }
+                                });
+                                registerCronFromApps();
+                        }
+                        else if(conf.action == 'deployAppFlows') {
+                                registeredApps.forEach(function(appItem) {
+                                        var changed = false;
+                                        if(appItem.app == conf.app) {
+                                                appItem.flows = conf.flows;
+                                                eventMgr.trigger('flowUpdated', {app:conf.app});
+                                        }
+                                });
+                                registerCronFromApps();
+                        }
+                        else if(conf.action == 'deployApp') {
 				registeredApps.forEach(function(appItem) {
 					var changed = false;
 					if(appItem.app == conf.app) {
@@ -178,10 +183,11 @@ var mod = {
 							}
 						});
 					}
-				});
-			}
-		});
-	}
+                                });
+                                registerCronFromApps();
+                        }
+                });
+        }
 }
 var createHandler = function(eventMgr, appItem, appLi) {
 	return modServlet.createHandler(eventMgr, appItem, appLi);
@@ -237,7 +243,12 @@ var triggerFlow = function(flows, flow) {
 	ctx.createFlowEngine(flow).execute(function() {});
 }
 var registeredEndpoints = [];
-var registerApps = null;
+var registeredApps = null;
+var registerCronFromApps = function() {
+        cronManager.register(registeredApps, function(appItem, appLi){
+                triggerFlow(appItem.flows, appLi.flow);
+        });
+};
 var EventManager = function() {
 	var listeners = [];
 	this.init = function() {

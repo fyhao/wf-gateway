@@ -4,3 +4,4 @@ global.ProjRequire = function(module) {
 }
 require('./testmain.js');
 require('./testServlet.js');
+require('./testCron.js');
