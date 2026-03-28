@@ -1,5 +1,6 @@
 var DataStore = ProjRequire('./lib/data-store.js');
 var modServlet = ProjRequire('./lib/module/engine/modServlet');
+var cron = require('node-cron');
 var dataStore = new DataStore();
 var mod = {
 	deploy : function(req, res) {
@@ -77,6 +78,10 @@ var mod = {
 					}
 				})
 				registeredEndpoints = [];
+				// stop all existing cron jobs
+				while(registeredCronJobs.length > 0) {
+					registeredCronJobs.pop().task.stop();
+				}
 				// register endpoints
 				conf.apps.forEach(function(appItem) {
 					if(appItem.status == 'enabled') {
@@ -89,6 +94,9 @@ var mod = {
 							else if(appLi.type == 'app_init') {
 								// trigger app_init lifecycle
 								triggerFlow(appItem.flows, appLi.flow);
+							}
+							else if(appLi.type == 'cron') {
+								scheduleCronListener(appItem, appLi);
 							}
 						});
 						
@@ -116,9 +124,13 @@ var mod = {
 								// trigger app_init lifecycle
 								triggerFlow(appItem.flows, appLi.flow);
 							}
+							else if(appLi.type == 'cron') {
+								scheduleCronListener(appItem, appLi);
+							}
 						});
 					}
 					else if(changed && appItem.status == 'disabled') {
+						stopCronJobsForApp(appItem.app);
 						appItem.listeners.forEach(function(appLi) {
 							for(var i = app._router.stack.length - 1; i >= 0; i--) {
 								var r = app._router.stack[i].route;
@@ -155,6 +167,8 @@ var mod = {
 					if(appItem.app == conf.app) {
 						appItem.flows = conf.flows;
 						appItem.listeners = conf.listeners;
+						//unregister cron jobs for this app
+						stopCronJobsForApp(appItem.app);
 						//unregister
 						appItem.listeners.forEach(function(appLi) {
 							for(var i = app._router.stack.length - 1; i >= 0; i--) {
@@ -175,6 +189,9 @@ var mod = {
 							else if(appLi.type == 'app_init') {
 								// trigger app_init lifecycle
 								triggerFlow(appItem.flows, appLi.flow);
+							}
+							else if(appLi.type == 'cron') {
+								scheduleCronListener(appItem, appLi);
 							}
 						});
 					}
@@ -237,6 +254,7 @@ var triggerFlow = function(flows, flow) {
 	ctx.createFlowEngine(flow).execute(function() {});
 }
 var registeredEndpoints = [];
+var registeredCronJobs = []; // {appName, listenerFlow, task}
 var registerApps = null;
 var EventManager = function() {
 	var listeners = [];
@@ -262,5 +280,27 @@ var EventManager = function() {
 	}
 }
 var eventMgr = new EventManager();
+
+var scheduleCronListener = function(appItem, appLi) {
+	try {
+		var task = cron.schedule(appLi.cron, function() {
+			console.log('cron triggered: app=' + appItem.app + ' flow=' + appLi.flow + ' cron=' + appLi.cron);
+			triggerFlow(appItem.flows, appLi.flow);
+		});
+		registeredCronJobs.push({appName: appItem.app, listenerFlow: appLi.flow, task: task});
+		console.log('register cron: app=' + appItem.app + ' flow=' + appLi.flow + ' cron=' + appLi.cron);
+	} catch(e) {
+		console.error('failed to schedule cron listener: app=' + appItem.app + ' flow=' + appLi.flow + ' cron=' + appLi.cron + ' error=' + e.message);
+	}
+}
+
+var stopCronJobsForApp = function(appName) {
+	for(var i = registeredCronJobs.length - 1; i >= 0; i--) {
+		if(registeredCronJobs[i].appName === appName) {
+			registeredCronJobs[i].task.stop();
+			registeredCronJobs.splice(i, 1);
+		}
+	}
+}
 
 module.exports = mod;

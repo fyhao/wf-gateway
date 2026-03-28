@@ -49,6 +49,7 @@ var validateListener = function(listener) {
 	var status = -1;
 	if(status == -1) status = checkListenerHttp(listener);
 	if(status == -1) status = checkListenerAppLifecycle(listener);
+	if(status == -1) status = checkListenerCron(listener);
 	if(status == -1) status = checkListenerDummy(listener); // any other listeners type extend here like this way
 	if(status == -1) status = ERROR.INVALIDTYPE;
 	return status;
@@ -69,6 +70,12 @@ var checkListenerAppLifecycle = function(listener) {
 	if(listener.type != 'app_init') return -1;
 	return 0;
 }
+var checkListenerCron = function(listener) {
+	if(listener.type != 'cron') return -1;
+	if(!listener.cron || typeof listener.cron !== 'string' || listener.cron.trim() == '') return ERROR.INVALIDCRONEXPRESSION;
+	if(!isValidCronExpression(listener.cron)) return ERROR.INVALIDCRONEXPRESSION;
+	return 0;
+}
 var checkListenerDummy = function(listener) {
 	return -1;
 }
@@ -77,6 +84,54 @@ var checkListenerDummy = function(listener) {
 var isNotAllowedMethod = function(method) {
 	var allowed = ['GET','POST','PUT','DELETE'];
 	return allowed.indexOf(method) == -1;
+}
+var isValidCronExpression = function(expr) {
+	// Validate standard 5-field cron expression: min hour dom month dow
+	var parts = expr.trim().split(/\s+/);
+	if(parts.length !== 5) return false;
+	var ranges = [
+		{min:0, max:59},  // minute
+		{min:0, max:23},  // hour
+		{min:1, max:31},  // day of month
+		{min:1, max:12},  // month
+		{min:0, max:7}    // day of week (0 and 7 both = Sunday)
+	];
+	for(var i = 0; i < 5; i++) {
+		if(!isValidCronField(parts[i], ranges[i].min, ranges[i].max)) return false;
+	}
+	return true;
+}
+var isValidCronField = function(field, min, max) {
+	if(field === '*') return true;
+	// handle step values like */5 or 1-5/2
+	if(field.indexOf('/') !== -1) {
+		var stepParts = field.split('/');
+		if(stepParts.length !== 2) return false;
+		var step = parseInt(stepParts[1], 10);
+		if(isNaN(step) || step < 1) return false;
+		field = stepParts[0];
+		if(field === '*') return true;
+	}
+	// handle range values like 1-5
+	if(field.indexOf('-') !== -1) {
+		var rangeParts = field.split('-');
+		if(rangeParts.length !== 2) return false;
+		var lo = parseInt(rangeParts[0], 10);
+		var hi = parseInt(rangeParts[1], 10);
+		return !isNaN(lo) && !isNaN(hi) && lo >= min && hi <= max && lo <= hi;
+	}
+	// handle list values like 1,3,5
+	if(field.indexOf(',') !== -1) {
+		var listParts = field.split(',');
+		for(var j = 0; j < listParts.length; j++) {
+			var val = parseInt(listParts[j], 10);
+			if(isNaN(val) || val < min || val > max) return false;
+		}
+		return true;
+	}
+	// single number
+	var num = parseInt(field, 10);
+	return !isNaN(num) && num >= min && num <= max;
 }
 var isInvalidEndpoint = function(endpoint) {
 	if(endpoint == null || endpoint.trim() == '') return true;
@@ -114,6 +169,7 @@ var ERROR = {
 	INVALIDREQUESTPARAMTYPE : 104,
 	INVALIDREQUESTHEADERCONDITION : 105,
 	INVALIDREQUESTHEADERTYPE : 106,
-	INVALIDTYPE : 107
+	INVALIDTYPE : 107,
+	INVALIDCRONEXPRESSION : 108
 };
 module.exports = mod;

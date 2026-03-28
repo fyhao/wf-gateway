@@ -702,6 +702,33 @@ describe('listeners module', function () {
 		  assert.equal(json.status, 107);
 	  });
   });
+  
+  // cron listener tests
+  var testCronListener = function(testDesc, cronExpr, expectedStatus) {
+	  it('should return status ' + expectedStatus + ' after create new cron listener with ' + testDesc, function test() {
+		var listener =  {
+			type : 'cron',
+			cron : cronExpr,
+			flow : 'flow_1'
+		};
+		return request(server)
+		  .post('/app/test/listener')
+		  .send({listener:listener})
+		  .expect(200)
+		  .expect(function(res) {
+			  var json = JSON.parse(res.text);
+			  assert.equal(json.status, expectedStatus);
+		  });
+	  });
+  }
+  testCronListener('every minute', '* * * * *', 0);
+  testCronListener('every 5 minutes', '*/5 * * * *', 0);
+  testCronListener('specific time', '30 8 * * 1', 0);
+  testCronListener('range', '0 9-17 * * *', 0);
+  testCronListener('list', '0 8,12,16 * * *', 0);
+  testCronListener('empty cron expression', '', 108);
+  testCronListener('invalid cron expression (wrong fields count)', '* * * *', 108);
+  testCronListener('invalid cron expression (bad value)', '60 * * * *', 108);
 }); 
 
 describe('instance module', function () {
