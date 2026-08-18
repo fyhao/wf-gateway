@@ -39,6 +39,12 @@ describe('loading express', function () {
       .get('/foo/bar')
       .expect(404, done);
   });
+
+  it('app server honours an explicit port', function test(done) {
+    var customPortServer = require('../../wf-app/server', { bustCache: true })({port: 0});
+    assert.notEqual(customPortServer.address().port, 8081);
+    customPortServer.close(done);
+  });
 });
 
 describe('e2e test - control server push configuration to app server', function () {
@@ -1443,4 +1449,4 @@ describe('e2e test - control server push configuration to app server', function 
 		  });
 	  });
   });
-}); 
+});
