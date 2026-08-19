@@ -62,19 +62,9 @@ class FlowEditor extends Component {
 		  
 		  var flowName = evt.flowName;
 		  var flowObj = evt.flowObj;
-		  /*
-		  1. Get this app
-		  2. Get instances id of this app
-		  3. For each instance, deploy single flow to, this app, flow
-		  */
 		  var app = this.props.app;
 		  this.getInstancesForApp(app, function(instances) {
-			  instances.map((instance,i) => {
-				  var instance_id = instance.id;
-				  me.deployAppSingleFlowToInstance(instance_id, app, flowName, flowObj, (status) => {
-					  alert('Deployed status: ' + status);
-				  });
-			  });
+			  me.setState({deployFlowName:flowName, deployFlowObj:flowObj, deployInstances:instances, selectedInstanceIds:instances.map((instance) => instance.id)});
 		  });
 	  }
   }
@@ -144,8 +134,24 @@ class FlowEditor extends Component {
 	  flows[flowName] = flowObj;
 	  this.setState({flows:flows})
   }
+  toggleDeployInstance(instanceId) {
+	  var selected = this.state.selectedInstanceIds.slice();
+	  var index = selected.indexOf(instanceId);
+	  if(index === -1) selected.push(instanceId); else selected.splice(index, 1);
+	  this.setState({selectedInstanceIds:selected});
+  }
+  deploySelectedInstances() {
+	  var me = this;
+	  var selected = this.state.selectedInstanceIds;
+	  this.state.deployInstances.filter((instance) => selected.indexOf(instance.id) !== -1).forEach((instance) => {
+		  me.deployAppSingleFlowToInstance(instance.id, me.props.app, me.state.deployFlowName, me.state.deployFlowObj, function() {});
+	  });
+	  this.setState({deployInstances:[], selectedInstanceIds:[]});
+  }
   state = {
-	 flows:{}
+	 flows:{},
+	 deployInstances:[],
+	 selectedInstanceIds:[]
   }
   
   
@@ -167,6 +173,14 @@ class FlowEditor extends Component {
 				<FlowStepsPanel />
 			  </Col>
 		</Row>
+		{this.state.deployInstances.length > 0 && <Row><Col sm="12"><Card><CardBody>
+			<CardTitle>Deploy flow to selected instances</CardTitle>
+			{this.state.deployInstances.map((instance) => <FormGroup check key={instance.id}><Label check>
+				<Input type="checkbox" checked={this.state.selectedInstanceIds.indexOf(instance.id) !== -1} onChange={() => this.toggleDeployInstance(instance.id)} /> {instance.name}
+			</Label></FormGroup>)}
+			<Button color="primary" onClick={() => this.deploySelectedInstances()} disabled={this.state.selectedInstanceIds.length === 0}>Deploy Selected</Button>
+			<Button color="secondary" onClick={() => this.setState({deployInstances:[],selectedInstanceIds:[]})}>Cancel</Button>
+		</CardBody></Card></Col></Row>}
 		</Container>
 	  </div>
 	  
