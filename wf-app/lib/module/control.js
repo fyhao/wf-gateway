@@ -1,5 +1,6 @@
 var DataStore = ProjRequire('./lib/data-store.js');
 var modServlet = ProjRequire('./lib/module/engine/modServlet');
+var cronManager = ProjRequire('lib/cronManager');
 var dataStore = new DataStore();
 var mod = {
 	deploy : function(req, res) {
@@ -180,6 +181,7 @@ var mod = {
 					}
 				});
 			}
+			registerCronFromApps();
 		});
 	}
 }
@@ -238,6 +240,12 @@ var triggerFlow = function(flows, flow) {
 }
 var registeredEndpoints = [];
 var registerApps = null;
+var registeredApps = null;
+var registerCronFromApps = function() {
+	cronManager.register(registeredApps, function(appItem, listener) {
+		triggerFlow(appItem.flows, listener.flow);
+	});
+};
 var EventManager = function() {
 	var listeners = [];
 	this.init = function() {
