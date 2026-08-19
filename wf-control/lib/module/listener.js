@@ -49,6 +49,7 @@ var validateListener = function(listener) {
 	var status = -1;
 	if(status == -1) status = checkListenerHttp(listener);
 	if(status == -1) status = checkListenerAppLifecycle(listener);
+	if(status == -1) status = checkListenerCron(listener);
 	if(status == -1) status = checkListenerDummy(listener); // any other listeners type extend here like this way
 	if(status == -1) status = ERROR.INVALIDTYPE;
 	return status;
@@ -67,6 +68,12 @@ var checkListenerHttp = function(listener) {
 }
 var checkListenerAppLifecycle = function(listener) {
 	if(listener.type != 'app_init') return -1;
+	return 0;
+}
+var checkListenerCron = function(listener) {
+	if(listener.type != 'cron') return -1;
+	if(typeof listener.expression != 'string' || listener.expression.trim() == '') return ERROR.CRONEXPRESSIONINVALID;
+	if(typeof listener.flow != 'string' || listener.flow.trim() == '') return ERROR.CRONFLOWINVALID;
 	return 0;
 }
 var checkListenerDummy = function(listener) {
@@ -114,6 +121,8 @@ var ERROR = {
 	INVALIDREQUESTPARAMTYPE : 104,
 	INVALIDREQUESTHEADERCONDITION : 105,
 	INVALIDREQUESTHEADERTYPE : 106,
-	INVALIDTYPE : 107
+	INVALIDTYPE : 107,
+	CRONEXPRESSIONINVALID : 108,
+	CRONFLOWINVALID : 109
 };
 module.exports = mod;
