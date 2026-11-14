@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import AppList from './AppList';
+import LogsPage from './LogsPage';
 import InstanceList from './InstanceList';
 import ExportPage from './ExportPage';
 import MonitorPage from './MonitorPage';
@@ -41,6 +42,7 @@ class Dashboard extends Component {
 			<NavButton onClick={() => {ee.emit('navigatePage',{page:<InstanceList />})}} title="Instance"/>
 			<NavButton onClick={() => {ee.emit('navigatePage',{page:<ExportPage />})}} title="Export/Import"/>
 			<NavButton onClick={() => {ee.emit('navigatePage',{page:<MonitorPage />})}} title="Monitor"/>
+            <NavButton onClick={() => {ee.emit('navigatePage',{page:<LogsPage />})}} title="Logs"/>
 		</NavBar>
 		</Col>
           <Col sm="10">
@@ -51,7 +53,7 @@ class Dashboard extends Component {
 	);
 	}
 	state = {
-	  currentPage : <ExportPage />
+	  currentPage : <AppList />
 	  //currentPage : <FlowEditor app="test" />
 	}
 }

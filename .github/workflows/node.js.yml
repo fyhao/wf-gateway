@@ -1,47 +1,34 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
 name: Node.js CI
-
 on:
   push:
-    branches: [ master ]
+    branches: [main, master]
   pull_request:
-    branches: [ master ]
-
+    branches: [main, master]
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+        node-version: [22.x, 24.x]
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: Test wf-control
-      run: |
-        cd wf-control
-        npm install --ignore-scripts
-        npm test
-    - name: Test wf-app
-      run: |
-        cd wf-app
-        npm install --ignore-scripts
-        npm test
-    - name: Test wf-admin
-      run: |
-        cd wf-admin
-        npm install --ignore-scripts
-        npm test
-    - name: Test e2e
-      run: |
-        cd e2e
-        npm install --ignore-scripts
-        npm test
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install backend dependencies
+        run: |
+          npm ci --prefix wf-control --ignore-scripts
+          npm ci --prefix wf-app --ignore-scripts
+          npm ci --prefix e2e --ignore-scripts
+      - name: Test backends and end-to-end flows
+        run: |
+          npm test --prefix wf-control
+          npm test --prefix wf-app
+          npm test --prefix e2e
+      - name: Install and test admin
+        run: |
+          npm ci --prefix wf-admin --ignore-scripts --legacy-peer-deps
+          CI=true npm test --prefix wf-admin -- --watchAll=false --runInBand
+      - name: Build admin
+        # Bootstrap 4 emits an upstream color-adjust deprecation warning.
+        run: CI=false npm run build --prefix wf-admin

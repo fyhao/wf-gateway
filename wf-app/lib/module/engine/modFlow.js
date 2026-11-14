@@ -41,29 +41,43 @@ var FlowEngine = function(flow) {
 	this.canceled = false;
 	
 	this.execute = function(done) {
+        var outputRequested = done.length === 1;
+        var callback = done;
+        ctx._flowDepth = (ctx._flowDepth || 0) + 1;
+        var completed = false;
+        done = function(result) {
+            if (completed) return;
+            completed = true;
+            ctx._flowDepth--;
+            callback(result);
+        };
+        if (ctx._flowDepth > 64) {
+            ctx._error = new Error('Maximum nested workflow depth exceeded');
+            process.nextTick(done); return;
+        }
 		var me = this;
 		var steps = this.flow.steps;
 		if(steps && steps.length) {
 			var curStep = -1;
 			var checkNext = function() {
+                if (ctx._error) { process.nextTick(done); return; }
 				curStep++;
 				if(curStep < steps.length) {
 					try {
 						processStep(steps[curStep], checkNext);
 					} catch (e) {
-						if(typeof me.flow.onException != 'undefined') {
-							if(typeof me.flow.onException == 'string') {
-								if(typeof ctx.flows[me.flow.onException] != 'undefined') {
-									new FlowEngine(ctx.flows[me.flow.onException]).setContext(ctx).setInputVars(steps[curStep]).execute(function() {
-										process.nextTick(done);
-									});
-								}
-							}
-						}
-					}
+                        ctx._error = e;
+                        if (typeof me.flow.onException === 'string' && ctx.flows && ctx.flows[me.flow.onException]) {
+                            ctx.vars.workflowError = e.message;
+                            delete ctx._error;
+                            new FlowEngine(ctx.flows[me.flow.onException]).setContext(ctx).setInputVars(steps[curStep]).execute(function() {
+                                process.nextTick(done);
+                            });
+                        } else process.nextTick(done);
+                    }
 				}
 				else {
-					if(done.length == 1) {
+					if(outputRequested) {
 						process.nextTick(function() {
 							var outputVars = {};
 							for(var i in ctx.vars) {
@@ -132,7 +146,7 @@ var FlowEngine = function(flow) {
 		//console.log(JSON.stringify(step)); 
 		// search ctx.flows if any
 		if(typeof ctx.flows != 'undefined') {
-			var flow = ctx.flows[step.type];
+			var flow = Object.prototype.hasOwnProperty.call(ctx.flows, step.type) ? ctx.flows[step.type] : undefined;
 			//console.log('search flow ' + step.type + " = " + (typeof flow));
 			if(typeof flow != 'undefined') {
 				new FlowEngine(flow).setContext(ctx).setInputVars(step).execute(function() {

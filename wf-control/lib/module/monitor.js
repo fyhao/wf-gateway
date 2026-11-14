@@ -1,5 +1,5 @@
 var DataStore = ProjRequire('./lib/data-store.js');
-var unirest = require('unirest');
+var unirest = require('../http-client');
 var mod = {
 	_dataStore : new DataStore(),
 	info : function(req, res) {
@@ -25,7 +25,8 @@ setInterval(function() {
 			};
 			var deploy_endpoint = instance.host + '/control/deploy';
 			unirest.post(deploy_endpoint)
-			       .send({conf:JSON.stringify(conf)})
+			       .headers(process.env.WF_RUNTIME_TOKEN ? {Authorization:'Bearer ' + process.env.WF_RUNTIME_TOKEN} : {})
+                   .timeout(5000).send({conf:JSON.stringify(conf)})
 				   .end(function(appResponse) {
 					   var ret = {status:0,appResponse:appResponse.body};
 					   try {
@@ -33,10 +34,10 @@ setInterval(function() {
 						   data.instance_id = id;
 						   data.host = instance.host;
 						   if(instance.monHistory == 'true') {
-						       dataStore.addMonitorHistoricalData({item:data});
+						       mod._dataStore.addMonitorHistoricalData({item:data});
 						   }
 						   if(instance.monRealtime == 'true') {
-							   dataStore.updateMonitorRealtimeData({item:data});
+							   mod._dataStore.updateMonitorRealtimeData({item:data});
 						   }
 					   } catch (e) {
 						   
@@ -44,8 +45,8 @@ setInterval(function() {
 				   })
 		}
 	});
-}, 60000);
+}, 60000).unref();
 setInterval(function() {
 	mod._dataStore.clearMonitorHistoricalData();
-}, 86400000);
+}, 86400000).unref();
 module.exports = mod;

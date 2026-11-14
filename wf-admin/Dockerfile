@@ -1,19 +1,11 @@
-FROM node:carbon
-
-# Create app directory
+FROM node:22-bookworm-slim AS build
 WORKDIR /usr/src/app
-
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
 COPY package*.json ./
-
-RUN npm install
-# If you are building your code for production
-# RUN npm install --only=production
-
-# Bundle app source
+RUN npm ci --ignore-scripts --legacy-peer-deps
 COPY . .
-
-EXPOSE 3000
-CMD [ "npm", "start" ]
+ARG REACT_APP_API_URL=http://localhost:8080
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+RUN npm run build
+FROM nginx:alpine
+COPY --from=build /usr/src/app/build /usr/share/nginx/html
+EXPOSE 80

@@ -45,10 +45,8 @@ var util = {
 	}
 	,
 	replaceAll : function(s, n,v) {
-		while(s.indexOf(n) != -1) {
-			s = s.replace(n,v);
-		}
-		return s;
+		// Literal replacement in one pass: replacement data may contain the token itself.
+		return n ? s.split(n).join(String(v)) : s;
 	}
 };
 

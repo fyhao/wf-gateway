@@ -13,10 +13,12 @@ class FlowEditor extends Component {
 	  this.onFlowEditor = this.onFlowEditor.bind(this);
   }
   componentWillMount() {
+      this.active = true;
 	  this.requestFlows()
 	  ee.on('flowEditor', this.onFlowEditor)
   }
   componentWillUnmount() {
+      this.active = false;
 	  ee.off('flowEditor', this.onFlowEditor)
   }
   onFlowEditor(evt) {
@@ -112,7 +114,7 @@ class FlowEditor extends Component {
 			if(typeof flows == 'undefined') {
 				flows = {}
 			}
-			me.setState({flows:flows});
+			if (me.active) me.setState({flows:flows});
 		})
   }
   syncFlows(flows) {

@@ -5,6 +5,9 @@ function createServer(opts) {
 	const express = require('express')
 	const bodyParser = require('body-parser');
 	const app = express()
+	const uploadOptions = { directory: opts.uploadDirectory || process.env.WF_UPLOAD_DIR, maxBytes: opts.uploadMaxBytes || 5 * 1024 * 1024 };
+	app.use(express.raw({ type: 'application/octet-stream', limit: uploadOptions.maxBytes }));
+	app.use((req, res, next) => { req.uploadOptions = uploadOptions; next(); });
 	app.use(bodyParser.urlencoded({ extended: true }))
 	app.use(bodyParser.json())
 
@@ -15,9 +18,11 @@ function createServer(opts) {
 	app.get('/', (req, res) => res.send('Hello World!'))
 
 	const router = ProjRequire('./lib/router');
-	router(app);
+	router(app, opts);
 
+	app.use((err, req, res, next) => res.status(err.status || 500).json({error: err.status === 413 ? 'UPLOAD_TOO_LARGE' : 'REQUEST_FAILED'}));
 	var server = app.listen(port, () => console.log('wf-app server listening on port ' + port + '!'))
+	server.on('close', () => require('./lib/cronManager').clearJobs());
 	return server;
 
 }

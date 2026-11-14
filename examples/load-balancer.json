@@ -1,0 +1,103 @@
+{
+  "appData": [
+    {
+      "name": "LB",
+      "description": "Round-robin gateway demo"
+    },
+    {
+      "name": "backend",
+      "description": "Two backend runtimes"
+    }
+  ],
+  "flowData": {
+    "LB": {
+      "main": {
+        "steps": [
+          {
+            "type": "loadBalance",
+            "backends": [
+              "http://localhost:8082",
+              "http://localhost:8083"
+            ],
+            "var": "backend"
+          },
+          {
+            "type": "http",
+            "url": "{{backend}}/home",
+            "method": "GET",
+            "var": "result"
+          },
+          {
+            "type": "response",
+            "body": "{{result}}"
+          }
+        ]
+      }
+    },
+    "backend": {
+      "main": {
+        "steps": [
+          {
+            "type": "response",
+            "body": "Backend response"
+          }
+        ]
+      }
+    }
+  },
+  "listenerData": {
+    "LB": [
+      {
+        "id": 1,
+        "type": "http",
+        "endpoint": "/home",
+        "method": "GET",
+        "flow": "main"
+      }
+    ],
+    "backend": [
+      {
+        "id": 2,
+        "type": "http",
+        "endpoint": "/home",
+        "method": "GET",
+        "flow": "main"
+      }
+    ]
+  },
+  "instanceData": [
+    {
+      "id": 1,
+      "name": "LB",
+      "host": "http://localhost:8081"
+    },
+    {
+      "id": 2,
+      "name": "backend1",
+      "host": "http://localhost:8082"
+    },
+    {
+      "id": 3,
+      "name": "backend2",
+      "host": "http://localhost:8083"
+    }
+  ],
+  "appInstanceMappingData": [
+    {
+      "app": "LB",
+      "instance_id": 1,
+      "status": "enabled"
+    },
+    {
+      "app": "backend",
+      "instance_id": 2,
+      "status": "enabled"
+    },
+    {
+      "app": "backend",
+      "instance_id": 3,
+      "status": "enabled"
+    }
+  ],
+  "global_id": 3
+}

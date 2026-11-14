@@ -1,4 +1,4 @@
-var unirest = require('unirest');
+var unirest = require('../../../http-client');
 module.exports = {
 	process : function(ctx, step, checkNext) {
 		if(typeof step.method === 'undefined') step.method = 'GET';
@@ -42,23 +42,16 @@ module.exports = {
 			process.nextTick(checkNext);
 			return;
 		}
-		if(step.mockfrequest) {
-			frequest = step.mockfrequest;
-		}
-		frequest(frequestObj);
+		(step.mockfrequest || frequest)(frequestObj);
 	}
 }
 
 
-var frequest = function(args) { console.log('exisintg fequets')
+var frequest = function(args) {
 	var method = args.method ? args.method : 'GET';
-	var req = null;
-	if(method === 'GET') {
-		req = unirest.get(args.url);
-	}
-	else if(method === 'POST') {
-		req = unirest.post(args.url);
-	}
+	var factory = unirest[method.toLowerCase()];
+	if (!factory) { if (args.errorCallback) args.errorCallback(new Error('Unsupported HTTP method')); return; }
+	var req = factory(args.url);
 	if(args.headers) {
 		if(typeof args.headers == 'string') {
 			try {
@@ -73,6 +66,7 @@ var frequest = function(args) { console.log('exisintg fequets')
 		req.send(args.params);
 	}
 	req.end(function(resp) {
+		if(resp.error) { if(args.errorCallback) args.errorCallback(resp.error); return; }
 		if(args.callback) {
 			var body = resp.body;
 			/*
@@ -101,7 +95,7 @@ var frequest = function(args) { console.log('exisintg fequets')
 					json = resp.body;
 				}
 				*/
-				if(args.callback.length == 2) {
+				if(args.callbackJSON.length == 2) {
 					args.callbackJSON(json, resp);
 				}
 				else {

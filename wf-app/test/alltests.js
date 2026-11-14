@@ -6,3 +6,5 @@ require('./testmain.js');
 require('./testServlet.js');
 require('./testDbLib.js');
 require('./testCron.js');
+
+require('./testMaintenance');

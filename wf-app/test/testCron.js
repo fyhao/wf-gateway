@@ -18,7 +18,7 @@ describe('cron manager', function() {
 	});
 	it('recognises five- and six-field cron expressions', function() {
 		assert.ok(cronManager._matches('*/1 * * * * *', new Date()));
-		assert.ok(cronManager._matches('* * * * *', new Date()));
+		assert.ok(cronManager._matches('* * * * *', new Date(2026, 0, 1, 12, 30, 0)));
 		assert.equal(cronManager._matches('invalid', new Date()), false);
 	});
 });

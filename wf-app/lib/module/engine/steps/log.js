@@ -1,20 +1,13 @@
+const logs = require('../../../log-store');
 module.exports = {
-	
-	process : function(ctx, step, next) {
-		if(typeof step.log != 'undefined') {
-			console.log("LOG: " + new Date().toString() + ": " + step.log);
-		}
-		else if(typeof step.dumpSystemLog != 'undefined') {
-			if(typeof ctx._logs != 'undefined') {
-				var logs = ctx._logs;
-				var msg = '';
-				for(var i = 0; i < logs.length; i++) {
-					msg += logs[i] + '\n';
-				}
-				alert(msg);
-				ctx._logs = [];
-			}
-		}
-		process.nextTick(next);
-	}
-}
+  process: function(ctx, step, next) {
+    if (typeof step.log !== 'undefined') {
+      const row = logs.append({ app: ctx.app, flow: ctx.flow, message: step.log });
+      if (ctx._logs) ctx._logs.push(row.message);
+    } else if (step.dumpSystemLog) {
+      ctx.vars[step.var || 'systemLog'] = (ctx._logs || []).join('\n');
+      ctx._logs = [];
+    }
+    process.nextTick(next);
+  }
+};

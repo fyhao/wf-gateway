@@ -9,7 +9,9 @@ var createHandler = function(eventMgr, appItem, appLi) {
 		//appItem.flows
 		//appLi.flow (string)
 		createContext(appItem.app, req, res).then(function(ctx) {
+			ctx.flow = appLi.flow;
 			ctx.createFlowEngine(appLi.flow).execute(function() {
+                if (ctx._error && !res.headersSent && res.status) res.status(500).json({error:'WORKFLOW_EXECUTION_FAILED'});
 				eventMgr.trigger('flowExecutedDone', {ctx:ctx});
 				if(typeof analytic.flows[appLi.flow] == 'undefined') {
 					analytic.flows[appLi.flow] = 0;
@@ -29,6 +31,7 @@ var createContext = function(app, req, res) {
 				if(appItem.app == app) {
 					flows = appItem.flows;
 					var ctx = {}; // context object
+					ctx.app = app;
 					ctx.req = req;
 					ctx.res = res;
 					ctx.flows = flows;

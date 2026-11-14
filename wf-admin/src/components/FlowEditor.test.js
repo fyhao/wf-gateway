@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import FlowEditor from './FlowEditor';
 
-jest.mock('axios', () => jest.fn(() => Promise.resolve({data:{flows:{},instances:[]}})));
+jest.mock('axios', () => { const mock = jest.fn(() => Promise.resolve({data:{flows:{},instances:[]}})); mock.interceptors = {request:{use:jest.fn()},response:{use:jest.fn()}}; return mock; });
+
+beforeEach(() => axios.mockImplementation(() => Promise.resolve({data:{flows:{},instances:[]}})));
 
 it('renders the flow editor without automatically deploying to every instance', () => {
   const div = document.createElement('div');

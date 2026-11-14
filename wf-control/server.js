@@ -7,33 +7,14 @@ function createServer(opts) {
 	const app = express()
 	app.use(bodyParser.urlencoded({ extended: true }))
 	app.use(bodyParser.json())
-	app.use(function timeLog (req, res, next) {
-	  if(req.method == 'OPTIONS') {
-		  next();
-		  return;
-	  }
-	  console.log('start request------------------------------');
-	  console.log('req.originalUrl: ' + req.originalUrl);
-	  console.log('req.method:'+req.method)
-	  console.log('req.params: ' + JSON.stringify(req.params));
-	  console.log('req.body: ' + JSON.stringify(req.body));
-	  console.log('req.query: ' + JSON.stringify(req.query));
-	 
-	  next()
-	  var oldSend = res.send;
-	  res.send = function(data){
-			// arguments[0] (or `data`) contains the response body
-			console.log('res: ' + arguments[0])
-			oldSend.apply(res, arguments);
-		}
-	  console.log('end request-------------------------------');
-	})
 	app.use(function(req, res, next) {
 	  res.header("Access-Control-Allow-Origin", "*");
 	  res.header("Access-Control-Allow-Methods", "*");
-	  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 	  next();
 	});
+	app.options('*', (req, res) => res.sendStatus(204));
+	require('./lib/auth').install(app, opts.auth);
 	var path = require('path');
 	global.ProjRequire = function(module) {
 		return require(path.join(__dirname, '/' + module)); 

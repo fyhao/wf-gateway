@@ -31,6 +31,8 @@ var mod = {
 		var app = req.params.name;
 		var id = req.params.id;
 		var listener = req.body.listener;
+		var status = validateListener(listener);
+		if (status !== 0) return res.json({status:status});
 		mod._dataStore.updateListener({app:app,id:id,listener:listener}).then(function() {
 			res.json({status:0});
 		});
@@ -46,6 +48,7 @@ var mod = {
 
 // business validation
 var validateListener = function(listener) {
+	if (!listener || typeof listener !== 'object') return ERROR.INVALIDTYPE;
 	var status = -1;
 	if(status == -1) status = checkListenerHttp(listener);
 	if(status == -1) status = checkListenerAppLifecycle(listener);
@@ -67,7 +70,8 @@ var checkListenerHttp = function(listener) {
 	return errorStatus;
 }
 var checkListenerAppLifecycle = function(listener) {
-	if(listener.type != 'app_init') return -1;
+	if(['app_init', 'deploy.init', 'deploy.done', 'app.init', 'app.destroy'].indexOf(listener.type) === -1) return -1;
+	if(typeof listener.flow !== 'string' || !listener.flow.trim()) return ERROR.CRONFLOWINVALID;
 	return 0;
 }
 var checkListenerCron = function(listener) {
